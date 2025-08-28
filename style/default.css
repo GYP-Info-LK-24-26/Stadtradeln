@@ -1,0 +1,9 @@
+:root {
+    /*This has to be set to enable default dark/light mode*/
+    color-scheme: light dark;
+}
+
+body {
+    color: light-dark(#222222, #E0E0E0);
+    background-color: light-dark(#FFFFFF, #121212);
+}
