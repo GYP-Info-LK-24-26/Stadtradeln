@@ -3,7 +3,9 @@ const TosLink = "";
 const LoginLink = "login.php";
 const LOGGED_IN_PAGE = "dashboard.php";
 
-require_once "util/session_check.php";
+session_start();
+
+//require_once "util/session_check.php";
 
 // Include config file
 require_once "util/db.php";
@@ -28,6 +30,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if(empty($login_err)) {
         $emailCheck = SQLSelector::isEmailRegistered($submitted_values["email"]);
+        echo $emailCheck;
         if($emailCheck !== false){
             $login_err = "Email is already registered";
         }else if($login_err !== true){
@@ -35,10 +38,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         }
 
         if (empty($login_err)) {
-            $userData = new ComplexUserData();
+            $userData = new ComplexUserData(-1,$submitted_values["username"],-1,0);
             $userData->firstName = $submitted_values["first_name"];
             $userData->lastName = $submitted_values["last_name"];
-            $userData->username = $submitted_values["username"];
             $userData->password = $submitted_values["password"];
             $userData->email = $submitted_values["email"];
 

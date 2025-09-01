@@ -21,7 +21,7 @@ require_once "util/db.php";
 
 $login_err = $email = $password = "";
 
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+if($_SERVER["REQUEST_METHOD"] === "POST"){
 
     // Check if email is empty
     if(empty(trim($_POST["email"]))){
@@ -105,7 +105,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 
 
-            <p>Don't have an account? <a href="<?php SIGN_UP_PAGE ?>">Sign up now</a>.</p>
+            <p>Don't have an account? <a href="<?php echo SIGN_UP_PAGE . (isset($_GET["redirect"])?"?redirect=" . $_GET["redirect"]:"") ?>">Sign up now</a>.</p>
         </form>
     </div>
 </body>

@@ -8,13 +8,13 @@ $toursData = "";
 $totalDistance = 0;
 foreach ($tours as $tour) {
     $totalDistance += $tour->distance;
-    $toursData .= "<li>" . $tour->tourID . "," . $tour->date . "," . $tour->distance . "</li>";
+    $toursData .= sprintf("<li>\n <span class=\"small-right\">%s km</span> \n <span class=\"small\">%s</span> \n</li>",$tour->distance,$tour->date);
 }
 
 $teamName = SQLSelector::getTeamName($_SESSION["teamID"]);
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-    if($_POST["type"] == "newTour" && !empty(trim($_POST["distance"]) && !empty(trim($_POST["date"])))){
+    if($_POST["type"] === "newTour" && !empty(trim($_POST["distance"]) && !empty(trim($_POST["date"])))){
         SQLSelector::insertTour(trim($_POST["distance"]),trim($_POST["date"]));
         header("Location: fuckPHP/tourInserter.php");
     }
@@ -26,9 +26,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <title>Dashbord</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="style/default.css">
+    <link rel="stylesheet" href="style/popup.css">
+    <link rel="stylesheet" href="style/list.css">
+    <link rel="stylesheet" href="style/nav.css">
 </head>
 <body>
-
+    <?php require_once "util/nav.php" ?>
     <div style="text-align: center;">
         <div id="userDisplay">
             <p><?php echo "User: " . $_SESSION["username"] . "#" . $_SESSION["id"] ?></p>
@@ -36,33 +39,46 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         <div id="tourDisplay">
             <p><?php echo "Gesamte Kilometer " . $totalDistance ?></p>
-            <ul>
+            <span class="button" onclick="tourAdd()">Tour hinzufügen</span>
+            <ul class="stat-list">
                 <?php echo $toursData; ?>
             </ul>
-        </div>
 
-        <div id="newTour">
-            <form method="post" id="newTourForm">
-                <input type="hidden" name="type" id="type" value="newTour" onsubmit="return checkSubmit()"/>
-
-                <label for="date">Date</label>
-                <input type="date" id="date" name="date"/>
-
-                <label for="distance">Distance</label>
-                <input type="number" id="distance" name="distance" min="0"/>
-
-                <input type="submit" value="Add">
-            </form>
-
-            <script type="javascript">
-                function checkSubmit(){
-                    const date = document.forms["newTourForm"]["date"];
-                    const distance = document.forms["newTourForm"]["distance"];
-                    const type = document.forms["newTourForm"]["type"];
-
-                    return !(date === null || date === "" || distance === null || distance === "" || type !== "newTour");
+            <script>
+                function tourAdd(){
+                    document.getElementById("popup").style.display = "block";
                 }
             </script>
+        </div>
+
+        <div class="popup-overlay" id="popup">
+            <div class="popup" id="newTour">
+                <form method="post" id="newTourForm" onsubmit="return checkSubmit()">
+                    <input type="hidden" name="type" id="type" value="newTour"/>
+
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date"/><br>
+
+                    <label for="distance">Distance</label>
+                    <input type="number" step="0.1" id="distance" name="distance" min="0"/><br>
+
+                    <input type="submit" value="Add">
+                </form>
+
+                <script type="javascript">
+                    function checkSubmit(){
+                        const date = document.forms["newTourForm"]["date"];
+                        const distance = document.forms["newTourForm"]["distance"];
+                        const type = document.forms["newTourForm"]["type"];
+
+                        return !(date === null || date === "" || distance === null || distance === "" || type !== "newTour");
+                    }
+
+                    function tourRem(){
+                        document.getElementById("popup").style.display = "none";
+                    }
+                </script>
+            </div>
         </div>
     </div>
 
