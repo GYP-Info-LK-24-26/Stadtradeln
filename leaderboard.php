@@ -4,29 +4,34 @@ require_once "util/session_check.php";
 
 require_once "util/db.php";
 
-$type = !isset($_GET["type"])?"global":$_GET["type"];
-$teamID = !isset($_GET["teamID"])?-1:$_GET["teamID"];
-//$viewType = !isset($_GET["view"])?"users":($_GET["view"] === "users"?"users":"teams");
-$viewUsers = !isset($_GET["view"]) || $_GET["view"] !== "teams";
+$teamID = -1;
+$viewUsers = false;
 
-if($type === "global")$teamID = -1;
+if(isset($_GET["type"])){
+    if($_GET["type"] === "team"){
+        $teamID = $_SESSION["teamID"];
+        $viewUsers = true;
+    }else if($_GET["type"] === "all"){
+        $viewUsers = true;
+    }
+}
 
 $teamString = "";
-$index = 0;
+$userString = "";
 
-if($viewUsers) {
+    $index = 0;
     $teamMembers = SQLSelector::getTeamMembersFull($teamID);
     foreach ($teamMembers as $teamMember) {
         $index++;
-        $teamString .= sprintf("<li> \n <span class=\"name\">%s</span> \n <span class=\"big\">#%s</span> \n <span class=\"small\">%skm</span> \n </li>", $teamMember->userName, $index, $teamMember->totalDistance);
+        $userString .= sprintf("<li> \n <span class=\"name\">%s</span> \n <span class=\"big\">#%s</span> \n <span class=\"small\">%skm</span> \n </li>", $teamMember->userName, $index, $teamMember->totalDistance);
     }
-}else{
+
+    $index = 0;
     $teams = SQLSelector::getTeamsFull();
     foreach ($teams as $team) {
         $index++;
         $teamString .= sprintf("<li> \n <span class=\"name\">%s</span> \n <span class=\"big\">#%s</span> \n <span class=\"small\">%skm</span> \n </li>", $team->teamName, $index, $team->teamTotalDistance);
     }
-}
 
 ?>
 
@@ -41,11 +46,32 @@ if($viewUsers) {
 </head>
 <body>
     <?php require_once "util/nav.php" ?>
-    <ul class="stat-list">
-        <li>
-            <span class="name"><?php echo $viewUsers?"Username":"Team" ?></span>
+    <ul class="stat-list" id="switch">
+        <li >
+            <span style="cursor: pointer"  class="name"><?php echo $viewUsers?"Username":"Team" ?></span>
             <span class="big">Rank</span>
         </li>
-        <?php echo $teamString; ?>
     </ul>
+
+    <ul id="leaderboard" class="stat-list" style="margin-top: 0.75rem">
+            <?php echo ($viewUsers?$userString:$teamString); ?>
+    </ul>
+
+    <script type="javascript">
+        let viewUsers = <?php echo $viewUsers?"true":"false" ?>;
+        let userString = <?php echo $userString ?>;
+        let teamString = <?php echo $teamString ?>;
+
+        document.getElementById("switch").addEventListener("click", function(e){
+            console.log("Test");
+            viewUsers = !viewUsers;
+            if(viewUsers){
+                document.getElementById("leaderboard").innerHTML = userString;
+                //params.set("type","all")
+            }else{
+                document.getElementById("leaderboard").innerHTML = teamString;
+                //params.set("type","global")
+            }
+        });
+    </script>
 </body>

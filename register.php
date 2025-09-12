@@ -30,7 +30,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if(empty($login_err)) {
         $emailCheck = SQLSelector::isEmailRegistered($submitted_values["email"]);
-        echo $emailCheck;
         if($emailCheck !== false){
             $login_err = "Email is already registered";
         }else if($login_err !== true){
@@ -88,27 +87,27 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <form id="register_form" name="register" onsubmit="return validateForm()" method="post" required>
             <div class="form-group">
                 <label for="email" >E-mail</label>
-                <input type="email" name="email" id="email" class="form-control" value="">
+                <input type="email" name="email" id="email" class="form-control" value="" autocomplete="username">
             </div>
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" class="form-control" value="">
+                <input type="text" id="username" name="username" class="form-control" value="" autocomplete="off">
             </div>
             <div class="form-group">
                 <label for="first_name">First Name</label>
-                <input type="text" id="first_name" name="first_name" class="form-control" value="">
+                <input type="text" id="first_name" name="first_name" class="form-control" value="" autocomplete="off">
             </div>
             <div class="form-group">
                 <label for="last_name">Last Name</label>
-                <input type="text" id="last_name" name="last_name" class="form-control" value="">
+                <input type="text" id="last_name" name="last_name" class="form-control" value="" autocomplete="off">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-control" value="">
+                <input type="password" id="password" name="password" class="form-control" value="" autocomplete="new-password">
             </div>
             <div class="form-group">
                 <label for="password_confirm">Confirm Password</label>
-                <input type="password" id="password_confirm" name="confirm_password" class="form-control" value="">
+                <input type="password" id="password_confirm" name="confirm_password" class="form-control" value="" autocomplete="off">
             </div>
 
             <p id="reg_err"><?php echo  $login_err?></p>

@@ -80,6 +80,7 @@ foreach ($teams as $team) {
             <span style="cursor: pointer" onclick="createTeamOverlay()">Create Team</span><br>
             <label style="display: none" for="teamSearch">Search Team</label>
             <input type="text" id="teamSearch" placeholder="team" oninput="searchF()">
+            <p><?php echo $err ?></p>
             <form method="post" id="joinTeam">
                 <input type="hidden" name="team_name" id="team_name"/>
                 <ul style="text-align: left" id="teamList" class="stat-list click-list">
@@ -107,7 +108,6 @@ foreach ($teams as $team) {
                     </form>
             </div>
         </div>
-        <p><?php echo $err ?></p>
         <script>
             let createTeam = <?php echo $createTeam?"true":"false" ?>;
             updateCreateOverlay();

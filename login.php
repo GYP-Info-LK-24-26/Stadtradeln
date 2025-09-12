@@ -87,11 +87,11 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
         <form name="loginForm" onsubmit="return validateForm()" method="post" required>
             <div class="from-group">
                 <label for="email">E-mail</label>
-                <input id="email" type="email" name="email" value="<?php echo $email; ?>" >
+                <input id="email" type="email" name="email" value="<?php echo $email; ?>" autocomplete="username">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input id="password" type="password" name="password">
+                <input id="password" type="password" name="password" autocomplete="current-password">
                 <!--<span class="invalid-feedback"><?php //echo $login_err; ?></span>!-->
             </div>
 

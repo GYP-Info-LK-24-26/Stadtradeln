@@ -33,7 +33,7 @@ class SQLSelector
         if ($stmt = mysqli_prepare($link, $sql)) {
             mysqli_stmt_bind_param($stmt, "sssss", $param_username, $param_password, $param_firstName, $param_lastName, $param_email);
             $param_username = $userData->userName;
-            $param_username = $userData->password;
+            $param_password = password_hash($userData->password.$userData->email, PASSWORD_DEFAULT);
             $param_firstName = $userData->firstName;
             $param_lastName = $userData->lastName;
             $param_email = $userData->email;

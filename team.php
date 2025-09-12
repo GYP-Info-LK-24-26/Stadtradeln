@@ -38,7 +38,7 @@ if($_SESSION["teamID"] !== -1) {
     <div style="text-align: center;">
         <div id="teamOverview">
             <p>Ihr Team hat <?php echo $totalDistance?> kilometer <br> in <?php echo $totalTours ?> Touren gesamelt <br> mit einem schnitt von <?php echo $avgTourDistance ?> km/tour</p>
-            <p>Team: (<?php echo count($teamMembers)?> Mitglieder)</p>
+            <span>Team (<?php echo count($teamMembers)?> Mitglieder) <a href="leaderboard.php?type=team">Zum team ranking</a></span>
             <ul class="stat-list" id="teamMembers"><?php echo $teamString; ?></ul>
         </div>
         <div id="noTeam" style="display: none">
