@@ -18,8 +18,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if(empty($submitted_values["username"])){
         $login_err = "Username is required";
-    }else if(SQLSelector::isInvalidString($submitted_values["username"])){
-        $login_err = "Name may not include < or >";
     }else if(empty($submitted_values["password"])){
         $login_err = "Password is required";
     }else if(empty($submitted_values["email"])){
@@ -39,7 +37,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         }
 
         if (empty($login_err)) {
-            $userData = new ComplexUserData(-1,$submitted_values["username"],-1,0);
+            $userData = new ComplexUserData(-1,trim(htmlspecialchars($submitted_values["username"])),-1,0);
             $userData->firstName = $submitted_values["first_name"];
             $userData->lastName = $submitted_values["last_name"];
             $userData->password = $submitted_values["password"];
@@ -119,8 +117,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="reset" class="btn btn-secondary ml-2" value="Reset">
                 <input type="button" onclick="window.location.href = '/'" class="btn btn-danger ml-3" value="Cancel">
             </div>
-            <p>By pressing submit you agree to the <a href=<?php TosLink ?>> Terms of usage</a>.</p>
-            <p>Already have an account? <a href=<?php LoginLink ?>>Login here</a>.</p>
+            <p>By pressing submit you agree to the <a href=<?php echo TosLink ?>> Terms of usage</a>.</p>
+            <p>Already have an account? <a href=<?php echo LoginLink ?>>Login here</a>.</p>
             <!--<button onclick="validateForm()" type="button">Test</button>!-->
         </form>
 

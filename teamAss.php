@@ -16,9 +16,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             $err = "Internal Error";
         } else if (empty(trim($_POST["team_name"]))) {
             $err = "Please enter a team name.";
-        }else if(SQLSelector::isInvalidString($_POST["team_name"])){
-            $err = "Name may not include < or >";
-        } else {
+        }else {
             if($_SESSION["teamID"] != -1){
                 $err = "You are already in a team.";
             }else{
@@ -30,7 +28,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                     if ($teamExists) {
                         $err = "Team already exists.";
                     } else {
-                        $createTeamCheck = SQLSelector::createTeam(trim($_POST["team_name"]));
+                        $createTeamCheck = SQLSelector::createTeam(trim(htmlspecialchars($_POST["team_name"])));
                         if ($createTeamCheck !== true) {
                             $err = $createTeamCheck;
                         }

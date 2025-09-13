@@ -407,8 +407,4 @@ class SQLSelector
 
         return null;
     }
-
-    public static function isInvalidString($str): bool {
-        return preg_match('/^[\"\'&<>]*$/', $str);
-    }
 }
