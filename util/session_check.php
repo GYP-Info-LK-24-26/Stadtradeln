@@ -12,5 +12,5 @@ if($_SESSION["last_activity"] + maxTime < time()) {
 
 if(session_status() !== PHP_SESSION_ACTIVE || !isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("Location: login.php?redirect=" . $_SERVER["REQUEST_URI"]);
-    return;
+    die("User not logged in.");
 }

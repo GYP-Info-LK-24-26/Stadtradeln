@@ -16,8 +16,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             $err = "Internal Error";
         } else if (empty(trim($_POST["team_name"]))) {
             $err = "Please enter a team name.";
-        }else if(!ctype_alnum($_POST["team_name"])){
-            $err = "Team name must be alphanumeric.";
+        }else if(SQLSelector::isInvalidString($_POST["team_name"])){
+            $err = "Name may not include < or >";
         } else {
             if($_SESSION["teamID"] != -1){
                 $err = "You are already in a team.";
