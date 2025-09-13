@@ -7,6 +7,12 @@ require_once "util/db.php";
 $teamID = -1;
 $viewUsers = false;
 
+/*      View types:
+ *      team: show team member ranking
+ *      all: show all member ranking
+ *      global/unset: show teams
+ */
+
 if(isset($_GET["type"])){
     if($_GET["type"] === "team"){
         $teamID = $_SESSION["teamID"];
@@ -20,7 +26,7 @@ $teamString = "";
 $userString = "";
 
     $index = 0;
-    $teamMembers = SQLSelector::getTeamMembersFull($teamID);
+    $teamMembers = SQLSelector::getTeamMembersFull($teamID, $_GET["page"] ?? 0);
     foreach ($teamMembers as $teamMember) {
         $index++;
         $userString .= sprintf("<li> \n <span class=\"name\">%s</span> \n <span class=\"big\">#%s</span> \n <span class=\"small\">%skm</span> \n </li>", $teamMember->userName, $index, $teamMember->totalDistance);
@@ -43,12 +49,14 @@ $userString = "";
     <link rel="stylesheet" href="/style/team.css">
     <link rel="stylesheet" href="/style/list.css">
     <link rel="stylesheet" href="style/nav.css">
+
+
 </head>
 <body>
     <?php require_once "util/nav.php" ?>
-    <ul class="stat-list" id="switch">
+    <ul class="stat-list" id="switch" style="cursor: pointer"  onclick="changeType()">
         <li >
-            <span style="cursor: pointer"  class="name"><?php echo $viewUsers?"Username":"Team" ?></span>
+            <span class="name"><?php echo $viewUsers?"Username":"Team" ?></span>
             <span class="big">Rank</span>
         </li>
     </ul>
@@ -57,21 +65,23 @@ $userString = "";
             <?php echo ($viewUsers?$userString:$teamString); ?>
     </ul>
 
-    <script type="javascript">
+    <script>
         let viewUsers = <?php echo $viewUsers?"true":"false" ?>;
-        let userString = <?php echo $userString ?>;
-        let teamString = <?php echo $teamString ?>;
 
-        document.getElementById("switch").addEventListener("click", function(e){
-            console.log("Test");
-            viewUsers = !viewUsers;
-            if(viewUsers){
-                document.getElementById("leaderboard").innerHTML = userString;
-                //params.set("type","all")
+        function changeType(){
+            let url = new URL(window.location.href);
+            if(!url.searchParams.has("type") || url.searchParams.get("type") === "global") {
+                url.searchParams.set("type", "team");
             }else{
-                document.getElementById("leaderboard").innerHTML = teamString;
-                //params.set("type","global")
+                if(url.searchParams.get("type") === "team"){
+                    url.searchParams.set("type", "all");
+                }else{
+                    url.searchParams.set("type", "global");
+                }
             }
-        });
+
+            window.location.replace(url);
+        }
+
     </script>
 </body>

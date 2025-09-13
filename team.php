@@ -8,6 +8,7 @@ $totalDistance = 0;
 $totalTours = 0;
 $avgTourDistance = 0.0;
 $teamMembers = array();
+$displayString = "";
 if($_SESSION["teamID"] !== -1) {
     $team = SQLSelector::getTeam($_SESSION["teamID"]);
     if($team !== null) {
@@ -22,6 +23,11 @@ if($_SESSION["teamID"] !== -1) {
             $teamString .= sprintf("<li>\n <span class=\"name\">%s</span>\n</li>",$teamMember->userName);
         }
     }
+    $displayString = '<p>Ihr Team hat ' . $totalDistance .' kilometer <br> in ' . $totalTours . ' Touren gesamelt <br> mit einem schnitt von ' .$avgTourDistance . ' km/tour</p>
+            <span>Team (' . count($teamMembers) . ' Mitglieder) <a href="leaderboard.php?type=team">Zum team ranking</a></span>
+            <ul class="stat-list" id="teamMembers">' . $teamString .' </ul>';
+}else{
+    $displayString = "Sie sind nicht in einem Team";
 }
 ?>
 <!DOCTYPE html>
@@ -37,9 +43,7 @@ if($_SESSION["teamID"] !== -1) {
     <?php require_once "util/nav.php" ?>
     <div style="text-align: center;">
         <div id="teamOverview">
-            <p>Ihr Team hat <?php echo $totalDistance?> kilometer <br> in <?php echo $totalTours ?> Touren gesamelt <br> mit einem schnitt von <?php echo $avgTourDistance ?> km/tour</p>
-            <span>Team (<?php echo count($teamMembers)?> Mitglieder) <a href="leaderboard.php?type=team">Zum team ranking</a></span>
-            <ul class="stat-list" id="teamMembers"><?php echo $teamString; ?></ul>
+            <?php echo $displayString?>
         </div>
         <div id="noTeam" style="display: none">
             <p>Sie sind nicht mitglied eines teams</p>

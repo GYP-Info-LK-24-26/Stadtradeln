@@ -316,17 +316,22 @@ class SQLSelector
         return $teams;
     }
 
-    public static function getTeamMembersFull(int $teamID): ArrayObject{
+    public static function getTeamMembersFull(int $teamID,int $page): ArrayObject{
         require_once "dbConfig.php";
         $link = getConnection();
 
         $teams = new ArrayObject();
         $sql = "SELECT  users.id,  users.username,  COALESCE(SUM(tours.distance),0) AS totalDistance FROM users LEFT JOIN tours ON users.id = tours.userID ";
         if($teamID !== -1) $sql .= "WHERE teamID = ? ";
+        else $sql .= "LIMIT 20 OFFSET ?";
         $sql .= "GROUP BY users.id, users.username ORDER BY totalDistance DESC";
 
         if ($stmt = mysqli_prepare($link, $sql)) {
             if($teamID !== -1) mysqli_stmt_bind_param($stmt, "i", $teamID);
+            else{
+                $page *= 20;
+                mysqli_stmt_bind_param($stmt, "i", $page);
+            }
             if (mysqli_stmt_execute($stmt)) {
                 $results = mysqli_stmt_get_result($stmt);
                 while ($row = $results->fetch_assoc()) {

@@ -18,6 +18,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if(empty($submitted_values["username"])){
         $login_err = "Username is required";
+    }else if(!ctype_alnum($submitted_values["username"])){
+        $login_err = "Username has to be Alphanumeric";
     }else if(empty($submitted_values["password"])){
         $login_err = "Password is required";
     }else if(empty($submitted_values["email"])){

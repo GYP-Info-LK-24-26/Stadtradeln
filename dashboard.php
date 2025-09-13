@@ -40,7 +40,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         <div id="tourDisplay">
             <p><?php echo "Gesamte Kilometer " . $totalDistance ?></p>
-            <span class="button" onclick="tourAdd()">Tour hinzufügen</span>
+            <button class="button" onclick="tourAdd()">Tour hinzufügen</button>
             <ul class="stat-list">
                 <?php echo $toursData; ?>
             </ul>
@@ -54,6 +54,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         <div class="popup-overlay" id="popup">
             <div class="popup" id="newTour">
+                <span class="close" id="closePopup" onclick="tourRem()">&times;</span>
+                <script>
+                    function tourRem(){
+                        document.getElementById("popup").style.display = "none";
+                    }
+                </script>
                 <form method="post" id="newTourForm" onsubmit="return checkSubmit()">
                     <input type="hidden" name="type" id="type" value="newTour"/>
 
@@ -73,10 +79,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                         const type = document.forms["newTourForm"]["type"];
 
                         return !(date === null || date === "" || distance === null || distance === "" || type !== "newTour");
-                    }
-
-                    function tourRem(){
-                        document.getElementById("popup").style.display = "none";
                     }
                 </script>
             </div>
