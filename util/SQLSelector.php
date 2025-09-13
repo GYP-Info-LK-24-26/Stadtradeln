@@ -323,8 +323,8 @@ class SQLSelector
         $teams = new ArrayObject();
         $sql = "SELECT  users.id,  users.username,  COALESCE(SUM(tours.distance),0) AS totalDistance FROM users LEFT JOIN tours ON users.id = tours.userID ";
         if($teamID !== -1) $sql .= "WHERE teamID = ? ";
-        else $sql .= "LIMIT 20 OFFSET ?";
-        $sql .= "GROUP BY users.id, users.username ORDER BY totalDistance DESC";
+        $sql .= "GROUP BY users.id, users.username ORDER BY totalDistance DESC ";
+        if($teamID === -1)$sql .= "LIMIT 20 OFFSET ? ";
 
         if ($stmt = mysqli_prepare($link, $sql)) {
             if($teamID !== -1) mysqli_stmt_bind_param($stmt, "i", $teamID);
