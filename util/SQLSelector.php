@@ -17,10 +17,10 @@ class SQLSelector
                 mysqli_stmt_store_result($stmt);
                 return mysqli_stmt_num_rows($stmt) > 0;
             } else {
-                return "Something went wrong. Please try again later.";
+                return "Interner Fehler.";
             }
         } else {
-            return "Something went wrong. Please try again later.";
+            return "Interner Fehler.";
         }
     }
 
@@ -42,10 +42,10 @@ class SQLSelector
                 self::logIn(-1,$param_username,mysqli_insert_id($link));
                 return true;
             } else {
-                return "Something went wrong. Please try again later.";
+                return "Interner Fehler.";
             }
         } else {
-            return "Something went wrong. Please try again later.";
+            return "Interner Fehler.";
         }
     }
 
@@ -68,19 +68,19 @@ class SQLSelector
                             self::logIn($teamID, $username,$id);
                             return true;
                         }else{
-                            return "Wrong password.";
+                            return "Falsches Password.";
                         }
                     }else{
-                        return "Something went wrong. Please try again later.";
+                        return "Interner Fehler.";
                     }
                 }else{
-                    return "No account found with that email.";
+                    return "Dieser account existiert nicht.";
                 }
             }else{
-                return "Something went wrong. Please try again later.";
+                return "Interner Fehler.";
             }
         }else{
-            return "Something went wrong. Please try again later.";
+            return "Interner Fehler.";
         }
     }
 
@@ -107,10 +107,10 @@ class SQLSelector
             if (mysqli_stmt_execute($stmt)) {
                 return self::changeTeam($teamName);
             } else {
-                return "Something went wrong. Please try again later.";
+                return "Interner Fehler.";
             }
         } else {
-            return "Something went wrong. Please try again later.";
+            return "Interner Fehler.";
         }
     }
 
@@ -119,7 +119,7 @@ class SQLSelector
         $link = getConnection();
 
         $teamID = self::getTeamId($teamName);
-        if($teamID === false)return "This team doesn't exist.";
+        if($teamID === false)return "Dieses Team existiert nicht.";
         else if(is_string($teamID)){
             return $teamID;
         }
@@ -133,7 +133,7 @@ class SQLSelector
             }
         }
 
-        return "Something went wrong. Please try again later.";
+        return "Interner Fehler.";
     }
 
     public static function insertTour(float $distance,string $date): bool|string{
@@ -149,7 +149,7 @@ class SQLSelector
             }
         }
 
-        return "Something went wrong. Please try again later.";
+        return "Interner Fehler.";
     }
 
     public static function alterTour(int $tourID,int $distance,$date): bool|string{
@@ -164,7 +164,7 @@ class SQLSelector
             }
         }
 
-        return "Something went wrong. Please try again later.";
+        return "Interner Fehler.";
     }
 
     public static function getUserTours(): ArrayObject{
@@ -187,16 +187,16 @@ class SQLSelector
                     if(mysqli_stmt_fetch($stmt)){
                         return $teamName;
                     }else{
-                        return "Something went wrong. Please try again later.";
+                        return "Interner Fehler.";
                     }
                 }else{
-                    return "No account found with that email.";
+                    return "Dieses team existiert nicht.";
                 }
             }else{
-                return "Something went wrong. Please try again later.";
+                return "Interner Fehler.";
             }
         }else{
-            return "Something went wrong. Please try again later.";
+            return "Interner Fehler.";
         }
     }
 
@@ -224,16 +224,16 @@ class SQLSelector
                     if(mysqli_stmt_fetch($stmt)){
                         return $teamId;
                     }else{
-                        return "Something went wrong. Please try again later.";
+                        return "Interner Fehler.";
                     }
                 }else{
                     return false;
                 }
             }else{
-                return "Something went wrong. Please try again later.";
+                return "Interner Fehler.";
             }
         }else{
-            return "Something went wrong. Please try again later.";
+            return "Interner Fehler.";
         }
     }
 

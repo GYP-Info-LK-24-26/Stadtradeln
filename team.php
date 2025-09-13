@@ -20,7 +20,7 @@ if($_SESSION["teamID"] !== -1) {
 
 
         foreach ($teamMembers as $teamMember) {
-            $teamString .= sprintf("<li>\n <span class=\"name\">%s</span>\n</li>",$teamMember->userName);
+            $teamString .= sprintf("<li>\n <span class=\"name\">%s</span>\n</li>",$teamMember->userName . ($_SESSION["id"] === $teamMember->userID ? " (Du)":"") . ($teamMember->userID === $team->captainID?" (Captain)":""));
         }
     }
     $displayString = '<p>Ihr Team hat ' . $totalDistance .' kilometer <br> in ' . $totalTours . ' Touren gesamelt <br> mit einem schnitt von ' .$avgTourDistance . ' km/tour</p>

@@ -58,16 +58,16 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
             const password = document.forms["loginForm"]["password"].value;
 
             if(email == null && password == null){
-                document.getElementById("reg_err").innerHTML='You have to enter an Email and a Password';
+                document.getElementById("reg_err").innerHTML='Du must eine e-mail eingeben';
                 return false;
             }
             if (email === "" || email == null) {
-                document.getElementById("err").innerHTML='<div class="alert alert-danger"><a>You have to enter an Email</a></div>';
+                document.getElementById("err").innerHTML='<div class="alert alert-danger"><a>Du musst eine e-mail eingeben</a></div>';
                 document.getElementById("inv_err").innerHTML="";
                 return false;
             }
             if (password === "" || password == null) {
-                document.getElementById("reg_err").innerHTML='You have to enter a password';
+                document.getElementById("reg_err").innerHTML='Du must ein passwort eingeben';
                 return false;
             }
             if(email === "" && password === ""){

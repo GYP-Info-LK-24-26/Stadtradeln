@@ -17,21 +17,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $submitted_values = array_map("trim",$_POST);
 
     if(empty($submitted_values["username"])){
-        $login_err = "Username is required";
+        $login_err = "Du musst einen Benutzernamen eingeben";
     }else if(empty($submitted_values["password"])){
-        $login_err = "Password is required";
+        $login_err = "Du musst eine Password eingeben";
     }else if(empty($submitted_values["email"])){
-        $login_err = "Email is required";
+        $login_err = "Du musst eine e-mail eingeben";
     }else if(empty($submitted_values["first_name"])){
-        $login_err = "First name is required";
+        $login_err = "Du musst einen Vornamen eingeben";
     }else if(empty($submitted_values["last_name"])){
-        $login_err = "Last name is required";
+        $login_err = "Du musst einen Nachnamen eingeben";
     }
 
     if(empty($login_err)) {
         $emailCheck = SQLSelector::isEmailRegistered($submitted_values["email"]);
         if($emailCheck !== false){
-            $login_err = "Email is already registered";
+            $login_err = "Diese e-mail ist bereits registriert";
         }else if($login_err !== true){
             $login_err = $emailCheck;
         }
@@ -68,12 +68,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
             if(email == null || email === "" || username == null || username === "" || password == null || password === ""
                 || password_confirm == null || password_confirm === "" || firstName == null || firstName === "" || lastName == null || lastName === ""){
-                document.getElementById("err").innerHTML='You have to fill out every field';
+                document.getElementById("err").innerHTML='Jedes feld muss ausgefüllt sein';
                 return false;
             }
 
             if(password !== password_confirm){
-                document.getElementById("reg_err").innerHTML = 'Password and Password Confirm do not match';
+                document.getElementById("reg_err").innerHTML = 'Password und Password bestätigen müssen gleich sein';
                 return false;
             }
 
@@ -94,11 +94,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="text" id="username" name="username" class="form-control" value="" autocomplete="off">
             </div>
             <div class="form-group">
-                <label for="first_name">First Name</label>
+                <label for="first_name">Vorname</label>
                 <input type="text" id="first_name" name="first_name" class="form-control" value="" autocomplete="off">
             </div>
             <div class="form-group">
-                <label for="last_name">Last Name</label>
+                <label for="last_name">Nachname</label>
                 <input type="text" id="last_name" name="last_name" class="form-control" value="" autocomplete="off">
             </div>
             <div class="form-group">
@@ -106,7 +106,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="password" id="password" name="password" class="form-control" value="" autocomplete="new-password">
             </div>
             <div class="form-group">
-                <label for="password_confirm">Confirm Password</label>
+                <label for="password_confirm">Password bestätigen</label>
                 <input type="password" id="password_confirm" name="confirm_password" class="form-control" value="" autocomplete="off">
             </div>
 
@@ -117,8 +117,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="reset" class="btn btn-secondary ml-2" value="Reset">
                 <input type="button" onclick="window.location.href = '/'" class="btn btn-danger ml-3" value="Cancel">
             </div>
-            <p>By pressing submit you agree to the <a href=<?php echo TosLink ?>> Terms of usage</a>.</p>
-            <p>Already have an account? <a href=<?php echo LoginLink ?>>Login here</a>.</p>
+            <p>Durch dass drücken von "Erstellen" stimmen sie denn <a href=<?php echo TosLink ?>> Benutzungsbedingungen</a> zu.</p>
+            <p>Du hasst bereits ein account? <a href=<?php echo LoginLink ?>>Einlogen</a>.</p>
             <!--<button onclick="validateForm()" type="button">Test</button>!-->
         </form>
 

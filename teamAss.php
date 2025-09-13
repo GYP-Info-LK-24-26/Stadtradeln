@@ -11,14 +11,14 @@ $err = "";
 if($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($_SESSION["teamID"] != -1) {
-            $err = "You are already in a team.";
+            $err = "Du bisst schon in einem Team";
         }else if(!isset($_POST["team_name"])){
-            $err = "Internal Error";
+            $err = "Interner Fehler";
         } else if (empty(trim($_POST["team_name"]))) {
-            $err = "Please enter a team name.";
+            $err = "Du musst einen team namen eingeben";
         }else {
             if($_SESSION["teamID"] != -1){
-                $err = "You are already in a team.";
+                $err = "Du bisst schon in einem Team";
             }else{
                 $teamExists = SQLSelector::isTeamExistent(trim($_POST["team_name"]));
                 if(is_string($teamExists)) {
@@ -26,7 +26,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 if($createTeam) {
                     if ($teamExists) {
-                        $err = "Team already exists.";
+                        $err = "Es gibt bereits ein Team mit diesem name";
                     } else {
                         $createTeamCheck = SQLSelector::createTeam(trim(htmlspecialchars($_POST["team_name"])));
                         if ($createTeamCheck !== true) {
@@ -39,7 +39,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 }else{
                     if(!$teamExists){
-                        $err = "The Team does not exist.";
+                        $err = "Dieses Team existiert nicht";
                     }else {
                         $joinTeamCheck = SQLSelector::changeTeam(trim($_POST["team_name"]));
                         if ($joinTeamCheck !== true) {
@@ -77,8 +77,8 @@ foreach ($teams as $team) {
     <?php require_once "util/nav.php" ?>
     <div style="text-align: center">
         <div id="selector">
-            <span style="cursor: pointer" onclick="createTeamOverlay()">Create Team</span><br>
-            <label style="display: none" for="teamSearch">Search Team</label>
+            <span style="cursor: pointer" onclick="createTeamOverlay()">Team Erstellen</span><br>
+            <label style="display: none" for="teamSearch">Team Suchen</label>
             <input type="text" id="teamSearch" placeholder="team" oninput="searchF()">
             <p><?php echo $err ?></p>
             <form method="post" id="joinTeam">
@@ -92,19 +92,14 @@ foreach ($teams as $team) {
 
         <div class="popup-overlay" id="overlay">
             <div class="popup" id="creator">
-                <span class="close" style="text-align: right" id="closeBTN" onclick="cancelTeamCreate()">Close</span><br>
+                <span class="close" style="text-align: right" id="closeBTN" onclick="cancelTeamCreate()">Schließen</span><br>
                 <form method="post" name="createTeam" id="createTeam">
                     <input type="hidden" name="type" id="type" value="create"/>
 
                     <label for="team_name">Name</label><br>
                     <input type="text" id="team_name" name="team_name" placeholder="Team Name"/><br>
 
-                    <input class="button" type="submit" value="Create">
-
-                    <!--<input type="hidden" id="type" value="create">
-                    <label for="team_name">Team Name</label>
-                    <input type="text" id="team_name" placeholder="Team name">
-                    <input type="submit" value="Create Team">!-->
+                    <input class="button" type="submit" value="Erstellen">
                     </form>
             </div>
         </div>
