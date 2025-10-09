@@ -56,8 +56,8 @@ $userString = "";
     <?php require_once "util/nav.php" ?>
     <ul class="stat-list" id="switch" style="cursor: pointer"  onclick="changeType()">
         <li >
-            <span class="name"><?php echo $viewUsers?"Username":"Team" ?></span>
-            <span class="big">Rank</span>
+            <span class="name"><?php echo $viewUsers?"Benutzername":"Team" ?></span>
+            <span class="big">Rang</span>
         </li>
     </ul>
 
