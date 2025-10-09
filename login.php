@@ -25,14 +25,14 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
     // Check if email is empty
     if(empty(trim($_POST["email"]))){
-        $login_err = "Please enter email.";
+        $login_err = "Du musst eine E-Mail eingeben";
     } else{
         $email = trim($_POST["email"]);
     }
 
     // Check if password is empty
     if(empty(trim($_POST["password"]))){
-        $login_err = "Please enter your password.";
+        $login_err = "Du musst ein Passwort eingeben";
     } else{
         $password = trim($_POST["password"]);
     }
@@ -57,21 +57,12 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
             const email = document.forms["loginForm"]["email"].value;
             const password = document.forms["loginForm"]["password"].value;
 
-            if(email == null && password == null){
-                document.getElementById("reg_err").innerHTML='Du must eine e-mail eingeben';
+            if(email === ""){
+                document.getElementById("reg_err").innerHTML='Du musst eine E-Mail eingeben';
                 return false;
             }
-            if (email === "" || email == null) {
-                document.getElementById("err").innerHTML='<div class="alert alert-danger"><a>Du musst eine e-mail eingeben</a></div>';
-                document.getElementById("inv_err").innerHTML="";
-                return false;
-            }
-            if (password === "" || password == null) {
-                document.getElementById("reg_err").innerHTML='Du must ein passwort eingeben';
-                return false;
-            }
-            if(email === "" && password === ""){
-                document.getElementById("reg_err").innerHTML='You have to enter an Email and a Password';
+            if (password === "") {
+                document.getElementById("reg_err").innerHTML='Du musst ein Passwort eingeben';
                 return false;
             }
 
@@ -86,11 +77,11 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
         <form name="loginForm" onsubmit="return validateForm()" method="post" required>
             <div class="from-group">
-                <label for="email">E-mail</label>
+                <label for="email">E-Mail</label>
                 <input id="email" type="email" name="email" value="<?php echo $email; ?>" autocomplete="username">
             </div>
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">Passwort</label>
                 <input id="password" type="password" name="password" autocomplete="current-password">
                 <!--<span class="invalid-feedback"><?php //echo $login_err; ?></span>!-->
             </div>
@@ -98,14 +89,14 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
             <p id="reg_err"><?php echo  $login_err?></p>
 
             <div class="form-group">
-                <input type="submit" class="btn btn-primary" value="Login">
+                <input type="submit" class="btn btn-primary" value="Einloggen">
 
-                <a href="/" class="btn btn-danger ml-3">Cancel</a>
+                <a href="/" class="btn btn-danger ml-3">Abbrechen</a>
             </div>
 
 
 
-            <p>Don't have an account? <a href="<?php echo SIGN_UP_PAGE . (isset($_GET["redirect"])?"?redirect=" . $_GET["redirect"]:"") ?>">Sign up now</a>.</p>
+            <p>Du hast noch keinen Account? <a href="<?php echo SIGN_UP_PAGE . (isset($_GET["redirect"])?"?redirect=" . $_GET["redirect"]:"") ?>">Registrieren</a>.</p>
         </form>
     </div>
 </body>
