@@ -11,14 +11,14 @@ $err = "";
 if($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($_SESSION["teamID"] != -1) {
-            $err = "Du bisst schon in einem Team";
+            $err = "Du bist schon in einem Team";
         }else if(!isset($_POST["team_name"])){
             $err = "Interner Fehler";
         } else if (empty(trim($_POST["team_name"]))) {
-            $err = "Du musst einen team namen eingeben";
+            $err = "Du musst einen Teamnamen eingeben";
         }else {
             if($_SESSION["teamID"] != -1){
-                $err = "Du bisst schon in einem Team";
+                $err = "Du bist schon in einem Team";
             }else{
                 $teamExists = SQLSelector::isTeamExistent(trim($_POST["team_name"]));
                 if(is_string($teamExists)) {
@@ -26,7 +26,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 if($createTeam) {
                     if ($teamExists) {
-                        $err = "Es gibt bereits ein Team mit diesem name";
+                        $err = "Es gibt bereits ein Team mit diesem Namen";
                     } else {
                         $createTeamCheck = SQLSelector::createTeam(trim(htmlspecialchars($_POST["team_name"])));
                         if ($createTeamCheck !== true) {
