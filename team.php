@@ -23,16 +23,16 @@ if($_SESSION["teamID"] !== -1) {
             $teamString .= sprintf("<li>\n <span class=\"name\">%s</span>\n</li>",$teamMember->userName . ($_SESSION["id"] === $teamMember->userID ? " (Du)":"") . ($teamMember->userID === $team->captainID?" (Captain)":""));
         }
     }
-    $displayString = '<p>Ihr Team hat ' . $totalDistance .' kilometer <br> in ' . $totalTours . ' Touren gesamelt <br> mit einem schnitt von ' .$avgTourDistance . ' km/tour</p>
-            <span>Team (' . count($teamMembers) . ' Mitglieder) <a href="leaderboard.php?type=team">Zum team ranking</a></span>
+    $displayString = '<p>Dein Team hat ' . $totalDistance .' Kilometer <br> in ' . $totalTours . ' Touren gesamelt <br> mit einem Schnitt von ' .$avgTourDistance . ' km/Tour</p>
+            <span>Team (' . count($teamMembers) . ' Mitglieder) <a href="leaderboard.php?type=team">Zur Teamrangliste</a></span>
             <ul class="stat-list" id="teamMembers">' . $teamString .' </ul>';
 }else{
-    $displayString = "Sie sind nicht in einem Team";
+    $displayString = "Du bist nicht in einem Team";
 }
 ?>
 <!DOCTYPE html>
 <head>
-    <title>Team Overview</title>
+    <title>Teamübersicht</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="/style/default.css">
     <link rel="stylesheet" href="/style/team.css">
@@ -46,8 +46,8 @@ if($_SESSION["teamID"] !== -1) {
             <?php echo $displayString?>
         </div>
         <div id="noTeam" style="display: none">
-            <p>Sie sind nicht mitglied eines teams</p>
-            <a href="teamAss.php">Team Beitreten/Erstellen</a>
+            <p>Du bist nicht Mitglied eines Teams</p>
+            <a href="teamAss.php">Team erstellen/beitreten</a>
         </div>
     </div>
 
