@@ -35,7 +35,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <div style="text-align: center;">
         <div id="userDisplay">
             <p><?php echo "User: " . $_SESSION["username"] . "#" . $_SESSION["id"] ?></p>
-            <?php echo $_SESSION["teamID"] == -1?'<span>Du bist nicht in einem Team <a href="teamAss.php">Team beiterten</a> or <a href="teamAss.php?type=create">Team erstellen</a></span>':"" ?>
+            <?php echo $_SESSION["teamID"] == -1?'<span>Du bist nicht in einem Team: <a href="teamAss.php">Team erstellen/beitreten</a></span>':"" ?>
         </div>
 
         <div id="tourDisplay">
@@ -63,10 +63,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <form method="post" id="newTourForm" onsubmit="return checkSubmit()">
                     <input type="hidden" name="type" id="type" value="newTour"/>
 
-                    <label for="date">Date</label>
+                    <label for="date">Datum</label>
                     <input type="date" id="date" name="date"/><br>
 
-                    <label for="distance">Distance</label>
+                    <label for="distance">Distanz</label>
                     <input type="number" step="0.1" id="distance" name="distance" min="0"/><br>
 
                     <input type="submit" value="Hinzufügen">
