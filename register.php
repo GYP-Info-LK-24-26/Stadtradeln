@@ -19,9 +19,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty($submitted_values["username"])){
         $login_err = "Du musst einen Benutzernamen eingeben";
     }else if(empty($submitted_values["password"])){
-        $login_err = "Du musst eine Password eingeben";
+        $login_err = "Du musst ein Passwort eingeben";
     }else if(empty($submitted_values["email"])){
-        $login_err = "Du musst eine e-mail eingeben";
+        $login_err = "Du musst eine E-Mail eingeben";
     }else if(empty($submitted_values["first_name"])){
         $login_err = "Du musst einen Vornamen eingeben";
     }else if(empty($submitted_values["last_name"])){
@@ -31,7 +31,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty($login_err)) {
         $emailCheck = SQLSelector::isEmailRegistered($submitted_values["email"]);
         if($emailCheck !== false){
-            $login_err = "Diese e-mail ist bereits registriert";
+            $login_err = "Diese E-Mail ist bereits registriert";
         }else if($login_err !== true){
             $login_err = $emailCheck;
         }
@@ -73,7 +73,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             }
 
             if(password !== password_confirm){
-                document.getElementById("reg_err").innerHTML = 'Password und Password bestätigen müssen gleich sein';
+                document.getElementById("reg_err").innerHTML = 'Passwort und Passwortbestätigung müssen gleich sein';
                 return false;
             }
 
@@ -86,11 +86,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         <form id="register_form" name="register" onsubmit="return validateForm()" method="post" required>
             <div class="form-group">
-                <label for="email" >E-mail</label>
+                <label for="email" >E-Mail</label>
                 <input type="email" name="email" id="email" class="form-control" value="" autocomplete="username">
             </div>
             <div class="form-group">
-                <label for="username">Username</label>
+                <label for="username">Benutzername</label>
                 <input type="text" id="username" name="username" class="form-control" value="" autocomplete="off">
             </div>
             <div class="form-group">
@@ -102,23 +102,23 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="text" id="last_name" name="last_name" class="form-control" value="" autocomplete="off">
             </div>
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">Passwort</label>
                 <input type="password" id="password" name="password" class="form-control" value="" autocomplete="new-password">
             </div>
             <div class="form-group">
-                <label for="password_confirm">Password bestätigen</label>
+                <label for="password_confirm">Passwort bestätigen</label>
                 <input type="password" id="password_confirm" name="confirm_password" class="form-control" value="" autocomplete="off">
             </div>
 
             <p id="reg_err"><?php echo  $login_err?></p>
 
             <div class="form-group">
-                <input type="submit" class="btn btn-primary" value="Register">
-                <input type="reset" class="btn btn-secondary ml-2" value="Reset">
-                <input type="button" onclick="window.location.href = '/'" class="btn btn-danger ml-3" value="Cancel">
+                <input type="submit" class="btn btn-primary" value="Registrieren">
+                <input type="reset" class="btn btn-secondary ml-2" value="Zurücksetzen">
+                <input type="button" onclick="window.location.href = '/'" class="btn btn-danger ml-3" value="Abbrechen">
             </div>
-            <p>Durch dass drücken von "Erstellen" stimmen sie denn <a href=<?php echo TosLink ?>> Benutzungsbedingungen</a> zu.</p>
-            <p>Du hasst bereits ein account? <a href=<?php echo LoginLink ?>>Einlogen</a>.</p>
+            <p>Durch dass drücken von "Registrieren" stimmen sie den <a href=<?php echo TosLink ?>> Nutzungsbedingungen</a> zu.</p>
+            <p>Du hast bereits einen Account? <a href=<?php echo LoginLink ?>>Einlogen</a>.</p>
             <!--<button onclick="validateForm()" type="button">Test</button>!-->
         </form>
 
