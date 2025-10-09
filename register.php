@@ -118,7 +118,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="button" onclick="window.location.href = '/'" class="btn btn-danger ml-3" value="Abbrechen">
             </div>
             <p>Durch dass drücken von "Registrieren" stimmen sie den <a href=<?php echo TosLink ?>> Nutzungsbedingungen</a> zu.</p>
-            <p>Du hast bereits einen Account? <a href=<?php echo LoginLink ?>>Einlogen</a>.</p>
+            <p>Du hast bereits einen Account? <a href=<?php echo LoginLink ?>>Einloggen</a>.</p>
             <!--<button onclick="validateForm()" type="button">Test</button>!-->
         </form>
 
