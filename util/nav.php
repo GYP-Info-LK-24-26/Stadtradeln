@@ -1,6 +1,6 @@
 <?php
     $sites = array("/dashboard.php","/leaderboard.php","/team.php","/teamAss.php","logout.php");
-    $site_names = array("Home","Leaderboard","Team","Join/Create Team","Logout");
+    $site_names = array("Dashboard","Rangliste","Team","Team erstellen/beitreten","Abmelden");
 
     $localName = $_SERVER["SCRIPT_NAME"];
 
