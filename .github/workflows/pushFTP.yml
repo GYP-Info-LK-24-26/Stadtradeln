@@ -17,4 +17,4 @@ jobs:
           server: w020601f.kasserver.com
           username: w020601f
           password: ${{ secrets.ftp_password }}
-          server-dir: /stadtradeln.gymnasium-penzberg.de/
+          server-dir: ./stadtradeln.gymnasium-penzberg.de/
