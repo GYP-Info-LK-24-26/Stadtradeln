@@ -401,7 +401,7 @@ a:hover {
 }
 
 .success {
-    color: var(--forest-mid);
+    color: light-dark(var(--forest-deep), var(--mint-pale));
     background: light-dark(rgba(82, 183, 136, 0.15), rgba(82, 183, 136, 0.2));
     padding: var(--space-sm) var(--space-md);
     border-radius: var(--radius-sm);
