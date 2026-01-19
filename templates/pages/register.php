@@ -35,24 +35,22 @@
             </div>
 
             <div class="form-group">
-                <label for="first_name">Vorname</label>
-                <input 
-                    type="text" 
-                    id="first_name" 
-                    name="first_name" 
+                <label for="first_name">Vorname (optional)</label>
+                <input
+                    type="text"
+                    id="first_name"
+                    name="first_name"
                     value="<?= htmlspecialchars($data['first_name'] ?? '') ?>"
-                    required
                 >
             </div>
 
             <div class="form-group">
-                <label for="last_name">Nachname</label>
-                <input 
-                    type="text" 
-                    id="last_name" 
-                    name="last_name" 
+                <label for="last_name">Nachname (optional)</label>
+                <input
+                    type="text"
+                    id="last_name"
+                    name="last_name"
                     value="<?= htmlspecialchars($data['last_name'] ?? '') ?>"
-                    required
                 >
             </div>
 

@@ -88,10 +88,6 @@ class AuthController
             $error = 'Du musst ein Passwort eingeben';
         } elseif (empty($data['email'])) {
             $error = 'Du musst eine E-Mail eingeben';
-        } elseif (empty($data['first_name'])) {
-            $error = 'Du musst einen Vornamen eingeben';
-        } elseif (empty($data['last_name'])) {
-            $error = 'Du musst einen Nachnamen eingeben';
         } elseif ($data['password'] !== ($data['confirm_password'] ?? '')) {
             $error = 'Passwörter stimmen nicht überein';
         }
@@ -105,8 +101,8 @@ class AuthController
         if (empty($error)) {
             $user = new User();
             $user->username = htmlspecialchars($data['username']);
-            $user->firstName = $data['first_name'];
-            $user->lastName = $data['last_name'];
+            $user->firstName = $data['first_name'] ?? '';
+            $user->lastName = $data['last_name'] ?? '';
             $user->email = $data['email'];
             $user->password = $data['password'];
 
