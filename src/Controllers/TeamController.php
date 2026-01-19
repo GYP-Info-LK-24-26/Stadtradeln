@@ -119,4 +119,27 @@ class TeamController
             'error' => $error
         ]);
     }
+
+    public function leave(): void
+    {
+        Session::requireLogin();
+
+        $userId = Session::getUserId();
+        $teamId = Session::getTeamId();
+
+        if ($teamId === -1) {
+            header("Location: /team");
+            exit;
+        }
+
+        // Remove user from team
+        $this->userRepository->updateTeam($userId, -1);
+        Session::setTeamId(-1);
+
+        // Delete team if it's now empty
+        $this->teamRepository->deleteIfEmpty($teamId);
+
+        header("Location: /team");
+        exit;
+    }
 }

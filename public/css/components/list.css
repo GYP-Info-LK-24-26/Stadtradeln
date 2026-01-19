@@ -1,14 +1,14 @@
-/* Stat list styles */
-:root {
-    color-scheme: light dark;
-}
+/* ========================================
+   Stat List - Forest Trail Theme
+   Nature-inspired card styling
+   ======================================== */
 
 ul.stat-list {
     list-style: none;
     margin: 0 auto;
     padding: 0;
     display: grid;
-    gap: 0.75rem;
+    gap: var(--space-md);
     width: 95%;
     max-width: 800px;
 }
@@ -18,58 +18,224 @@ ul.stat-list > li {
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.9rem 1rem 1.4rem;
-    border-radius: 0.9rem;
-    border: 1px solid color-mix(in oklch, currentColor 18%, transparent);
-    background: light-dark(
-        color-mix(in oklch, Canvas 92%, black),
-        color-mix(in oklch, Canvas 94%, black)
-    );
-    color: CanvasText;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg) var(--space-xl);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-card);
+    color: var(--color-text);
     text-align: left;
+    box-shadow: var(--shadow-soft);
+    transition: all var(--transition-normal);
+
+    /* Organic decorative element */
+    overflow: hidden;
+}
+
+ul.stat-list > li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(
+        180deg,
+        var(--mint-fresh) 0%,
+        var(--forest-light) 50%,
+        var(--mint-soft) 100%
+    );
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    opacity: 0.6;
+    transition: opacity var(--transition-fast), width var(--transition-fast);
+}
+
+ul.stat-list > li:hover::before {
+    opacity: 1;
+    width: 6px;
+}
+
+ul.stat-list > li:hover {
+    box-shadow: var(--shadow-medium);
+    transform: translateX(2px);
 }
 
 ul.stat-list .name {
+    font-family: var(--font-display);
     font-weight: 600;
-    line-height: 1.2;
+    font-size: 1.05rem;
+    line-height: 1.3;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: light-dark(var(--forest-deep), var(--mint-soft));
 }
 
 ul.stat-list .big {
     grid-column: 2;
-    font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 3vw, 1.75rem);
     font-variant-numeric: tabular-nums;
     font-weight: 700;
+    color: var(--forest-light);
+    background: linear-gradient(135deg, var(--forest-light), var(--mint-fresh));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 ul.stat-list .small-right {
     grid-column: 2;
+    font-family: var(--font-display);
     font-variant-numeric: tabular-nums;
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--forest-light);
 }
 
 ul.stat-list .small {
     position: absolute;
-    left: 1rem;
-    bottom: 0.5rem;
-    font-size: 0.75rem;
-    opacity: 0.7;
+    left: var(--space-lg);
+    bottom: var(--space-sm);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
     font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
 }
 
-/* Clickable list */
+ul.stat-list .small::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--sun-gold);
+    border-radius: 50%;
+    opacity: 0.7;
+}
+
+/* ========================================
+   Clickable List
+   ======================================== */
 ul.click-list > li {
     cursor: pointer;
-    transition: border-color 0.2s, transform 0.1s;
 }
 
 ul.click-list > li:hover {
-    border-color: color-mix(in oklch, currentColor 28%, transparent);
+    border-color: var(--mint-soft);
 }
 
 ul.click-list > li:active {
-    transform: translateY(1px);
+    transform: translateY(1px) translateX(2px);
+}
+
+/* ========================================
+   Rank indicators for leaderboard
+   ======================================== */
+ul.stat-list > li:nth-child(1) .big {
+    background: linear-gradient(135deg, var(--sun-amber), var(--sun-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+ul.stat-list > li:nth-child(2) .big {
+    background: linear-gradient(135deg, #94A3B8, #CBD5E1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+ul.stat-list > li:nth-child(3) .big {
+    background: linear-gradient(135deg, var(--earth-soil), var(--earth-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Top 3 special border colors */
+ul.stat-list > li:nth-child(1)::before {
+    background: linear-gradient(180deg, var(--sun-amber), var(--sun-gold));
+    opacity: 1;
+}
+
+ul.stat-list > li:nth-child(2)::before {
+    background: linear-gradient(180deg, #94A3B8, #CBD5E1);
+    opacity: 1;
+}
+
+ul.stat-list > li:nth-child(3)::before {
+    background: linear-gradient(180deg, var(--earth-soil), var(--earth-light));
+    opacity: 1;
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+ul.stat-list:empty::after {
+    content: 'Keine Einträge vorhanden';
+    display: block;
+    text-align: center;
+    padding: var(--space-2xl);
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+/* ========================================
+   Animation
+   ======================================== */
+ul.stat-list > li {
+    opacity: 0;
+    animation: slideInFromLeft 0.4s ease forwards;
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+ul.stat-list > li:nth-child(1) { animation-delay: 0.05s; }
+ul.stat-list > li:nth-child(2) { animation-delay: 0.1s; }
+ul.stat-list > li:nth-child(3) { animation-delay: 0.15s; }
+ul.stat-list > li:nth-child(4) { animation-delay: 0.2s; }
+ul.stat-list > li:nth-child(5) { animation-delay: 0.25s; }
+ul.stat-list > li:nth-child(6) { animation-delay: 0.3s; }
+ul.stat-list > li:nth-child(7) { animation-delay: 0.35s; }
+ul.stat-list > li:nth-child(8) { animation-delay: 0.4s; }
+ul.stat-list > li:nth-child(9) { animation-delay: 0.45s; }
+ul.stat-list > li:nth-child(10) { animation-delay: 0.5s; }
+
+/* ========================================
+   Responsive
+   ======================================== */
+@media (max-width: 600px) {
+    ul.stat-list {
+        width: 100%;
+        gap: var(--space-sm);
+    }
+
+    ul.stat-list > li {
+        padding: var(--space-sm) var(--space-md) var(--space-lg);
+        border-radius: var(--radius-md);
+    }
+
+    ul.stat-list .name {
+        font-size: 0.95rem;
+    }
+
+    ul.stat-list .big {
+        font-size: 1.25rem;
+    }
+
+    ul.stat-list .small {
+        left: var(--space-md);
+        font-size: 0.75rem;
+    }
 }

@@ -20,7 +20,7 @@ $userName = Session::getUsername() ?? 'Profil';
 <nav>
     <ul class="topnav">
         <li class="account-dropdown">
-            <a href="#" class="dropdown-toggle">👤 <?= htmlspecialchars($userName) ?> ▼</a>
+            <a href="#" class="dropdown-toggle"><?= htmlspecialchars($userName) ?></a>
             <ul class="dropdown-menu">
                 <?php foreach ($accountItems as $path => $label): ?>
                     <li>

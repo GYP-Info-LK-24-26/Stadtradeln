@@ -116,6 +116,35 @@ class TeamRepository
         return $teams;
     }
 
+    public function delete(int $teamId): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("DELETE FROM teams WHERE teamID = ?");
+        $stmt->bind_param("i", $teamId);
+
+        return $stmt->execute();
+    }
+
+    public function getMemberCount(int $teamId): int
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE teamID = ?");
+        $stmt->bind_param("i", $teamId);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+
+        return $count;
+    }
+
+    public function deleteIfEmpty(int $teamId): bool
+    {
+        if ($this->getMemberCount($teamId) === 0) {
+            return $this->delete($teamId);
+        }
+        return false;
+    }
+
     public function findAllWithStats(): array
     {
         $conn = Database::getConnection();
