@@ -1,0 +1,22 @@
+name: Deploy website
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    name: Deploy to FTP
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: w020601f.kasserver.com
+          username: w020601f
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ./stadtradeln.gymnasium-penzberg.de/
