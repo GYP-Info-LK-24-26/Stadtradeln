@@ -20,4 +20,3 @@ jobs:
           username: w020601f
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ./stadtradeln.gymnasium-penzberg.de/
-          local-dir: ./public/
