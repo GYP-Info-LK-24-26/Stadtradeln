@@ -71,20 +71,20 @@
         <div style="text-align: center;">
             <div class="view-toggle">
                 <button
-                    class="<?= $currentType === 'global' || !$currentType ? 'active' : '' ?>"
-                    onclick="setType('global')"
+                    class="<?= $currentType === 'users' || !$currentType ? 'active' : '' ?>"
+                    onclick="setType('users')"
                 >
                     Alle Benutzer
                 </button>
                 <button
-                    class="<?= $currentType === 'team' ? 'active' : '' ?>"
-                    onclick="setType('team')"
+                    class="<?= $currentType === 'teams' ? 'active' : '' ?>"
+                    onclick="setType('teams')"
                 >
                     Teams
                 </button>
                 <button
-                    class="<?= $currentType === 'all' ? 'active' : '' ?>"
-                    onclick="setType('all')"
+                    class="<?= $currentType === 'my-team' ? 'active' : '' ?>"
+                    onclick="setType('my-team')"
                 >
                     Mein Team
                 </button>

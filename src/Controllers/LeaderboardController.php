@@ -22,16 +22,16 @@ class LeaderboardController
     {
         Session::requireLogin();
 
-        $type = $_GET['type'] ?? 'global';
+        $type = $_GET['type'] ?? 'users';
         $page = (int)($_GET['page'] ?? 0);
 
         $viewUsers = false;
         $teamId = -1;
 
-        if ($type === 'team') {
-            $teamId = Session::getTeamId();
+        if ($type === 'users') {
             $viewUsers = true;
-        } elseif ($type === 'all') {
+        } elseif ($type === 'my-team') {
+            $teamId = Session::getTeamId();
             $viewUsers = true;
         }
 
