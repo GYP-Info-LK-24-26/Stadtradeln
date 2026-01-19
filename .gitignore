@@ -1,1 +1,22 @@
-/util/dbConfig.php
+# Database configuration (contains secrets)
+/config/database.php
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Vendor (if using composer later)
+/vendor/
+
+# Environment files
+.env
+.env.local

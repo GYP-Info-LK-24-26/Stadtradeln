@@ -1,0 +1,18 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Set base directory
+RewriteBase /
+
+# Don't rewrite existing files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite all other requests to index.php
+RewriteRule ^(.*)$ index.php [L,QSA]
+
+# Security: Deny access to sensitive files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
