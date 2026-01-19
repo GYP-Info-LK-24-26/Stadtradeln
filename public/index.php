@@ -63,7 +63,8 @@ $router
 
     // Settings
     ->get('/settings', [SettingsController::class, 'index'])
-    ->post('/settings', [SettingsController::class, 'updatePassword']);
+    ->post('/settings', [SettingsController::class, 'updatePassword'])
+    ->post('/settings/name', [SettingsController::class, 'updateName']);
 
 // Resolve the current request
 $router->resolve();

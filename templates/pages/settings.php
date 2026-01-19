@@ -20,30 +20,52 @@
         </div>
 
         <div class="settings-section">
+            <h2>Name ändern</h2>
+
+            <?php if ($success && strpos($success, 'Name') !== false): ?>
+                <p class="success"><?= htmlspecialchars($success) ?></p>
+            <?php endif; ?>
+
+            <form method="post" action="/settings/name">
+                <div class="form-group">
+                    <label for="first_name">Vorname</label>
+                    <input type="text" id="first_name" name="first_name" value="<?= htmlspecialchars($firstName) ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Nachname</label>
+                    <input type="text" id="last_name" name="last_name" value="<?= htmlspecialchars($lastName) ?>">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Name ändern</button>
+            </form>
+        </div>
+
+        <div class="settings-section">
             <h2>Passwort ändern</h2>
 
             <?php if ($error): ?>
                 <p class="error"><?= htmlspecialchars($error) ?></p>
             <?php endif; ?>
 
-            <?php if ($success): ?>
+            <?php if ($success && strpos($success, 'Passwort') !== false): ?>
                 <p class="success"><?= htmlspecialchars($success) ?></p>
             <?php endif; ?>
 
             <form method="post" action="/settings">
                 <div class="form-group">
                     <label for="current_password">Aktuelles Passwort</label>
-                    <input type="password" id="current_password" name="current_password" required>
+                    <input type="password" id="current_password" name="current_password" autocomplete="current-password" required>
                 </div>
 
                 <div class="form-group">
                     <label for="new_password">Neues Passwort</label>
-                    <input type="password" id="new_password" name="new_password" required>
+                    <input type="password" id="new_password" name="new_password" autocomplete="new-password" required>
                 </div>
 
                 <div class="form-group">
                     <label for="confirm_password">Neues Passwort bestätigen</label>
-                    <input type="password" id="confirm_password" name="confirm_password" required>
+                    <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Passwort ändern</button>

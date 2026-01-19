@@ -109,7 +109,7 @@ class UserRepository
     public function findById(int $id): ?User
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT id, teamID, username, email, passHash FROM users WHERE id = ?");
+        $stmt = $conn->prepare("SELECT id, teamID, username, email, passHash, firstName, lastName FROM users WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $stmt->store_result();
@@ -118,12 +118,14 @@ class UserRepository
             return null;
         }
 
-        $stmt->bind_result($id, $teamId, $username, $email, $passHash);
+        $stmt->bind_result($id, $teamId, $username, $email, $passHash, $firstName, $lastName);
         $stmt->fetch();
 
         $user = new User($id, $username, $teamId);
         $user->email = $email;
         $user->password = $passHash;
+        $user->firstName = $firstName;
+        $user->lastName = $lastName;
 
         return $user;
     }
@@ -133,6 +135,15 @@ class UserRepository
         $conn = Database::getConnection();
         $stmt = $conn->prepare("UPDATE users SET passHash = ? WHERE id = ?");
         $stmt->bind_param("si", $hashedPassword, $userId);
+
+        return $stmt->execute();
+    }
+
+    public function updateName(int $userId, string $firstName, string $lastName): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE users SET firstName = ?, lastName = ? WHERE id = ?");
+        $stmt->bind_param("ssi", $firstName, $lastName, $userId);
 
         return $stmt->execute();
     }

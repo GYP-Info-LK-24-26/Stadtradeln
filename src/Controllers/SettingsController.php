@@ -25,6 +25,8 @@ class SettingsController
         View::render('pages/settings', [
             'username' => $user->username,
             'email' => $user->email,
+            'firstName' => $user->firstName ?? '',
+            'lastName' => $user->lastName ?? '',
             'error' => null,
             'success' => null
         ]);
@@ -60,8 +62,32 @@ class SettingsController
         View::render('pages/settings', [
             'username' => $user->username,
             'email' => $user->email,
+            'firstName' => $user->firstName ?? '',
+            'lastName' => $user->lastName ?? '',
             'error' => $error,
             'success' => $success
+        ]);
+    }
+
+    public function updateName(): void
+    {
+        Session::requireLogin();
+
+        $userId = Session::getUserId();
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
+
+        $user = $this->userRepository->findById($userId);
+
+        $this->userRepository->updateName($userId, $firstName, $lastName);
+
+        View::render('pages/settings', [
+            'username' => $user->username,
+            'email' => $user->email,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'error' => null,
+            'success' => 'Name erfolgreich geändert.'
         ]);
     }
 }
