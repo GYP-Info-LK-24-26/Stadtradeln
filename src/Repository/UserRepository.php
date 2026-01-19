@@ -106,6 +106,37 @@ class UserRepository
         return $users;
     }
 
+    public function findById(int $id): ?User
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("SELECT id, teamID, username, email, passHash FROM users WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows !== 1) {
+            return null;
+        }
+
+        $stmt->bind_result($id, $teamId, $username, $email, $passHash);
+        $stmt->fetch();
+
+        $user = new User($id, $username, $teamId);
+        $user->email = $email;
+        $user->password = $passHash;
+
+        return $user;
+    }
+
+    public function updatePassword(int $userId, string $hashedPassword): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE users SET passHash = ? WHERE id = ?");
+        $stmt->bind_param("si", $hashedPassword, $userId);
+
+        return $stmt->execute();
+    }
+
     public function findByTeamWithDistance(int $teamId, int $page = 0): array
     {
         $conn = Database::getConnection();

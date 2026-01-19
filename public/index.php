@@ -32,6 +32,7 @@ use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\TeamController;
 use App\Controllers\LeaderboardController;
+use App\Controllers\SettingsController;
 
 // Create router
 $router = new Router();
@@ -58,7 +59,11 @@ $router
     ->post('/team/join', [TeamController::class, 'joinOrCreate'])
     
     // Leaderboard
-    ->get('/leaderboard', [LeaderboardController::class, 'index']);
+    ->get('/leaderboard', [LeaderboardController::class, 'index'])
+
+    // Settings
+    ->get('/settings', [SettingsController::class, 'index'])
+    ->post('/settings', [SettingsController::class, 'updatePassword']);
 
 // Resolve the current request
 $router->resolve();
