@@ -78,11 +78,11 @@
 }
 
 .topnav a:hover {
-    color: light-dark(var(--forest-mid), white);
+    color: light-dark(var(--forest-deep), #ffffff);
 }
 
 .topnav a:hover::before {
-    opacity: 0.1;
+    opacity: 0.12;
 }
 
 .topnav a.active {

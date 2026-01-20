@@ -156,7 +156,7 @@ a {
 }
 
 a:hover {
-    color: var(--color-primary-hover);
+    color: light-dark(var(--forest-deep), var(--mint-pale));
 }
 
 /* ========================================
@@ -269,6 +269,11 @@ a:hover {
 
 .form-footer a {
     font-weight: 500;
+    color: light-dark(var(--forest-light), var(--mint-fresh));
+}
+
+.form-footer a:hover {
+    color: light-dark(var(--forest-deep), #ffffff);
 }
 
 /* ========================================
@@ -313,6 +318,7 @@ a:hover {
 
 .btn-primary:hover {
     background: linear-gradient(135deg, var(--forest-mid) 0%, var(--forest-deep) 100%);
+    color: #ffffff;
     box-shadow: 0 4px 12px rgba(45, 90, 39, 0.4);
     transform: translateY(-1px);
 }
@@ -324,8 +330,9 @@ a:hover {
 }
 
 .btn-secondary:hover {
-    background: var(--color-border);
-    border-color: var(--mint-soft);
+    background: light-dark(var(--forest-light), var(--mint-fresh));
+    border-color: light-dark(var(--forest-light), var(--mint-fresh));
+    color: #ffffff;
 }
 
 .btn-accent {
@@ -335,6 +342,8 @@ a:hover {
 }
 
 .btn-accent:hover {
+    background: linear-gradient(135deg, var(--sun-amber) 0%, var(--sun-gold) 100%);
+    color: var(--forest-deep);
     box-shadow: 0 4px 12px rgba(212, 165, 116, 0.5);
     transform: translateY(-1px);
 }
@@ -346,6 +355,7 @@ a:hover {
 
 .btn-danger:hover {
     background: linear-gradient(135deg, var(--color-danger-hover) 0%, #8B3A30 100%);
+    color: #ffffff;
 }
 
 .btn-lg {
@@ -418,8 +428,12 @@ a:hover {
 }
 
 .warning a {
-    color: var(--earth-bark);
+    color: light-dark(var(--earth-bark), var(--sun-soft));
     font-weight: 600;
+}
+
+.warning a:hover {
+    color: light-dark(var(--forest-deep), #ffffff);
 }
 
 /* ========================================

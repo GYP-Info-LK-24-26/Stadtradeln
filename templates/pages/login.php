@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Anmelden - Stadtradeln</title>
     <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components/nav.css">
     <style>
-        body {
-            min-height: 100vh;
+        .auth-wrapper {
+            min-height: calc(100vh - 64px);
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: var(--space-xl) var(--space-md);
             background:
                 radial-gradient(ellipse at 30% 20%, rgba(82, 183, 136, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 80%, rgba(212, 165, 116, 0.06) 0%, transparent 50%),
-                var(--color-bg);
+                radial-gradient(ellipse at 70% 80%, rgba(212, 165, 116, 0.06) 0%, transparent 50%);
         }
 
         .auth-container {
@@ -52,6 +53,9 @@
     </style>
 </head>
 <body>
+    <?php require __DIR__ . '/../layout/nav.php'; ?>
+
+    <div class="auth-wrapper">
     <div class="auth-container">
         <div class="auth-logo">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -103,6 +107,7 @@
                 </a>
             </p>
         </form>
+    </div>
     </div>
 </body>
 </html>

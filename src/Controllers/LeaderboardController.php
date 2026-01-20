@@ -20,10 +20,17 @@ class LeaderboardController
 
     public function index(): void
     {
-        Session::requireLogin();
+        Session::start();
+        $isLoggedIn = Session::isLoggedIn();
 
         $type = $_GET['type'] ?? 'users';
         $page = (int)($_GET['page'] ?? 0);
+
+        // "my-team" requires login
+        if ($type === 'my-team' && !$isLoggedIn) {
+            header('Location: /login?redirect=' . urlencode('/leaderboard?type=my-team'));
+            exit;
+        }
 
         $viewUsers = false;
         $teamId = -1;
@@ -48,7 +55,8 @@ class LeaderboardController
             'viewUsers' => $viewUsers,
             'users' => $users,
             'teams' => $teams,
-            'currentType' => $type
+            'currentType' => $type,
+            'isLoggedIn' => $isLoggedIn
         ]);
     }
 }

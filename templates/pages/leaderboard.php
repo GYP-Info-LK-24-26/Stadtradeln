@@ -19,9 +19,10 @@
 
         .view-toggle {
             display: inline-flex;
+            gap: var(--space-xs);
             background: var(--color-bg-card);
             border: 1px solid var(--color-border);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-md);
             padding: var(--space-xs);
             margin-bottom: var(--space-xl);
         }
@@ -34,18 +35,19 @@
             font-size: 0.9rem;
             font-weight: 500;
             color: var(--color-text-muted);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all var(--transition-fast);
         }
 
         .view-toggle button:hover {
-            color: var(--color-text);
+            color: light-dark(var(--forest-deep), #ffffff);
+            background: light-dark(rgba(64, 145, 108, 0.1), rgba(116, 198, 157, 0.15));
         }
 
         .view-toggle button.active {
             background: linear-gradient(135deg, var(--forest-light), var(--mint-fresh));
-            color: white;
+            color: #ffffff;
             box-shadow: 0 2px 8px rgba(64, 145, 108, 0.25);
         }
 
@@ -82,12 +84,14 @@
                 >
                     Teams
                 </button>
+                <?php if ($isLoggedIn): ?>
                 <button
                     class="<?= $currentType === 'my-team' ? 'active' : '' ?>"
                     onclick="setType('my-team')"
                 >
                     Mein Team
                 </button>
+                <?php endif; ?>
             </div>
         </div>
 

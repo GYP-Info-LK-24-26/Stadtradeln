@@ -242,6 +242,7 @@
             <div class="hero-actions">
                 <a href="/register" class="btn btn-primary btn-lg">Jetzt registrieren</a>
                 <a href="/login" class="btn btn-secondary btn-lg">Anmelden</a>
+                <a href="/leaderboard" class="btn btn-secondary btn-lg">Rangliste ansehen</a>
             </div>
 
             <div class="features">

@@ -145,8 +145,8 @@
         }
 
         .edit-btn:hover {
-            background: light-dark(var(--forest-medium), var(--mint-fresh));
-            color: white;
+            background: light-dark(var(--forest-light), var(--mint-fresh));
+            color: #ffffff;
         }
 
         .edit-btn svg {
