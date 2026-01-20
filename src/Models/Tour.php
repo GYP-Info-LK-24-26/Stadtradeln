@@ -30,4 +30,13 @@ class Tour
             $data['distance'] ?? 0
         );
     }
+
+    public function getFormattedDate(): string
+    {
+        $timestamp = strtotime($this->date);
+        if ($timestamp === false) {
+            return $this->date;
+        }
+        return date('d.m.Y', $timestamp);
+    }
 }

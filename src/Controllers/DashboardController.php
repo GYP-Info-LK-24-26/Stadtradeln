@@ -57,4 +57,42 @@ class DashboardController
         header("Location: /dashboard");
         exit;
     }
+
+    public function updateTour(): void
+    {
+        Session::requireLogin();
+
+        $tourId = (int)($_POST['tour_id'] ?? 0);
+        $distance = trim($_POST['distance'] ?? '');
+        $date = trim($_POST['date'] ?? '');
+
+        if ($tourId > 0 && !empty($distance) && !empty($date)) {
+            $tour = $this->tourRepository->findById($tourId);
+
+            if ($tour && $tour->userId === Session::getUserId()) {
+                $this->tourRepository->update($tourId, (float)$distance, $date);
+            }
+        }
+
+        header("Location: /dashboard");
+        exit;
+    }
+
+    public function deleteTour(): void
+    {
+        Session::requireLogin();
+
+        $tourId = (int)($_POST['tour_id'] ?? 0);
+
+        if ($tourId > 0) {
+            $tour = $this->tourRepository->findById($tourId);
+
+            if ($tour && $tour->userId === Session::getUserId()) {
+                $this->tourRepository->delete($tourId);
+            }
+        }
+
+        header("Location: /dashboard");
+        exit;
+    }
 }

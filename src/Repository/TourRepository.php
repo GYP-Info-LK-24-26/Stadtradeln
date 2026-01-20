@@ -7,6 +7,22 @@ use App\Models\Tour;
 
 class TourRepository
 {
+    public function findById(int $tourId): ?Tour
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("SELECT tourID, userID, distance, date FROM tours WHERE tourID = ?");
+        $stmt->bind_param("i", $tourId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $row = $result->fetch_assoc();
+        if (!$row) {
+            return null;
+        }
+
+        return new Tour($row['tourID'], $row['userID'], $row['date'], $row['distance']);
+    }
+
     public function findByUser(int $userId): array
     {
         $conn = Database::getConnection();
@@ -78,6 +94,15 @@ class TourRepository
         $conn = Database::getConnection();
         $stmt = $conn->prepare("UPDATE tours SET distance = ?, date = ? WHERE tourID = ?");
         $stmt->bind_param("dsi", $distance, $date, $tourId);
+
+        return $stmt->execute();
+    }
+
+    public function delete(int $tourId): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("DELETE FROM tours WHERE tourID = ?");
+        $stmt->bind_param("i", $tourId);
 
         return $stmt->execute();
     }

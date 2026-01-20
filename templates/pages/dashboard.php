@@ -134,9 +134,9 @@
             <?php else: ?>
                 <ul class="stat-list">
                     <?php foreach ($tours as $tour): ?>
-                        <li>
+                        <li onclick="openEditPopup(<?= $tour->id ?>, '<?= htmlspecialchars($tour->date) ?>', <?= $tour->distance ?>)" style="cursor: pointer;">
                             <span class="small-right"><?= number_format($tour->distance, 1) ?> km</span>
-                            <span class="small"><?= htmlspecialchars($tour->date) ?></span>
+                            <span class="small"><?= htmlspecialchars($tour->getFormattedDate()) ?></span>
                         </li>
                     <?php endforeach; ?>
                 </ul>
@@ -173,6 +173,46 @@
                 </form>
             </div>
         </div>
+
+        <!-- Edit Tour Popup -->
+        <div class="popup-overlay" id="editTourPopup">
+            <div class="popup">
+                <span class="close" onclick="closeEditPopup()">&times;</span>
+
+                <h3>Tour bearbeiten</h3>
+
+                <form method="post" action="/dashboard/tour/update">
+                    <input type="hidden" id="edit_tour_id" name="tour_id">
+
+                    <div class="form-group">
+                        <label for="edit_date">Datum</label>
+                        <input type="date" id="edit_date" name="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit_distance">Distanz (km)</label>
+                        <input
+                            type="number"
+                            step="0.1"
+                            id="edit_distance"
+                            name="distance"
+                            min="0"
+                            placeholder="z.B. 15.5"
+                            required
+                        >
+                    </div>
+
+                    <div style="display: flex; gap: var(--space-sm); justify-content: space-between;">
+                        <button type="submit" class="btn btn-primary">Speichern</button>
+                        <button type="button" class="btn btn-danger" onclick="deleteTour()">Löschen</button>
+                    </div>
+                </form>
+
+                <form id="deleteForm" method="post" action="/dashboard/tour/delete" style="display: none;">
+                    <input type="hidden" id="delete_tour_id" name="tour_id">
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -187,6 +227,17 @@
             document.getElementById('tourPopup').style.display = 'none';
         }
 
+        function openEditPopup(tourId, date, distance) {
+            document.getElementById('edit_tour_id').value = tourId;
+            document.getElementById('edit_date').value = date;
+            document.getElementById('edit_distance').value = distance;
+            document.getElementById('editTourPopup').style.display = 'block';
+        }
+
+        function closeEditPopup() {
+            document.getElementById('editTourPopup').style.display = 'none';
+        }
+
         // Close popup when clicking outside
         document.getElementById('tourPopup').addEventListener('click', function(e) {
             if (e.target === this) {
@@ -194,12 +245,26 @@
             }
         });
 
+        document.getElementById('editTourPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditPopup();
+            }
+        });
+
         // Close popup with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeTourPopup();
+                closeEditPopup();
             }
         });
+
+        function deleteTour() {
+            if (confirm('Möchtest du diese Tour wirklich löschen?')) {
+                document.getElementById('delete_tour_id').value = document.getElementById('edit_tour_id').value;
+                document.getElementById('deleteForm').submit();
+            }
+        }
     </script>
 </body>
 </html>

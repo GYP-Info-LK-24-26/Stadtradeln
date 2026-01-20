@@ -52,6 +52,8 @@ $router
     // Dashboard
     ->get('/dashboard', [DashboardController::class, 'index'])
     ->post('/dashboard/tour', [DashboardController::class, 'addTour'])
+    ->post('/dashboard/tour/update', [DashboardController::class, 'updateTour'])
+    ->post('/dashboard/tour/delete', [DashboardController::class, 'deleteTour'])
     
     // Team
     ->get('/team', [TeamController::class, 'index'])

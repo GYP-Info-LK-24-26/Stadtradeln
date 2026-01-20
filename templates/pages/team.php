@@ -169,7 +169,7 @@
             <div class="members-section">
                 <h3>
                     <span>Teammitglieder (<?= count($members) ?>)</span>
-                    <a href="/leaderboard?type=team">Zur Teamrangliste</a>
+                    <a href="/leaderboard?type=teams">Zur Teamrangliste</a>
                 </h3>
 
                 <ul class="stat-list">
