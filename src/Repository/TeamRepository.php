@@ -116,6 +116,15 @@ class TeamRepository
         return $teams;
     }
 
+    public function updateName(int $teamId, string $name): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE teams SET teamName = ? WHERE teamID = ?");
+        $stmt->bind_param("si", $name, $teamId);
+
+        return $stmt->execute();
+    }
+
     public function delete(int $teamId): bool
     {
         $conn = Database::getConnection();

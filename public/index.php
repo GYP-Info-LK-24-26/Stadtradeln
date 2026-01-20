@@ -60,6 +60,7 @@ $router
     ->get('/team/join', [TeamController::class, 'showJoinCreate'])
     ->post('/team/join', [TeamController::class, 'joinOrCreate'])
     ->post('/team/leave', [TeamController::class, 'leave'])
+    ->post('/team/name', [TeamController::class, 'updateName'])
     
     // Leaderboard
     ->get('/leaderboard', [LeaderboardController::class, 'index'])

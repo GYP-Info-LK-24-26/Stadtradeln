@@ -142,4 +142,36 @@ class TeamController
         header("Location: /team");
         exit;
     }
+
+    public function updateName(): void
+    {
+        Session::requireLogin();
+
+        $userId = Session::getUserId();
+        $teamId = Session::getTeamId();
+        $newName = trim($_POST['team_name'] ?? '');
+
+        if ($teamId === null) {
+            header("Location: /team");
+            exit;
+        }
+
+        $team = $this->teamRepository->findById($teamId);
+
+        // Only Teamleiter can rename
+        if ($team === null || $team->teamleiterId !== $userId) {
+            header("Location: /team");
+            exit;
+        }
+
+        if (!empty($newName) && $newName !== $team->name) {
+            // Check if name is already taken
+            if (!$this->teamRepository->exists($newName)) {
+                $this->teamRepository->updateName($teamId, $newName);
+            }
+        }
+
+        header("Location: /team");
+        exit;
+    }
 }
