@@ -28,7 +28,7 @@ class TeamController
         $teamId = Session::getTeamId();
         $userId = Session::getUserId();
 
-        if ($teamId === -1) {
+        if ($teamId === null) {
             View::render('pages/team', [
                 'hasTeam' => false,
                 'team' => null,
@@ -75,7 +75,7 @@ class TeamController
         $isCreate = ($_POST['type'] ?? '') === 'create';
         $userId = Session::getUserId();
 
-        if (Session::getTeamId() !== -1) {
+        if (Session::getTeamId() !== null) {
             $error = 'Du bist schon in einem Team';
         } elseif (empty($teamName)) {
             $error = 'Du musst einen Teamnamen eingeben';
@@ -87,7 +87,7 @@ class TeamController
                     $error = 'Es gibt bereits ein Team mit diesem Namen';
                 } else {
                     try {
-                        $teamId = $this->teamRepository->create(htmlspecialchars($teamName), $userId);
+                        $teamId = $this->teamRepository->create($teamName, $userId);
                         $this->userRepository->updateTeam($userId, $teamId);
                         Session::setTeamId($teamId);
                         
@@ -127,14 +127,14 @@ class TeamController
         $userId = Session::getUserId();
         $teamId = Session::getTeamId();
 
-        if ($teamId === -1) {
+        if ($teamId === null) {
             header("Location: /team");
             exit;
         }
 
         // Remove user from team
-        $this->userRepository->updateTeam($userId, -1);
-        Session::setTeamId(-1);
+        $this->userRepository->updateTeam($userId, null);
+        Session::setTeamId(null);
 
         // Delete team if it's now empty
         $this->teamRepository->deleteIfEmpty($teamId);

@@ -7,7 +7,7 @@ class Team
     public int $id;
     public string $name;
     public int $memberCount;
-    public int $captainId;
+    public int $teamleiterId;
     public float $totalDistance;
     public int $totalTours;
 
@@ -15,12 +15,12 @@ class Team
         int $id = 0,
         string $name = '',
         int $memberCount = 0,
-        int $captainId = 0
+        int $teamleiterId = 0
     ) {
         $this->id = $id;
         $this->name = $name;
         $this->memberCount = $memberCount;
-        $this->captainId = $captainId;
+        $this->teamleiterId = $teamleiterId;
         $this->totalDistance = 0;
         $this->totalTours = 0;
     }
@@ -31,7 +31,7 @@ class Team
             $data['teamID'] ?? $data['id'] ?? 0,
             $data['teamName'] ?? $data['name'] ?? '',
             $data['memberCount'] ?? $data['teamMemberCount'] ?? 0,
-            $data['captainID'] ?? $data['captainId'] ?? 0
+            $data['teamleiterID'] ?? $data['teamleiterId'] ?? 0
         );
 
         $team->totalDistance = $data['totalDistance'] ?? $data['teamTotalDistance'] ?? 0;

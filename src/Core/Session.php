@@ -16,12 +16,12 @@ class Session
     public static function isLoggedIn(): bool
     {
         self::start();
-        
+
         if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
             return false;
         }
 
-        if (isset($_SESSION["last_activity"]) && 
+        if (isset($_SESSION["last_activity"]) &&
             $_SESSION["last_activity"] + self::MAX_INACTIVE_TIME < time()) {
             self::logout();
             return false;
@@ -40,12 +40,12 @@ class Session
         }
     }
 
-    public static function login(int $userId, string $username, int $teamId): void
+    public static function login(int $userId, string $name, ?int $teamId): void
     {
         self::start();
         $_SESSION["loggedin"] = true;
         $_SESSION["id"] = $userId;
-        $_SESSION["username"] = $username;
+        $_SESSION["name"] = $name;
         $_SESSION["teamID"] = $teamId;
         $_SESSION["last_activity"] = time();
     }
@@ -63,22 +63,22 @@ class Session
         return $_SESSION["id"] ?? null;
     }
 
-    public static function getUsername(): ?string
+    public static function getDisplayName(): ?string
     {
-        return $_SESSION["username"] ?? null;
+        return $_SESSION["name"] ?? null;
     }
 
-    public static function setUsername(string $username): void
+    public static function setName(string $name): void
     {
-        $_SESSION["username"] = $username;
+        $_SESSION["name"] = $name;
     }
 
-    public static function getTeamId(): int
+    public static function getTeamId(): ?int
     {
-        return $_SESSION["teamID"] ?? -1;
+        return $_SESSION["teamID"] ?? null;
     }
 
-    public static function setTeamId(int $teamId): void
+    public static function setTeamId(?int $teamId): void
     {
         $_SESSION["teamID"] = $teamId;
     }

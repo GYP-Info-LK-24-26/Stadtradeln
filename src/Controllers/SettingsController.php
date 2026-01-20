@@ -23,10 +23,8 @@ class SettingsController
         $user = $this->userRepository->findById($userId);
 
         View::render('pages/settings', [
-            'username' => $user->username,
             'email' => $user->email,
-            'firstName' => $user->firstName ?? '',
-            'lastName' => $user->lastName ?? '',
+            'name' => $user->name,
             'error' => null,
             'success' => null
         ]);
@@ -60,10 +58,8 @@ class SettingsController
         }
 
         View::render('pages/settings', [
-            'username' => $user->username,
             'email' => $user->email,
-            'firstName' => $user->firstName ?? '',
-            'lastName' => $user->lastName ?? '',
+            'name' => $user->name,
             'error' => $error,
             'success' => $success
         ]);
@@ -74,52 +70,23 @@ class SettingsController
         Session::requireLogin();
 
         $userId = Session::getUserId();
-        $firstName = trim($_POST['first_name'] ?? '');
-        $lastName = trim($_POST['last_name'] ?? '');
-
-        $user = $this->userRepository->findById($userId);
-
-        $this->userRepository->updateName($userId, $firstName, $lastName);
-
-        View::render('pages/settings', [
-            'username' => $user->username,
-            'email' => $user->email,
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'error' => null,
-            'success' => 'Name erfolgreich geändert.'
-        ]);
-    }
-
-    public function updateUsername(): void
-    {
-        Session::requireLogin();
-
-        $userId = Session::getUserId();
-        $newUsername = trim($_POST['username'] ?? '');
+        $name = trim($_POST['name'] ?? '');
 
         $user = $this->userRepository->findById($userId);
         $error = null;
         $success = null;
 
-        if (empty($newUsername)) {
-            $error = 'Benutzername darf nicht leer sein.';
-        } elseif (strlen($newUsername) < 3) {
-            $error = 'Benutzername muss mindestens 3 Zeichen lang sein.';
-        } elseif ($newUsername !== $user->username && $this->userRepository->usernameExists($newUsername)) {
-            $error = 'Dieser Benutzername ist bereits vergeben.';
+        if (empty($name)) {
+            $error = 'Name darf nicht leer sein.';
         } else {
-            $this->userRepository->updateUsername($userId, $newUsername);
-            Session::setUsername($newUsername);
-            $user->username = $newUsername;
-            $success = 'Benutzername erfolgreich geändert.';
+            $this->userRepository->updateName($userId, $name);
+            Session::setName($name);
+            $success = 'Name erfolgreich geändert.';
         }
 
         View::render('pages/settings', [
-            'username' => $user->username,
             'email' => $user->email,
-            'firstName' => $user->firstName ?? '',
-            'lastName' => $user->lastName ?? '',
+            'name' => $error ? $user->name : $name,
             'error' => $error,
             'success' => $success
         ]);
@@ -156,10 +123,8 @@ class SettingsController
         }
 
         View::render('pages/settings', [
-            'username' => $user->username,
             'email' => $user->email,
-            'firstName' => $user->firstName ?? '',
-            'lastName' => $user->lastName ?? '',
+            'name' => $user->name,
             'error' => $error,
             'success' => $success
         ]);

@@ -10,7 +10,7 @@ class TeamRepository
     public function findById(int $teamId): ?Team
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT teamName, captainID FROM teams WHERE teamID = ?");
+        $stmt = $conn->prepare("SELECT teamName, teamleiterID FROM teams WHERE teamID = ?");
         $stmt->bind_param("i", $teamId);
         $stmt->execute();
         $stmt->store_result();
@@ -19,13 +19,13 @@ class TeamRepository
             return null;
         }
 
-        $stmt->bind_result($teamName, $captainId);
+        $stmt->bind_result($teamName, $teamleiterId);
         $stmt->fetch();
 
         $userRepo = new UserRepository();
         $memberCount = count($userRepo->findByTeam($teamId));
 
-        return new Team($teamId, $teamName, $memberCount, $captainId);
+        return new Team($teamId, $teamName, $memberCount, $teamleiterId);
     }
 
     public function findByName(string $teamName): ?Team
@@ -80,11 +80,11 @@ class TeamRepository
         return $this->getIdByName($teamName) !== null;
     }
 
-    public function create(string $teamName, int $captainId): int
+    public function create(string $teamName, int $teamleiterId): int
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("INSERT INTO teams (teamName, captainID) VALUES (?, ?)");
-        $stmt->bind_param("si", $teamName, $captainId);
+        $stmt = $conn->prepare("INSERT INTO teams (teamName, teamleiterID) VALUES (?, ?)");
+        $stmt->bind_param("si", $teamName, $teamleiterId);
 
         if (!$stmt->execute()) {
             throw new \RuntimeException("Team konnte nicht erstellt werden");
@@ -96,7 +96,7 @@ class TeamRepository
     public function findAll(): array
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT teamID, teamName, captainID FROM teams");
+        $stmt = $conn->prepare("SELECT teamID, teamName, teamleiterID FROM teams");
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -109,7 +109,7 @@ class TeamRepository
                 $row['teamID'],
                 $row['teamName'],
                 $memberCount,
-                $row['captainID']
+                $row['teamleiterID']
             );
         }
 
@@ -152,7 +152,7 @@ class TeamRepository
             "SELECT teams.teamID, teams.teamName, 
                     COALESCE(SUM(tours.distance), 0) AS totalDistance,
                     COUNT(DISTINCT users.id) AS memberCount,
-                    teams.captainID 
+                    teams.teamleiterID 
              FROM users 
              LEFT JOIN tours ON users.id = tours.userID 
              INNER JOIN teams ON users.teamID = teams.teamID 
@@ -168,7 +168,7 @@ class TeamRepository
                 $row['teamID'],
                 $row['teamName'],
                 $row['memberCount'],
-                $row['captainID']
+                $row['teamleiterID']
             );
             $team->totalDistance = $row['totalDistance'];
             $teams[] = $team;

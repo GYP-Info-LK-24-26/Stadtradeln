@@ -99,7 +99,7 @@
             <?php if ($viewUsers): ?>
                 <?php foreach ($users as $index => $user): ?>
                     <li>
-                        <span class="name"><?= htmlspecialchars($user->username) ?></span>
+                        <span class="name"><?= htmlspecialchars($user->getDisplayName()) ?></span>
                         <span class="big">#<?= $index + 1 ?></span>
                         <span class="small"><?= number_format($user->totalDistance, 1) ?> km</span>
                     </li>

@@ -221,7 +221,7 @@
                     </svg>
                 </div>
                 <div class="account-details">
-                    <div class="account-name"><?= htmlspecialchars($username) ?></div>
+                    <div class="account-name"><?= htmlspecialchars($name) ?></div>
                     <div class="account-email"><?= htmlspecialchars($email) ?></div>
                 </div>
             </div>
@@ -233,10 +233,8 @@
                     <summary>
                         <div class="setting-info">
                             <div class="setting-label">Name</div>
-                            <div class="setting-value <?= empty($firstName) && empty($lastName) ? 'empty' : '' ?>">
-                                <?= !empty($firstName) || !empty($lastName)
-                                    ? htmlspecialchars(trim($firstName . ' ' . $lastName))
-                                    : 'Nicht angegeben' ?>
+                            <div class="setting-value">
+                                <?= htmlspecialchars($name) ?>
                             </div>
                         </div>
                         <span class="edit-btn">
@@ -248,44 +246,13 @@
                         <?php if ($success && strpos($success, 'Name') !== false): ?>
                             <p class="success"><?= htmlspecialchars($success) ?></p>
                         <?php endif; ?>
-                        <form method="post" action="/settings/name">
-                            <div class="form-group">
-                                <label for="first_name">Vorname</label>
-                                <input type="text" id="first_name" name="first_name" value="<?= htmlspecialchars($firstName) ?>" placeholder="Dein Vorname">
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">Nachname</label>
-                                <input type="text" id="last_name" name="last_name" value="<?= htmlspecialchars($lastName) ?>" placeholder="Dein Nachname">
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Speichern</button>
-                            </div>
-                        </form>
-                    </div>
-                </details>
-
-                <details class="setting-item" <?= ($success && strpos($success, 'Benutzername') !== false) || ($error && strpos($error, 'Benutzername') !== false) ? 'open' : '' ?>>
-                    <summary>
-                        <div class="setting-info">
-                            <div class="setting-label">Benutzername</div>
-                            <div class="setting-value"><?= htmlspecialchars($username) ?></div>
-                        </div>
-                        <span class="edit-btn">
-                            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                            Bearbeiten
-                        </span>
-                    </summary>
-                    <div class="setting-form">
-                        <?php if ($success && strpos($success, 'Benutzername') !== false): ?>
-                            <p class="success"><?= htmlspecialchars($success) ?></p>
-                        <?php endif; ?>
-                        <?php if ($error && strpos($error, 'Benutzername') !== false): ?>
+                        <?php if ($error && strpos($error, 'Name') !== false): ?>
                             <p class="error"><?= htmlspecialchars($error) ?></p>
                         <?php endif; ?>
-                        <form method="post" action="/settings/username">
+                        <form method="post" action="/settings/name">
                             <div class="form-group">
-                                <label for="username">Neuer Benutzername</label>
-                                <input type="text" id="username" name="username" value="<?= htmlspecialchars($username) ?>" placeholder="Mindestens 3 Zeichen" required>
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="name" value="<?= htmlspecialchars($name) ?>" placeholder="Dein Name" required>
                             </div>
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">Speichern</button>

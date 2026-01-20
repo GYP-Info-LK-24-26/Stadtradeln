@@ -10,7 +10,7 @@ class UserRepository
     public function findByEmail(string $email): ?User
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT id, teamID, username, passHash FROM users WHERE email = ?");
+        $stmt = $conn->prepare("SELECT id, teamID, name, passHash FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $stmt->store_result();
@@ -19,12 +19,12 @@ class UserRepository
             return null;
         }
 
-        $stmt->bind_result($id, $teamId, $username, $passHash);
+        $stmt->bind_result($id, $teamId, $name, $passHash);
         $stmt->fetch();
 
-        $user = new User($id, $username, $teamId);
+        $user = new User($id, $name, $teamId);
         $user->email = $email;
-        $user->password = $passHash; // hashed password for verification
+        $user->password = $passHash;
 
         return $user;
     }
@@ -44,18 +44,16 @@ class UserRepository
     {
         $conn = Database::getConnection();
         $stmt = $conn->prepare(
-            "INSERT INTO users (username, passHash, firstName, lastName, email, teamID) 
-             VALUES (?, ?, ?, ?, ?, -1)"
+            "INSERT INTO users (passHash, name, email)
+             VALUES (?, ?, ?)"
         );
 
         $hashedPassword = password_hash($user->password . $user->email, PASSWORD_DEFAULT);
 
         $stmt->bind_param(
-            "sssss",
-            $user->username,
+            "sss",
             $hashedPassword,
-            $user->firstName,
-            $user->lastName,
+            $user->name,
             $user->email
         );
 
@@ -66,11 +64,20 @@ class UserRepository
         return $conn->insert_id;
     }
 
-    public function updateTeam(int $userId, int $teamId): bool
+    public function updateTeam(int $userId, ?int $teamId): bool
     {
         $conn = Database::getConnection();
         $stmt = $conn->prepare("UPDATE users SET teamID = ? WHERE id = ?");
         $stmt->bind_param("ii", $teamId, $userId);
+
+        return $stmt->execute();
+    }
+
+    public function updateLastLogin(int $userId): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE users SET lastLogin = NOW() WHERE id = ?");
+        $stmt->bind_param("i", $userId);
 
         return $stmt->execute();
     }
@@ -80,18 +87,18 @@ class UserRepository
         return password_verify($password . $user->email, $user->password);
     }
 
-    public function findByTeam(int $teamId): array
+    public function findByTeam(?int $teamId): array
     {
         $conn = Database::getConnection();
-        
-        $sql = "SELECT id, username FROM users";
-        if ($teamId !== -1) {
+
+        $sql = "SELECT id, name FROM users";
+        if ($teamId !== null) {
             $sql .= " WHERE teamID = ?";
         }
 
         $stmt = $conn->prepare($sql);
-        
-        if ($teamId !== -1) {
+
+        if ($teamId !== null) {
             $stmt->bind_param("i", $teamId);
         }
 
@@ -100,7 +107,7 @@ class UserRepository
 
         $users = [];
         while ($row = $result->fetch_assoc()) {
-            $users[] = new User($row['id'], $row['username'], $teamId, 0);
+            $users[] = new User($row['id'], $row['name'], $teamId, 0);
         }
 
         return $users;
@@ -109,7 +116,7 @@ class UserRepository
     public function findById(int $id): ?User
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT id, teamID, username, email, passHash, firstName, lastName FROM users WHERE id = ?");
+        $stmt = $conn->prepare("SELECT id, teamID, email, passHash, name FROM users WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $stmt->store_result();
@@ -118,14 +125,12 @@ class UserRepository
             return null;
         }
 
-        $stmt->bind_result($id, $teamId, $username, $email, $passHash, $firstName, $lastName);
+        $stmt->bind_result($id, $teamId, $email, $passHash, $name);
         $stmt->fetch();
 
-        $user = new User($id, $username, $teamId);
+        $user = new User($id, $name, $teamId);
         $user->email = $email;
         $user->password = $passHash;
-        $user->firstName = $firstName;
-        $user->lastName = $lastName;
 
         return $user;
     }
@@ -139,31 +144,11 @@ class UserRepository
         return $stmt->execute();
     }
 
-    public function updateName(int $userId, string $firstName, string $lastName): bool
+    public function updateName(int $userId, string $name): bool
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("UPDATE users SET firstName = ?, lastName = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $firstName, $lastName, $userId);
-
-        return $stmt->execute();
-    }
-
-    public function usernameExists(string $username): bool
-    {
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $stmt->store_result();
-
-        return $stmt->num_rows > 0;
-    }
-
-    public function updateUsername(int $userId, string $username): bool
-    {
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare("UPDATE users SET username = ? WHERE id = ?");
-        $stmt->bind_param("si", $username, $userId);
+        $stmt = $conn->prepare("UPDATE users SET name = ? WHERE id = ?");
+        $stmt->bind_param("si", $name, $userId);
 
         return $stmt->execute();
     }
@@ -177,27 +162,27 @@ class UserRepository
         return $stmt->execute();
     }
 
-    public function findByTeamWithDistance(int $teamId, int $page = 0): array
+    public function findByTeamWithDistance(?int $teamId, int $page = 0): array
     {
         $conn = Database::getConnection();
 
-        $sql = "SELECT users.id, users.username, COALESCE(SUM(tours.distance), 0) AS totalDistance 
-                FROM users 
+        $sql = "SELECT users.id, users.name, COALESCE(SUM(tours.distance), 0) AS totalDistance
+                FROM users
                 LEFT JOIN tours ON users.id = tours.userID ";
 
-        if ($teamId !== -1) {
+        if ($teamId !== null) {
             $sql .= "WHERE teamID = ? ";
         }
 
-        $sql .= "GROUP BY users.id, users.username ORDER BY totalDistance DESC ";
+        $sql .= "GROUP BY users.id, users.name ORDER BY totalDistance DESC ";
 
-        if ($teamId === -1) {
+        if ($teamId === null) {
             $sql .= "LIMIT 20 OFFSET ?";
         }
 
         $stmt = $conn->prepare($sql);
 
-        if ($teamId !== -1) {
+        if ($teamId !== null) {
             $stmt->bind_param("i", $teamId);
         } else {
             $offset = $page * 20;
@@ -211,7 +196,7 @@ class UserRepository
         while ($row = $result->fetch_assoc()) {
             $users[] = new User(
                 $row['id'],
-                $row['username'],
+                $row['name'],
                 $teamId,
                 $row['totalDistance']
             );

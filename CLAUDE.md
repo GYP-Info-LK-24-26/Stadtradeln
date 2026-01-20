@@ -20,7 +20,7 @@ Requires Apache mod_rewrite or equivalent URL rewriting for production.
 
 1. Copy `config/database.example.php` to `config/database.php`
 2. Fill in MySQL credentials
-3. Database tables: `users`, `teams`, `tours` (schema not in repo)
+3. Run `database/schema.sql` to create tables
 
 ## Deployment
 
@@ -45,7 +45,9 @@ Request → Router → Controller → Repository → Database
 - `templates/` - PHP templates with `layout/main.php` wrapper
 - `public/css/` - Stylesheets (Forest Trail theme)
 
-**Session**: 30-minute inactivity timeout. Use `Session::requireLogin()` to guard protected routes.
+**Session**: 30-minute inactivity timeout. Use `Session::requireLogin()` to guard protected routes. Use `Session::getDisplayName()` to get the user's full name.
+
+**User Model**: Users are identified by email (login) with a single `name` attribute for display. Use `$user->name` or `$user->getDisplayName()` to get the name.
 
 **Database**: All queries must use prepared statements via `Database::getConnection()` (mysqli).
 

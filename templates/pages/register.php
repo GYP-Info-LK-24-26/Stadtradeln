@@ -79,6 +79,18 @@
 
         <form name="registerForm" method="post" action="/register">
             <div class="form-group">
+                <label for="name">Name</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value="<?= htmlspecialchars($data['name'] ?? '') ?>"
+                    placeholder="Max Mustermann"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
                 <label for="email">E-Mail</label>
                 <input
                     type="email"
@@ -89,42 +101,6 @@
                     placeholder="deine@email.de"
                     required
                 >
-            </div>
-
-            <div class="form-group">
-                <label for="username">Benutzername</label>
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value="<?= htmlspecialchars($data['username'] ?? '') ?>"
-                    placeholder="Dein Benutzername"
-                    required
-                >
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="first_name">Vorname (optional)</label>
-                    <input
-                        type="text"
-                        id="first_name"
-                        name="first_name"
-                        value="<?= htmlspecialchars($data['first_name'] ?? '') ?>"
-                        placeholder="Max"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="last_name">Nachname (optional)</label>
-                    <input
-                        type="text"
-                        id="last_name"
-                        name="last_name"
-                        value="<?= htmlspecialchars($data['last_name'] ?? '') ?>"
-                        placeholder="Mustermann"
-                    >
-                </div>
             </div>
 
             <div class="form-group">

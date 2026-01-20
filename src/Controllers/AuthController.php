@@ -19,7 +19,7 @@ class AuthController
     public function showLogin(): void
     {
         Session::start();
-        
+
         if (Session::isLoggedIn()) {
             header("Location: /dashboard");
             exit;
@@ -32,7 +32,7 @@ class AuthController
     public function login(): void
     {
         Session::start();
-        
+
         $error = '';
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -51,8 +51,9 @@ class AuthController
             } elseif (!$this->userRepository->verifyPassword($user, $password)) {
                 $error = 'Falsches Passwort';
             } else {
-                Session::login($user->id, $user->username, $user->teamId);
-                
+                Session::login($user->id, $user->name, $user->teamId);
+                $this->userRepository->updateLastLogin($user->id);
+
                 $redirect = $_GET['redirect'] ?? '/dashboard';
                 header("Location: " . $redirect);
                 exit;
@@ -65,7 +66,7 @@ class AuthController
     public function showRegister(): void
     {
         Session::start();
-        
+
         if (Session::isLoggedIn()) {
             header("Location: /dashboard");
             exit;
@@ -77,17 +78,17 @@ class AuthController
     public function register(): void
     {
         Session::start();
-        
+
         $error = '';
         $data = array_map('trim', $_POST);
 
         // Validation
-        if (empty($data['username'])) {
-            $error = 'Du musst einen Benutzernamen eingeben';
-        } elseif (empty($data['password'])) {
-            $error = 'Du musst ein Passwort eingeben';
+        if (empty($data['name'])) {
+            $error = 'Du musst einen Namen eingeben';
         } elseif (empty($data['email'])) {
             $error = 'Du musst eine E-Mail eingeben';
+        } elseif (empty($data['password'])) {
+            $error = 'Du musst ein Passwort eingeben';
         } elseif ($data['password'] !== ($data['confirm_password'] ?? '')) {
             $error = 'Passwörter stimmen nicht überein';
         }
@@ -100,16 +101,15 @@ class AuthController
 
         if (empty($error)) {
             $user = new User();
-            $user->username = htmlspecialchars($data['username']);
-            $user->firstName = $data['first_name'] ?? '';
-            $user->lastName = $data['last_name'] ?? '';
+            $user->name = $data['name'];
             $user->email = $data['email'];
             $user->password = $data['password'];
 
             try {
                 $userId = $this->userRepository->create($user);
-                Session::login($userId, $user->username, -1);
-                
+                Session::login($userId, $user->name, null);
+                $this->userRepository->updateLastLogin($userId);
+
                 $redirect = $_GET['redirect'] ?? '/dashboard';
                 header("Location: " . $redirect);
                 exit;

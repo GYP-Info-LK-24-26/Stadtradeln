@@ -18,7 +18,7 @@ if ($isLoggedIn) {
         '/logout' => 'Abmelden',
     ];
 
-    $userName = Session::getUsername() ?? 'Profil';
+    $userName = Session::getDisplayName() ?? 'Profil';
 } else {
     $navItems = [
         '/leaderboard' => 'Rangliste',

@@ -98,7 +98,7 @@
     <div class="page-content">
         <div class="dashboard-header">
             <h1>Dein Dashboard</h1>
-            <?php if ($teamId === -1): ?>
+            <?php if ($teamId === null): ?>
                 <p class="warning">
                     Du bist noch in keinem Team.
                     <a href="/team/join">Jetzt Team beitreten oder erstellen</a>

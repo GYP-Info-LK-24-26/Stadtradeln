@@ -27,10 +27,10 @@ class DashboardController
 
         $tours = $this->tourRepository->findByUser($userId);
         $totalDistance = array_sum(array_map(fn($t) => $t->distance, $tours));
-        $teamName = $teamId !== -1 ? $this->teamRepository->getNameById($teamId) : null;
+        $teamName = $teamId !== null ? $this->teamRepository->getNameById($teamId) : null;
 
         View::render('pages/dashboard', [
-            'username' => Session::getUsername(),
+            'displayName' => Session::getDisplayName(),
             'userId' => $userId,
             'teamId' => $teamId,
             'teamName' => $teamName,

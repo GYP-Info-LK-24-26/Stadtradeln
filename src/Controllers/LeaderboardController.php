@@ -33,7 +33,7 @@ class LeaderboardController
         }
 
         $viewUsers = false;
-        $teamId = -1;
+        $teamId = null;
 
         if ($type === 'users') {
             $viewUsers = true;

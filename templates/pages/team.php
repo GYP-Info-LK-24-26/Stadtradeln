@@ -92,7 +92,7 @@
             color: var(--forest-deep);
         }
 
-        .member-badge.captain {
+        .member-badge.teamleiter {
             background: var(--sun-gold);
             color: var(--forest-deep);
         }
@@ -176,12 +176,12 @@
                     <?php foreach ($members as $member): ?>
                         <li>
                             <span class="name">
-                                <?= htmlspecialchars($member->username) ?>
+                                <?= htmlspecialchars($member->getDisplayName()) ?>
                                 <?php if ($member->id === $userId): ?>
                                     <span class="member-badge you">Du</span>
                                 <?php endif; ?>
-                                <?php if ($team && $member->id === $team->captainId): ?>
-                                    <span class="member-badge captain">Captain</span>
+                                <?php if ($team && $member->id === $team->teamleiterId): ?>
+                                    <span class="member-badge teamleiter">Teamleiter</span>
                                 <?php endif; ?>
                             </span>
                         </li>
