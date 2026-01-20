@@ -148,6 +148,35 @@ class UserRepository
         return $stmt->execute();
     }
 
+    public function usernameExists(string $username): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->store_result();
+
+        return $stmt->num_rows > 0;
+    }
+
+    public function updateUsername(int $userId, string $username): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE users SET username = ? WHERE id = ?");
+        $stmt->bind_param("si", $username, $userId);
+
+        return $stmt->execute();
+    }
+
+    public function updateEmail(int $userId, string $email, string $newPasswordHash): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE users SET email = ?, passHash = ? WHERE id = ?");
+        $stmt->bind_param("ssi", $email, $newPasswordHash, $userId);
+
+        return $stmt->execute();
+    }
+
     public function findByTeamWithDistance(int $teamId, int $page = 0): array
     {
         $conn = Database::getConnection();

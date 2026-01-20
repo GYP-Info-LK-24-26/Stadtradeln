@@ -68,6 +68,11 @@ class Session
         return $_SESSION["username"] ?? null;
     }
 
+    public static function setUsername(string $username): void
+    {
+        $_SESSION["username"] = $username;
+    }
+
     public static function getTeamId(): int
     {
         return $_SESSION["teamID"] ?? -1;
