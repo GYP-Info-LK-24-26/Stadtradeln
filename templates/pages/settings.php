@@ -58,6 +58,73 @@
             margin-bottom: var(--space-xs);
         }
 
+        .account-name-wrapper {
+            display: inline;
+            position: relative;
+        }
+
+        .account-name-text {
+            display: inline;
+        }
+
+        .account-name-wrapper.editing .account-name-text {
+            visibility: hidden;
+        }
+
+        .account-name-wrapper.editing .edit-name-btn {
+            visibility: hidden;
+        }
+
+        .edit-name-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--space-xs);
+            border-radius: var(--radius-sm);
+            opacity: 0.4;
+            transition: opacity 0.2s;
+            vertical-align: middle;
+            margin-left: var(--space-xs);
+        }
+
+        .edit-name-btn:hover {
+            opacity: 1;
+        }
+
+        .edit-name-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            display: block;
+        }
+
+        .account-name-input {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            color: inherit;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--forest-light);
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            display: none;
+        }
+
+        .account-name-wrapper.editing .account-name-input {
+            display: block;
+        }
+
+        .account-name-input:focus {
+            outline: none;
+            border-bottom-color: var(--mint-fresh);
+        }
+
         .account-email {
             color: var(--color-text-muted);
             font-size: 0.95rem;
@@ -221,45 +288,23 @@
                     </svg>
                 </div>
                 <div class="account-details">
-                    <div class="account-name"><?= htmlspecialchars($name) ?></div>
-                    <div class="account-email"><?= htmlspecialchars($email) ?></div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h2>Profil</h2>
-
-                <details class="setting-item" <?= ($success && strpos($success, 'Name') !== false) || ($error && strpos($error, 'Name') !== false) ? 'open' : '' ?>>
-                    <summary>
-                        <div class="setting-info">
-                            <div class="setting-label">Name</div>
-                            <div class="setting-value">
-                                <?= htmlspecialchars($name) ?>
-                            </div>
-                        </div>
-                        <span class="edit-btn">
-                            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                            Bearbeiten
-                        </span>
-                    </summary>
-                    <div class="setting-form">
-                        <?php if ($success && strpos($success, 'Name') !== false): ?>
-                            <p class="success"><?= htmlspecialchars($success) ?></p>
-                        <?php endif; ?>
-                        <?php if ($error && strpos($error, 'Name') !== false): ?>
-                            <p class="error"><?= htmlspecialchars($error) ?></p>
-                        <?php endif; ?>
-                        <form method="post" action="/settings/name">
-                            <div class="form-group">
-                                <label for="name">Name</label>
-                                <input type="text" id="name" name="name" value="<?= htmlspecialchars($name) ?>" placeholder="Dein Name" required>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Speichern</button>
-                            </div>
+                    <div class="account-name">
+                        <form id="nameForm" method="post" action="/settings/name" class="account-name-wrapper">
+                            <span class="account-name-text"><?= htmlspecialchars($name) ?></span>
+                            <input type="text" name="name" id="nameInput" class="account-name-input" value="<?= htmlspecialchars($name) ?>" required>
+                            <button type="button" class="edit-name-btn" onclick="editName()" title="Name bearbeiten">
+                                <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                            </button>
                         </form>
                     </div>
-                </details>
+                    <div class="account-email"><?= htmlspecialchars($email) ?></div>
+                    <?php if ($success && strpos($success, 'Name') !== false): ?>
+                        <p class="success" style="margin-top: var(--space-sm); margin-bottom: 0;"><?= htmlspecialchars($success) ?></p>
+                    <?php endif; ?>
+                    <?php if ($error && strpos($error, 'Name') !== false): ?>
+                        <p class="error" style="margin-top: var(--space-sm); margin-bottom: 0;"><?= htmlspecialchars($error) ?></p>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <div class="settings-section">
@@ -339,5 +384,58 @@
             </div>
         </div>
     </div>
+
+    <script>
+    function editName() {
+        const wrapper = document.getElementById('nameForm');
+        const input = document.getElementById('nameInput');
+        const textSpan = wrapper.querySelector('.account-name-text');
+
+        wrapper.classList.add('editing');
+        input.focus();
+        input.select();
+
+        function handleBlur() {
+            submitOrCancel();
+        }
+
+        function handleKeydown(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                input.removeEventListener('blur', handleBlur);
+                submitOrCancel();
+            } else if (e.key === 'Escape') {
+                input.removeEventListener('blur', handleBlur);
+                cancelEdit();
+            }
+        }
+
+        input.addEventListener('blur', handleBlur, { once: true });
+        input.addEventListener('keydown', handleKeydown);
+    }
+
+    function submitOrCancel() {
+        const wrapper = document.getElementById('nameForm');
+        const input = document.getElementById('nameInput');
+        const textSpan = wrapper.querySelector('.account-name-text');
+        const originalName = textSpan.textContent.trim();
+        const newName = input.value.trim();
+
+        if (newName && newName !== originalName) {
+            wrapper.submit();
+        } else {
+            cancelEdit();
+        }
+    }
+
+    function cancelEdit() {
+        const wrapper = document.getElementById('nameForm');
+        const input = document.getElementById('nameInput');
+        const textSpan = wrapper.querySelector('.account-name-text');
+
+        input.value = textSpan.textContent.trim();
+        wrapper.classList.remove('editing');
+    }
+    </script>
 </body>
 </html>

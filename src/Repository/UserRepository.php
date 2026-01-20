@@ -48,7 +48,7 @@ class UserRepository
              VALUES (?, ?, ?)"
         );
 
-        $hashedPassword = password_hash($user->password . $user->email, PASSWORD_DEFAULT);
+        $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
 
         $stmt->bind_param(
             "sss",
@@ -84,7 +84,7 @@ class UserRepository
 
     public function verifyPassword(User $user, string $password): bool
     {
-        return password_verify($password . $user->email, $user->password);
+        return password_verify($password, $user->password);
     }
 
     public function findByTeam(?int $teamId): array
@@ -153,11 +153,11 @@ class UserRepository
         return $stmt->execute();
     }
 
-    public function updateEmail(int $userId, string $email, string $newPasswordHash): bool
+    public function updateEmail(int $userId, string $email): bool
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("UPDATE users SET email = ?, passHash = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $email, $newPasswordHash, $userId);
+        $stmt = $conn->prepare("UPDATE users SET email = ? WHERE id = ?");
+        $stmt->bind_param("si", $email, $userId);
 
         return $stmt->execute();
     }

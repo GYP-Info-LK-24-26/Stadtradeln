@@ -45,14 +45,14 @@ class SettingsController
 
         if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
             $error = 'Bitte alle Felder ausfüllen.';
-        } elseif (!password_verify($currentPassword . $user->email, $user->password)) {
+        } elseif (!password_verify($currentPassword, $user->password)) {
             $error = 'Aktuelles Passwort ist falsch.';
         } elseif ($newPassword !== $confirmPassword) {
             $error = 'Neue Passwörter stimmen nicht überein.';
         } elseif (strlen($newPassword) < 6) {
             $error = 'Neues Passwort muss mindestens 6 Zeichen lang sein.';
         } else {
-            $hashedPassword = password_hash($newPassword . $user->email, PASSWORD_DEFAULT);
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $this->userRepository->updatePassword($userId, $hashedPassword);
             $success = 'Passwort erfolgreich geändert.';
         }
@@ -110,14 +110,12 @@ class SettingsController
             $error = 'Bitte eine gültige E-Mail-Adresse eingeben.';
         } elseif (empty($password)) {
             $error = 'Bitte Passwort zur Bestätigung eingeben.';
-        } elseif (!password_verify($password . $user->email, $user->password)) {
+        } elseif (!password_verify($password, $user->password)) {
             $error = 'Passwort zur Bestätigung ist falsch.';
         } elseif ($newEmail !== $user->email && $this->userRepository->emailExists($newEmail)) {
             $error = 'Diese E-Mail-Adresse ist bereits registriert.';
         } else {
-            // Rehash password with new email as salt
-            $newPasswordHash = password_hash($password . $newEmail, PASSWORD_DEFAULT);
-            $this->userRepository->updateEmail($userId, $newEmail, $newPasswordHash);
+            $this->userRepository->updateEmail($userId, $newEmail);
             $user->email = $newEmail;
             $success = 'E-Mail-Adresse erfolgreich geändert.';
         }
