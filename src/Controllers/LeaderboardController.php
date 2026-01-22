@@ -20,41 +20,22 @@ class LeaderboardController
 
     public function index(): void
     {
-        Session::start();
         $isLoggedIn = Session::isLoggedIn();
-
         $type = $_GET['type'] ?? 'users';
         $page = (int)($_GET['page'] ?? 0);
 
-        // "my-team" requires login
         if ($type === 'my-team' && !$isLoggedIn) {
             header('Location: /login?redirect=' . urlencode('/leaderboard?type=my-team'));
             exit;
         }
 
-        $viewUsers = false;
-        $teamId = null;
-
-        if ($type === 'users') {
-            $viewUsers = true;
-        } elseif ($type === 'my-team') {
-            $teamId = Session::getTeamId();
-            $viewUsers = true;
-        }
-
-        $users = [];
-        $teams = [];
-
-        if ($viewUsers) {
-            $users = $this->userRepository->findByTeamWithDistance($teamId, $page);
-        }
-
-        $teams = $this->teamRepository->findAllWithStats();
+        $viewUsers = ($type === 'users' || $type === 'my-team');
+        $teamId = ($type === 'my-team') ? Session::getTeamId() : null;
 
         View::render('pages/leaderboard', [
             'viewUsers' => $viewUsers,
-            'users' => $users,
-            'teams' => $teams,
+            'users' => $viewUsers ? $this->userRepository->findByTeamWithDistance($teamId, $page) : [],
+            'teams' => $this->teamRepository->findAllWithStats(),
             'currentType' => $type,
             'isLoggedIn' => $isLoggedIn
         ]);

@@ -4,38 +4,27 @@ namespace App\Controllers;
 
 use App\Core\Session;
 use App\Core\View;
-use App\Repository\TeamRepository;
 use App\Repository\TourRepository;
 
 class DashboardController
 {
     private TourRepository $tourRepository;
-    private TeamRepository $teamRepository;
 
     public function __construct()
     {
         $this->tourRepository = new TourRepository();
-        $this->teamRepository = new TeamRepository();
     }
 
     public function index(): void
     {
         Session::requireLogin();
 
-        $userId = Session::getUserId();
-        $teamId = Session::getTeamId();
-
-        $tours = $this->tourRepository->findByUser($userId);
-        $totalDistance = array_sum(array_map(fn($t) => $t->distance, $tours));
-        $teamName = $teamId !== null ? $this->teamRepository->getNameById($teamId) : null;
+        $tours = $this->tourRepository->findByUser(Session::getUserId());
 
         View::render('pages/dashboard', [
-            'displayName' => Session::getDisplayName(),
-            'userId' => $userId,
-            'teamId' => $teamId,
-            'teamName' => $teamName,
+            'teamId' => Session::getTeamId(),
             'tours' => $tours,
-            'totalDistance' => $totalDistance
+            'totalDistance' => array_sum(array_map(fn($t) => $t->distance, $tours))
         ]);
     }
 
@@ -47,11 +36,7 @@ class DashboardController
         $date = trim($_POST['date'] ?? '');
 
         if (!empty($distance) && !empty($date)) {
-            $this->tourRepository->create(
-                Session::getUserId(),
-                (float)$distance,
-                $date
-            );
+            $this->tourRepository->create(Session::getUserId(), (float)$distance, $date);
         }
 
         header("Location: /dashboard");
@@ -68,7 +53,6 @@ class DashboardController
 
         if ($tourId > 0 && !empty($distance) && !empty($date)) {
             $tour = $this->tourRepository->findById($tourId);
-
             if ($tour && $tour->userId === Session::getUserId()) {
                 $this->tourRepository->update($tourId, (float)$distance, $date);
             }
@@ -83,10 +67,8 @@ class DashboardController
         Session::requireLogin();
 
         $tourId = (int)($_POST['tour_id'] ?? 0);
-
         if ($tourId > 0) {
             $tour = $this->tourRepository->findById($tourId);
-
             if ($tour && $tour->userId === Session::getUserId()) {
                 $this->tourRepository->delete($tourId);
             }

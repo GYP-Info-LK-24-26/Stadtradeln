@@ -4,47 +4,24 @@ namespace App\Models;
 
 class Team
 {
-    public int $id;
-    public string $name;
-    public int $memberCount;
-    public int $teamleiterId;
-    public float $totalDistance;
-    public int $totalTours;
-
     public function __construct(
-        int $id = 0,
-        string $name = '',
-        int $memberCount = 0,
-        int $teamleiterId = 0
-    ) {
-        $this->id = $id;
-        $this->name = $name;
-        $this->memberCount = $memberCount;
-        $this->teamleiterId = $teamleiterId;
-        $this->totalDistance = 0;
-        $this->totalTours = 0;
-    }
+        public int $id = 0,
+        public string $name = '',
+        public int $memberCount = 0,
+        public int $teamleiterId = 0,
+        public float $totalDistance = 0,
+        public int $totalTours = 0
+    ) {}
 
     public static function fromArray(array $data): self
     {
-        $team = new self(
-            $data['teamID'] ?? $data['id'] ?? 0,
-            $data['teamName'] ?? $data['name'] ?? '',
-            $data['memberCount'] ?? $data['teamMemberCount'] ?? 0,
-            $data['teamleiterID'] ?? $data['teamleiterId'] ?? 0
+        return new self(
+            $data['teamID'] ?? 0,
+            $data['teamName'] ?? '',
+            $data['memberCount'] ?? 0,
+            $data['teamleiterID'] ?? 0,
+            (float) ($data['totalDistance'] ?? 0),
+            (int) ($data['totalTours'] ?? 0)
         );
-
-        $team->totalDistance = $data['totalDistance'] ?? $data['teamTotalDistance'] ?? 0;
-        $team->totalTours = $data['totalTours'] ?? $data['teamTotalTours'] ?? 0;
-
-        return $team;
-    }
-
-    public function getAverageDistancePerTour(): float
-    {
-        if ($this->totalTours === 0) {
-            return 0.0;
-        }
-        return $this->totalDistance / $this->totalTours;
     }
 }

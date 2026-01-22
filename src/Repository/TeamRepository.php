@@ -22,21 +22,12 @@ class TeamRepository
         $stmt->bind_result($teamName, $teamleiterId);
         $stmt->fetch();
 
-        $userRepo = new UserRepository();
-        $memberCount = count($userRepo->findByTeam($teamId));
-
-        return new Team($teamId, $teamName, $memberCount, $teamleiterId);
-    }
-
-    public function findByName(string $teamName): ?Team
-    {
-        $teamId = $this->getIdByName($teamName);
-        
-        if ($teamId === null) {
-            return null;
-        }
-
-        return $this->findById($teamId);
+        return Team::fromArray([
+            'teamID' => $teamId,
+            'teamName' => $teamName,
+            'memberCount' => $this->getMemberCount($teamId),
+            'teamleiterID' => $teamleiterId,
+        ]);
     }
 
     public function getIdByName(string $teamName): ?int
@@ -57,29 +48,6 @@ class TeamRepository
         return $teamId;
     }
 
-    public function getNameById(int $teamId): ?string
-    {
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT teamName FROM teams WHERE teamID = ?");
-        $stmt->bind_param("i", $teamId);
-        $stmt->execute();
-        $stmt->store_result();
-
-        if ($stmt->num_rows !== 1) {
-            return null;
-        }
-
-        $stmt->bind_result($teamName);
-        $stmt->fetch();
-
-        return $teamName;
-    }
-
-    public function exists(string $teamName): bool
-    {
-        return $this->getIdByName($teamName) !== null;
-    }
-
     public function create(string $teamName, int $teamleiterId): int
     {
         $conn = Database::getConnection();
@@ -91,29 +59,6 @@ class TeamRepository
         }
 
         return $conn->insert_id;
-    }
-
-    public function findAll(): array
-    {
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT teamID, teamName, teamleiterID FROM teams");
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        $userRepo = new UserRepository();
-        $teams = [];
-
-        while ($row = $result->fetch_assoc()) {
-            $memberCount = count($userRepo->findByTeam($row['teamID']));
-            $teams[] = new Team(
-                $row['teamID'],
-                $row['teamName'],
-                $memberCount,
-                $row['teamleiterID']
-            );
-        }
-
-        return $teams;
     }
 
     public function updateName(int $teamId, string $name): bool
@@ -158,14 +103,14 @@ class TeamRepository
     {
         $conn = Database::getConnection();
         $stmt = $conn->prepare(
-            "SELECT teams.teamID, teams.teamName, 
+            "SELECT teams.teamID, teams.teamName,
                     COALESCE(SUM(tours.distance), 0) AS totalDistance,
                     COUNT(DISTINCT users.id) AS memberCount,
-                    teams.teamleiterID 
-             FROM users 
-             LEFT JOIN tours ON users.id = tours.userID 
-             INNER JOIN teams ON users.teamID = teams.teamID 
-             GROUP BY teams.teamID, teams.teamName 
+                    teams.teamleiterID
+             FROM users
+             LEFT JOIN tours ON users.id = tours.userID
+             INNER JOIN teams ON users.teamID = teams.teamID
+             GROUP BY teams.teamID, teams.teamName
              ORDER BY totalDistance DESC"
         );
         $stmt->execute();
@@ -173,14 +118,7 @@ class TeamRepository
 
         $teams = [];
         while ($row = $result->fetch_assoc()) {
-            $team = new Team(
-                $row['teamID'],
-                $row['teamName'],
-                $row['memberCount'],
-                $row['teamleiterID']
-            );
-            $team->totalDistance = $row['totalDistance'];
-            $teams[] = $team;
+            $teams[] = Team::fromArray($row);
         }
 
         return $teams;

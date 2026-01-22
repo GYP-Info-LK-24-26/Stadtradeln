@@ -29,12 +29,4 @@ class Database
 
         return self::$connection;
     }
-
-    public static function close(): void
-    {
-        if (self::$connection !== null) {
-            self::$connection->close();
-            self::$connection = null;
-        }
-    }
 }

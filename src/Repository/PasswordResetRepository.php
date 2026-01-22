@@ -51,15 +51,6 @@ class PasswordResetRepository
         return $expiresAt > new \DateTime();
     }
 
-    public function deleteByToken(string $token): bool
-    {
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare("DELETE FROM password_resets WHERE token = ?");
-        $stmt->bind_param("s", $token);
-
-        return $stmt->execute();
-    }
-
     public function deleteByUserId(int $userId): bool
     {
         $conn = Database::getConnection();
@@ -67,15 +58,6 @@ class PasswordResetRepository
         $stmt->bind_param("i", $userId);
 
         return $stmt->execute();
-    }
-
-    public function deleteExpired(): int
-    {
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare("DELETE FROM password_resets WHERE expiresAt < NOW()");
-        $stmt->execute();
-
-        return $stmt->affected_rows;
     }
 
     public function hasRecentReset(int $userId, int $cooldownMinutes = 10): bool

@@ -239,7 +239,7 @@
                     <div class="stat-card-label">Touren</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-card-value"><?= number_format($stats['averageDistance'], 1) ?></div>
+                    <div class="stat-card-value"><?= $stats['totalTours'] > 0 ? number_format($stats['totalDistance'] / $stats['totalTours'], 1) : '0,0' ?></div>
                     <div class="stat-card-label">km pro Tour</div>
                 </div>
             </div>
@@ -254,7 +254,7 @@
                     <?php foreach ($members as $member): ?>
                         <li>
                             <span class="name">
-                                <?= htmlspecialchars($member->getDisplayName()) ?>
+                                <?= htmlspecialchars($member->name) ?>
                                 <?php if ($member->id === $userId): ?>
                                     <span class="member-badge you">Du</span>
                                 <?php endif; ?>

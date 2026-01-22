@@ -16,11 +16,7 @@ class TourRepository
         $result = $stmt->get_result();
 
         $row = $result->fetch_assoc();
-        if (!$row) {
-            return null;
-        }
-
-        return new Tour($row['tourID'], $row['userID'], $row['date'], $row['distance']);
+        return $row ? Tour::fromArray($row) : null;
     }
 
     public function findByUser(int $userId): array
@@ -35,38 +31,8 @@ class TourRepository
 
         $tours = [];
         while ($row = $result->fetch_assoc()) {
-            $tours[] = new Tour(
-                $row['tourID'],
-                $userId,
-                $row['date'],
-                $row['distance']
-            );
-        }
-
-        return $tours;
-    }
-
-    public function findByTeam(int $teamId): array
-    {
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare(
-            "SELECT distance, date, userID, tourID 
-             FROM tours 
-             INNER JOIN users ON tours.userID = users.id 
-             WHERE users.teamID = ?"
-        );
-        $stmt->bind_param("i", $teamId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        $tours = [];
-        while ($row = $result->fetch_assoc()) {
-            $tours[] = new Tour(
-                $row['tourID'],
-                $row['userID'],
-                $row['date'],
-                $row['distance']
-            );
+            $row['userID'] = $userId;
+            $tours[] = Tour::fromArray($row);
         }
 
         return $tours;
@@ -76,10 +42,8 @@ class TourRepository
     {
         $conn = Database::getConnection();
         $stmt = $conn->prepare("INSERT INTO tours (userID, distance, date) VALUES (?, ?, ?)");
-        
-        // Ensure proper decimal format
+
         $distance = str_replace(',', '.', (string)$distance);
-        
         $stmt->bind_param("ids", $userId, $distance, $date);
 
         if (!$stmt->execute()) {
@@ -107,22 +71,23 @@ class TourRepository
         return $stmt->execute();
     }
 
-    public function getTotalDistanceForUser(int $userId): float
-    {
-        $tours = $this->findByUser($userId);
-        return array_sum(array_map(fn($t) => $t->distance, $tours));
-    }
-
     public function getStatsForTeam(int $teamId): array
     {
-        $tours = $this->findByTeam($teamId);
-        $totalDistance = array_sum(array_map(fn($t) => $t->distance, $tours));
-        $totalTours = count($tours);
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare(
+            "SELECT COALESCE(SUM(tours.distance), 0) AS totalDistance, COUNT(*) AS totalTours
+             FROM tours
+             INNER JOIN users ON tours.userID = users.id
+             WHERE users.teamID = ?"
+        );
+        $stmt->bind_param("i", $teamId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
 
         return [
-            'totalDistance' => $totalDistance,
-            'totalTours' => $totalTours,
-            'averageDistance' => $totalTours > 0 ? $totalDistance / $totalTours : 0
+            'totalDistance' => (float) $row['totalDistance'],
+            'totalTours' => (int) $row['totalTours'],
         ];
     }
 }

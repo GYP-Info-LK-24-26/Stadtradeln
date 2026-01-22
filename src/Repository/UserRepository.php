@@ -22,11 +22,13 @@ class UserRepository
         $stmt->bind_result($id, $teamId, $name, $passHash);
         $stmt->fetch();
 
-        $user = new User($id, $name, $teamId);
-        $user->email = $email;
-        $user->password = $passHash;
-
-        return $user;
+        return User::fromArray([
+            'id' => $id,
+            'name' => $name,
+            'teamID' => $teamId,
+            'email' => $email,
+            'passHash' => $passHash,
+        ]);
     }
 
     public function emailExists(string $email): bool
@@ -43,34 +45,16 @@ class UserRepository
     public function create(User $user): int
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare(
-            "INSERT INTO users (passHash, name, email)
-             VALUES (?, ?, ?)"
-        );
+        $stmt = $conn->prepare("INSERT INTO users (passHash, name, email) VALUES (?, ?, ?)");
 
         $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
-
-        $stmt->bind_param(
-            "sss",
-            $hashedPassword,
-            $user->name,
-            $user->email
-        );
+        $stmt->bind_param("sss", $hashedPassword, $user->name, $user->email);
 
         if (!$stmt->execute()) {
             throw new \RuntimeException("Benutzer konnte nicht erstellt werden");
         }
 
         return $conn->insert_id;
-    }
-
-    public function updateTeam(int $userId, ?int $teamId): bool
-    {
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare("UPDATE users SET teamID = ? WHERE id = ?");
-        $stmt->bind_param("ii", $teamId, $userId);
-
-        return $stmt->execute();
     }
 
     public function updateLastLogin(int $userId): bool
@@ -82,32 +66,27 @@ class UserRepository
         return $stmt->execute();
     }
 
-    public function verifyPassword(User $user, string $password): bool
-    {
-        return password_verify($password, $user->password);
-    }
-
-    public function findByTeam(?int $teamId): array
+    public function updateTeam(int $userId, ?int $teamId): bool
     {
         $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE users SET teamID = ? WHERE id = ?");
+        $stmt->bind_param("ii", $teamId, $userId);
 
-        $sql = "SELECT id, name FROM users";
-        if ($teamId !== null) {
-            $sql .= " WHERE teamID = ?";
-        }
+        return $stmt->execute();
+    }
 
-        $stmt = $conn->prepare($sql);
-
-        if ($teamId !== null) {
-            $stmt->bind_param("i", $teamId);
-        }
-
+    public function findByTeam(int $teamId): array
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("SELECT id, name FROM users WHERE teamID = ?");
+        $stmt->bind_param("i", $teamId);
         $stmt->execute();
         $result = $stmt->get_result();
 
         $users = [];
         while ($row = $result->fetch_assoc()) {
-            $users[] = new User($row['id'], $row['name'], $teamId, 0);
+            $row['teamID'] = $teamId;
+            $users[] = User::fromArray($row);
         }
 
         return $users;
@@ -128,11 +107,13 @@ class UserRepository
         $stmt->bind_result($id, $teamId, $email, $passHash, $name);
         $stmt->fetch();
 
-        $user = new User($id, $name, $teamId);
-        $user->email = $email;
-        $user->password = $passHash;
-
-        return $user;
+        return User::fromArray([
+            'id' => $id,
+            'name' => $name,
+            'teamID' => $teamId,
+            'email' => $email,
+            'passHash' => $passHash,
+        ]);
     }
 
     public function updatePassword(int $userId, string $hashedPassword): bool
@@ -194,12 +175,8 @@ class UserRepository
 
         $users = [];
         while ($row = $result->fetch_assoc()) {
-            $users[] = new User(
-                $row['id'],
-                $row['name'],
-                $teamId,
-                $row['totalDistance']
-            );
+            $row['teamID'] = $teamId;
+            $users[] = User::fromArray($row);
         }
 
         return $users;

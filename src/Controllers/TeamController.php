@@ -80,17 +80,17 @@ class TeamController
         } elseif (empty($teamName)) {
             $error = 'Du musst einen Teamnamen eingeben';
         } else {
-            $teamExists = $this->teamRepository->exists($teamName);
+            $existingId = $this->teamRepository->getIdByName($teamName);
 
             if ($isCreate) {
-                if ($teamExists) {
+                if ($existingId !== null) {
                     $error = 'Es gibt bereits ein Team mit diesem Namen';
                 } else {
                     try {
                         $teamId = $this->teamRepository->create($teamName, $userId);
                         $this->userRepository->updateTeam($userId, $teamId);
                         Session::setTeamId($teamId);
-                        
+
                         header("Location: /dashboard");
                         exit;
                     } catch (\Exception $e) {
@@ -98,14 +98,12 @@ class TeamController
                     }
                 }
             } else {
-                // Join existing team
-                if (!$teamExists) {
+                if ($existingId === null) {
                     $error = 'Dieses Team existiert nicht';
                 } else {
-                    $teamId = $this->teamRepository->getIdByName($teamName);
-                    $this->userRepository->updateTeam($userId, $teamId);
-                    Session::setTeamId($teamId);
-                    
+                    $this->userRepository->updateTeam($userId, $existingId);
+                    Session::setTeamId($existingId);
+
                     header("Location: /dashboard");
                     exit;
                 }
@@ -164,11 +162,8 @@ class TeamController
             exit;
         }
 
-        if (!empty($newName) && $newName !== $team->name) {
-            // Check if name is already taken
-            if (!$this->teamRepository->exists($newName)) {
-                $this->teamRepository->updateName($teamId, $newName);
-            }
+        if (!empty($newName) && $newName !== $team->name && $this->teamRepository->getIdByName($newName) === null) {
+            $this->teamRepository->updateName($teamId, $newName);
         }
 
         header("Location: /team");
