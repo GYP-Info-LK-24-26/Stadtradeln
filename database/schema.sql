@@ -45,6 +45,19 @@ CREATE TABLE tours (
     CONSTRAINT fk_tour_user FOREIGN KEY (userID) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Password reset tokens
+CREATE TABLE password_resets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userID INT NOT NULL,
+    token VARCHAR(64) NOT NULL,
+    expiresAt DATETIME NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_token (token),
+    INDEX idx_expires (expiresAt),
+    CONSTRAINT fk_reset_user FOREIGN KEY (userID) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Add foreign key for team leader after both tables exist
 ALTER TABLE teams
     ADD CONSTRAINT fk_team_teamleiter FOREIGN KEY (teamleiterID) REFERENCES users(id) ON DELETE SET NULL;

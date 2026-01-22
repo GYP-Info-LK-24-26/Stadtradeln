@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Anmelden - Stadtradeln</title>
+    <title>Passwort vergessen - Stadtradeln</title>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/components/nav.css">
     <style>
@@ -50,6 +50,12 @@
             height: 32px;
             fill: white;
         }
+
+        .auth-description {
+            color: var(--color-text-muted);
+            text-align: center;
+            margin-bottom: var(--space-lg);
+        }
     </style>
 </head>
 <body>
@@ -63,9 +69,12 @@
             </svg>
         </div>
 
-        <h1>Willkommen zurück</h1>
+        <h1>Passwort vergessen?</h1>
+        <p class="auth-description">
+            Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines Passworts.
+        </p>
 
-        <form name="loginForm" method="post" action="/login">
+        <form method="post" action="/forgot-password">
             <div class="form-group">
                 <label for="email">E-Mail</label>
                 <input
@@ -73,20 +82,8 @@
                     id="email"
                     name="email"
                     value="<?= htmlspecialchars($email ?? '') ?>"
-                    autocomplete="username"
+                    autocomplete="email"
                     placeholder="deine@email.de"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="password">Passwort</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    autocomplete="current-password"
-                    placeholder="Dein Passwort"
                     required
                 >
             </div>
@@ -95,24 +92,17 @@
                 <p class="error"><?= htmlspecialchars($error) ?></p>
             <?php endif; ?>
 
-            <?php if (($_GET['reset'] ?? '') === 'success'): ?>
-                <p class="success">Dein Passwort wurde erfolgreich geändert. Du kannst dich jetzt anmelden.</p>
+            <?php if (!empty($success)): ?>
+                <p class="success"><?= htmlspecialchars($success) ?></p>
             <?php endif; ?>
 
-            <p class="form-footer" style="margin-bottom: var(--space-md); margin-top: 0;">
-                <a href="/forgot-password">Passwort vergessen?</a>
-            </p>
-
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Einloggen</button>
-                <a href="/" class="btn btn-secondary">Abbrechen</a>
+                <button type="submit" class="btn btn-primary">Link senden</button>
+                <a href="/login" class="btn btn-secondary">Zurück</a>
             </div>
 
             <p class="form-footer">
-                Du hast noch keinen Account?
-                <a href="/register<?= isset($_GET['redirect']) ? '?redirect=' . urlencode($_GET['redirect']) : '' ?>">
-                    Registrieren
-                </a>
+                Du erinnerst dich wieder? <a href="/login">Einloggen</a>
             </p>
         </form>
     </div>

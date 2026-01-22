@@ -141,7 +141,7 @@
                 <a href="#">Nutzungsbedingungen</a> zu.
             </p>
             <p class="form-footer">
-                Du hast bereits einen Account? <a href="/login">Einloggen</a>
+                Du hast bereits einen Account? <a href="/login<?= isset($_GET['redirect']) ? '?redirect=' . urlencode($_GET['redirect']) : '' ?>">Einloggen</a>
             </p>
         </form>
     </div>
