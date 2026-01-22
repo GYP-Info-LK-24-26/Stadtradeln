@@ -53,10 +53,8 @@ class AuthController
         if (empty($error)) {
             $user = $this->userRepository->findByEmail($email);
 
-            if ($user === null) {
-                $error = 'Dieser Account existiert nicht';
-            } elseif (!$this->userRepository->verifyPassword($user, $password)) {
-                $error = 'Falsches Passwort';
+            if ($user === null || !$this->userRepository->verifyPassword($user, $password)) {
+                $error = 'E-Mail oder Passwort ist falsch';
             } else {
                 Session::login($user->id, $user->name, $user->teamId);
                 $this->userRepository->updateLastLogin($user->id);
