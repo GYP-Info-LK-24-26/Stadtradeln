@@ -78,6 +78,21 @@ class PasswordResetRepository
         return $stmt->affected_rows;
     }
 
+    public function hasRecentReset(int $userId, int $cooldownMinutes = 10): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare(
+            "SELECT id FROM password_resets
+             WHERE userID = ? AND createdAt > DATE_SUB(NOW(), INTERVAL ? MINUTE)
+             LIMIT 1"
+        );
+        $stmt->bind_param("ii", $userId, $cooldownMinutes);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result->num_rows > 0;
+    }
+
     public static function generateToken(): string
     {
         return bin2hex(random_bytes(32));

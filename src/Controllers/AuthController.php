@@ -7,20 +7,26 @@ use App\Core\View;
 use App\Models\User;
 use App\Repository\UserRepository;
 use App\Repository\PasswordResetRepository;
+use App\Repository\RateLimitRepository;
 
 class AuthController
 {
     private UserRepository $userRepository;
     private PasswordResetRepository $passwordResetRepository;
+    private RateLimitRepository $rateLimitRepository;
 
     private const RESET_FROM_EMAIL = 'no-reply@stadtradeln.gymnasium-penzberg.de';
     private const RESET_FROM_NAME = 'Stadtradeln';
     private const RESET_EXPIRY_HOURS = 1;
+    private const RESET_COOLDOWN_MINUTES = 10;
+    private const RESET_IP_MAX_ATTEMPTS = 5;
+    private const RESET_IP_WINDOW_MINUTES = 60;
 
     public function __construct()
     {
         $this->userRepository = new UserRepository();
         $this->passwordResetRepository = new PasswordResetRepository();
+        $this->rateLimitRepository = new RateLimitRepository();
     }
 
     public function showLogin(): void
@@ -152,6 +158,19 @@ class AuthController
         $email = trim($_POST['email'] ?? '');
         $error = '';
         $success = '';
+        $clientIp = RateLimitRepository::getClientIp();
+
+        // Check IP rate limit first
+        if ($this->rateLimitRepository->isRateLimited(
+            $clientIp,
+            'password_reset',
+            self::RESET_IP_MAX_ATTEMPTS,
+            self::RESET_IP_WINDOW_MINUTES
+        )) {
+            $error = 'Zu viele Anfragen. Bitte versuche es später erneut.';
+            View::render('pages/forgot-password', ['error' => $error, 'success' => $success, 'email' => $email]);
+            return;
+        }
 
         if (empty($email)) {
             $error = 'Bitte gib deine E-Mail-Adresse ein.';
@@ -163,12 +182,19 @@ class AuthController
             // Always show success message to prevent email enumeration
             $success = 'Falls ein Account mit dieser E-Mail existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.';
 
-            if ($user !== null) {
-                $token = PasswordResetRepository::generateToken();
-                $expiresAt = new \DateTime('+' . self::RESET_EXPIRY_HOURS . ' hour');
+            // Record IP attempt (even if user doesn't exist)
+            $this->rateLimitRepository->record($clientIp, 'password_reset');
 
-                $this->passwordResetRepository->create($user->id, $token, $expiresAt);
-                $this->sendResetEmail($user->email, $user->name, $token);
+            if ($user !== null) {
+                // Check cooldown per email
+                if (!$this->passwordResetRepository->hasRecentReset($user->id, self::RESET_COOLDOWN_MINUTES)) {
+                    $token = PasswordResetRepository::generateToken();
+                    $expiresAt = new \DateTime('+' . self::RESET_EXPIRY_HOURS . ' hour');
+
+                    $this->passwordResetRepository->create($user->id, $token, $expiresAt);
+                    $this->sendResetEmail($user->email, $user->name, $token);
+                }
+                // If cooldown active, silently skip - still show success to prevent enumeration
             }
         }
 
