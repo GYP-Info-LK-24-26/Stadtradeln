@@ -9,12 +9,13 @@ Stadtradeln is a German-language PHP web application for tracking bicycle tours 
 ## Running Locally
 
 ```bash
-# Set document root to public/ directory
+# Set document root to public/ directory — index.php acts as router script
 cd public/
-php -S localhost:8000
+php -S localhost:8000 index.php
 ```
 
 Requires Apache mod_rewrite or equivalent URL rewriting for production.
+For Apache, the vhost must set `DocumentRoot` to `public/` and `AllowOverride All`.
 
 ## Setup
 
@@ -39,11 +40,12 @@ Request → Router → Controller → Repository → Database
 
 **Key Directories**:
 - `src/Controllers/` - Request handlers (Auth, Dashboard, Team, Leaderboard, Settings, Home)
-- `src/Repository/` - Database access layer (User, Team, Tour repositories)
+- `src/Repository/` - Database access layer (User, Team, Tour, RateLimit, PasswordReset repositories)
 - `src/Models/` - Data classes (User, Team, Tour)
 - `src/Core/` - Framework: Router, Database (singleton mysqli), Session, View
 - `templates/` - PHP templates with `layout/main.php` wrapper
 - `public/css/` - Stylesheets (Forest Trail theme)
+- `public/js/` - JavaScript: `zxcvbn.js` (self-hosted, password strength), `password-strength.js` (meter UI)
 
 **Session**: 30-minute inactivity timeout. Use `Session::requireLogin()` to guard protected routes. Use `Session::getDisplayName()` to get the user's full name.
 
@@ -60,6 +62,16 @@ Routes are defined in `public/index.php`. Main routes:
 - `/team`, `/team/join` - Team operations
 - `/leaderboard` - Rankings
 - `/settings` - User settings
+
+## Security
+
+**Rate Limiting**: `RateLimitRepository` tracks attempts by IP in the `rate_limits` table. Protected endpoints:
+- `POST /login` — 10 failed attempts per IP per 15 minutes (`login_failed`)
+- `POST /register` — 5 attempts per IP per 60 minutes (`register`)
+- `POST /forgot-password` — 5 attempts per IP per 60 minutes (`password_reset`)
+- `POST /settings/email` — 5 attempts per IP per 60 minutes (`email_change`)
+
+**Password Strength**: Client-side only, using self-hosted zxcvbn (`public/js/zxcvbn.js`). The meter is rendered server-side (static HTML in templates); `password-strength.js` updates it via a `data-score` attribute. Minimum required score: 2 ("Mäßig"). Applied on `/register`, `/reset-password`, and `/settings` (password change).
 
 ## Code Conventions
 
