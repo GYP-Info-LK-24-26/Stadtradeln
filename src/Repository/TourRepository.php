@@ -71,6 +71,31 @@ class TourRepository
         return $stmt->execute();
     }
 
+    public function getDailyTotalByUser(int $userId, string $date, ?int $excludeTourId = null): float
+    {
+        $conn = Database::getConnection();
+
+        if ($excludeTourId !== null) {
+            $stmt = $conn->prepare(
+                "SELECT COALESCE(SUM(distance), 0) AS total
+                 FROM tours
+                 WHERE userID = ? AND date = ? AND tourID != ?"
+            );
+            $stmt->bind_param("isi", $userId, $date, $excludeTourId);
+        } else {
+            $stmt = $conn->prepare(
+                "SELECT COALESCE(SUM(distance), 0) AS total
+                 FROM tours
+                 WHERE userID = ? AND date = ?"
+            );
+            $stmt->bind_param("is", $userId, $date);
+        }
+
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        return (float) $row['total'];
+    }
+
     public function getStatsForTeam(int $teamId): array
     {
         $conn = Database::getConnection();

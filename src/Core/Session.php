@@ -82,4 +82,18 @@ class Session
     {
         $_SESSION["teamID"] = $teamId;
     }
+
+    public static function setFlash(string $key, string $message): void
+    {
+        self::start();
+        $_SESSION["flash"][$key] = $message;
+    }
+
+    public static function getFlash(string $key): ?string
+    {
+        self::start();
+        $message = $_SESSION["flash"][$key] ?? null;
+        unset($_SESSION["flash"][$key]);
+        return $message;
+    }
 }

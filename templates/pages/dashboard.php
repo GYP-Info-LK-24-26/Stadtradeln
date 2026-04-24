@@ -93,6 +93,12 @@
     </style>
 </head>
 <body>
+    <?php
+        $tourError   = \App\Core\Session::getFlash('tour_error');
+        $tourPopup   = \App\Core\Session::getFlash('tour_popup');
+        $tourPopupDataRaw = \App\Core\Session::getFlash('tour_popup_data');
+        $tourPopupData = $tourPopupDataRaw ? json_decode($tourPopupDataRaw, true) : null;
+    ?>
     <?php require __DIR__ . '/../layout/nav.php'; ?>
 
     <div class="page-content">
@@ -150,6 +156,10 @@
 
                 <h3>Neue Tour hinzufügen</h3>
 
+                <?php if ($tourError && $tourPopup === 'add'): ?>
+                    <p class="error"><?= htmlspecialchars($tourError) ?></p>
+                <?php endif; ?>
+
                 <form method="post" action="/dashboard/tour">
                     <div class="form-group">
                         <label for="date">Datum</label>
@@ -180,6 +190,10 @@
                 <span class="close" onclick="closeEditPopup()">&times;</span>
 
                 <h3>Tour bearbeiten</h3>
+
+                <?php if ($tourError && $tourPopup === 'edit'): ?>
+                    <p class="error"><?= htmlspecialchars($tourError) ?></p>
+                <?php endif; ?>
 
                 <form method="post" action="/dashboard/tour/update">
                     <input type="hidden" id="edit_tour_id" name="tour_id">
@@ -218,6 +232,17 @@
     <script>
         // Set default date to today
         document.getElementById('date').valueAsDate = new Date();
+
+        // Re-open popup after server-side validation error
+        <?php if ($tourPopup === 'add'): ?>
+        openTourPopup();
+        <?php elseif ($tourPopup === 'edit' && $tourPopupData): ?>
+        openEditPopup(
+            <?= (int)$tourPopupData['id'] ?>,
+            '<?= htmlspecialchars($tourPopupData['date']) ?>',
+            <?= (float)$tourPopupData['distance'] ?>
+        );
+        <?php endif; ?>
 
         function openTourPopup() {
             document.getElementById('tourPopup').style.display = 'block';
