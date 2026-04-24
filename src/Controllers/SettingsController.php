@@ -5,14 +5,20 @@ namespace App\Controllers;
 use App\Core\Session;
 use App\Core\View;
 use App\Repository\UserRepository;
+use App\Repository\RateLimitRepository;
 
 class SettingsController
 {
     private UserRepository $userRepository;
+    private RateLimitRepository $rateLimitRepository;
+
+    private const EMAIL_MAX_ATTEMPTS = 5;
+    private const EMAIL_WINDOW_MINUTES = 60;
 
     public function __construct()
     {
         $this->userRepository = new UserRepository();
+        $this->rateLimitRepository = new RateLimitRepository();
     }
 
     public function index(): void
@@ -103,6 +109,23 @@ class SettingsController
         $user = $this->userRepository->findById($userId);
         $error = null;
         $success = null;
+        $clientIp = RateLimitRepository::getClientIp();
+
+        if ($this->rateLimitRepository->isRateLimited(
+            $clientIp, 'email_change',
+            self::EMAIL_MAX_ATTEMPTS, self::EMAIL_WINDOW_MINUTES
+        )) {
+            $error = 'Zu viele Versuche. Bitte versuche es später erneut.';
+            View::render('pages/settings', [
+                'email' => $user->email,
+                'name' => $user->name,
+                'error' => $error,
+                'success' => null
+            ]);
+            return;
+        }
+
+        $this->rateLimitRepository->record($clientIp, 'email_change');
 
         if (empty($newEmail)) {
             $error = 'E-Mail-Adresse darf nicht leer sein.';

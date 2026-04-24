@@ -2,15 +2,12 @@
    Navigation - Forest Trail Theme
    ======================================== */
 
-.topnav {
+.site-nav {
     display: flex;
-    flex-direction: row-reverse;
     align-items: center;
-    list-style: none;
-    margin: 0;
-    padding: 0 var(--space-lg);
     min-height: 64px;
-    flex-wrap: wrap;
+    position: relative;
+    z-index: 100;
 
     /* Forest-inspired header */
     background: linear-gradient(
@@ -22,12 +19,9 @@
     box-shadow:
         0 1px 3px rgba(27, 67, 50, 0.05),
         0 4px 12px rgba(27, 67, 50, 0.03);
-
-    /* Subtle decorative element */
-    position: relative;
 }
 
-.topnav::after {
+.site-nav::after {
     content: '';
     position: absolute;
     bottom: -2px;
@@ -43,6 +37,49 @@
         transparent 100%
     );
     opacity: 0.4;
+    pointer-events: none;
+}
+
+/* ========================================
+   Brand / Logo
+   ======================================== */
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-lg);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: light-dark(var(--forest-deep), var(--mint-soft));
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.nav-brand svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    opacity: 0.85;
+}
+
+.nav-brand:hover {
+    color: light-dark(var(--forest-light), var(--mint-fresh));
+}
+
+/* ========================================
+   Nav List
+   ======================================== */
+.topnav {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--space-sm);
+    flex: 1;
 }
 
 .topnav > li {
@@ -143,8 +180,6 @@
     z-index: 1000;
     transform: translateY(-8px);
     transition: all var(--transition-normal);
-
-    /* Decorative top accent */
     overflow: hidden;
 }
 
@@ -193,7 +228,6 @@
     box-shadow: none;
 }
 
-/* Logout link special styling */
 .dropdown-menu a[href="/logout"] {
     color: var(--color-danger);
     border-top: 1px solid var(--color-border);
@@ -206,17 +240,95 @@
 }
 
 /* ========================================
-   Mobile Responsive
+   Hamburger Toggle Button (mobile only)
+   ======================================== */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    padding: 7px 9px;
+    margin-right: var(--space-md);
+    color: light-dark(var(--forest-deep), var(--mint-pale));
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+    flex-shrink: 0;
+    /* Minimum touch target 44px */
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+}
+
+.nav-toggle:hover {
+    border-color: var(--mint-fresh);
+    background: light-dark(var(--cream-mid), rgba(116, 198, 157, 0.1));
+}
+
+.nav-toggle span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform var(--transition-normal), opacity var(--transition-normal);
+    transform-origin: center;
+}
+
+/* Animate lines → X when menu is open */
+.nav-toggle.is-open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle.is-open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.nav-toggle.is-open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ========================================
+   Mobile Responsive (≤ 600px)
    ======================================== */
 @media (max-width: 600px) {
-    .topnav {
-        flex-direction: column;
-        padding: var(--space-sm);
-        min-height: auto;
+    .site-nav {
+        min-height: 56px;
     }
 
-    .topnav::after {
+    .nav-brand {
+        padding: var(--space-sm) var(--space-md);
+        font-size: 1rem;
+    }
+
+    /* Show hamburger button */
+    .nav-toggle {
+        display: flex;
+    }
+
+    /* Hide nav list by default; show when toggled */
+    .topnav {
         display: none;
+        flex-direction: column;
+        align-items: stretch;
+        padding: var(--space-sm) var(--space-md) var(--space-md);
+
+        /* Dropdown below the nav bar */
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 200;
+        background: light-dark(#FFFFFF, var(--night-forest));
+        border-bottom: 2px solid var(--color-border);
+        box-shadow: 0 6px 20px rgba(27, 67, 50, 0.12);
+    }
+
+    .topnav.nav-open {
+        display: flex;
     }
 
     .topnav > li {
@@ -225,16 +337,18 @@
 
     .topnav a {
         text-align: left;
-        margin: var(--space-xs) 0;
+        margin: 2px 0;
         padding: var(--space-sm) var(--space-md);
+        /* Comfortable touch target */
+        min-height: 44px;
     }
 
+    /* Account section at top of menu */
     .account-dropdown {
         order: -1;
-        width: 100%;
         margin-left: 0;
         padding-bottom: var(--space-sm);
-        margin-bottom: var(--space-sm);
+        margin-bottom: var(--space-xs);
         border-bottom: 1px solid var(--color-border);
     }
 
@@ -242,6 +356,7 @@
         display: none;
     }
 
+    /* Flatten dropdown in mobile menu */
     .dropdown-menu {
         position: static;
         visibility: visible;
@@ -251,7 +366,7 @@
         border: none;
         background: transparent;
         padding: 0;
-        padding-left: var(--space-md);
+        padding-left: var(--space-sm);
         min-width: auto;
     }
 
@@ -261,12 +376,16 @@
 
     .dropdown-menu a {
         padding: var(--space-xs) var(--space-sm);
-        font-size: 0.85rem;
+        font-size: 0.9rem;
+        white-space: normal;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
     }
 
     .dropdown-menu a[href="/logout"] {
         border-top: none;
-        margin-top: 0;
+        margin-top: var(--space-xs);
         padding-top: var(--space-xs);
     }
 }

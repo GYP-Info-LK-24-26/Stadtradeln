@@ -53,6 +53,7 @@
 
         .hero-content {
             max-width: 700px;
+            width: 100%;
             animation: fadeInUp 0.8s ease;
         }
 
@@ -216,6 +217,72 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        /* ========================================
+           Mobile Responsive
+           ======================================== */
+        @media (max-width: 600px) {
+            .hero {
+                padding: var(--space-xl) var(--space-md);
+                min-height: 100svh;
+                justify-content: flex-start;
+                padding-top: calc(var(--space-2xl) + var(--space-lg));
+                align-items: flex-start;
+            }
+
+            .hero-content {
+                width: 100%;
+                text-align: left;
+            }
+
+            .hero-icon {
+                width: 72px;
+                height: 72px;
+                margin-bottom: var(--space-lg);
+            }
+
+            .hero-icon svg {
+                width: 36px;
+                height: 36px;
+            }
+
+            .hero h1 {
+                font-size: clamp(2rem, 8vw, 2.75rem);
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+                margin-bottom: var(--space-xl);
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--space-sm);
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+                padding: var(--space-sm) var(--space-lg);
+                font-size: 1rem;
+                justify-content: center;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+                gap: var(--space-sm);
+                margin-top: var(--space-xl);
+            }
+
+            .feature-card {
+                padding: var(--space-md) var(--space-lg);
+            }
+
+            .home-footer {
+                margin-top: var(--space-xl);
+                padding-top: var(--space-md);
             }
         }
     </style>

@@ -110,9 +110,18 @@
                     id="password"
                     name="password"
                     autocomplete="new-password"
-                    placeholder="Mindestens 6 Zeichen"
+                    placeholder="Mindestens mäßige Stärke"
                     required
                 >
+                <div class="pw-strength" id="pw-strength-password" aria-live="polite">
+                    <div class="pw-strength-bar">
+                        <div class="pw-strength-seg"></div>
+                        <div class="pw-strength-seg"></div>
+                        <div class="pw-strength-seg"></div>
+                        <div class="pw-strength-seg"></div>
+                    </div>
+                    <span class="pw-strength-label"></span>
+                </div>
             </div>
 
             <div class="form-group">
@@ -137,14 +146,15 @@
             </div>
 
             <p class="form-footer">
-                Durch das Drücken von "Registrieren" stimmst du den
-                <a href="#">Nutzungsbedingungen</a> zu.
-            </p>
-            <p class="form-footer">
                 Du hast bereits einen Account? <a href="/login<?= isset($_GET['redirect']) ? '?redirect=' . urlencode($_GET['redirect']) : '' ?>">Einloggen</a>
             </p>
         </form>
     </div>
     </div>
+    <script src="/js/zxcvbn.js"></script>
+    <script src="/js/password-strength.js"></script>
+    <script>
+        initPasswordStrength('password', ['name', 'email']);
+    </script>
 </body>
 </html>

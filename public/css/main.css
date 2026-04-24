@@ -399,6 +399,55 @@ a:hover {
 }
 
 /* ========================================
+   Password Strength Meter
+   ======================================== */
+.pw-strength {
+    margin-top: var(--space-xs);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.pw-strength-bar {
+    display: flex;
+    gap: 4px;
+}
+
+.pw-strength-seg {
+    height: 3px;
+    flex: 1;
+    border-radius: 99px;
+    background: var(--color-border);
+    transition: background var(--transition-normal);
+}
+
+/* Segments filled per score (CSS-only, driven by data-score attribute) */
+.pw-strength[data-score="0"] .pw-strength-seg:nth-child(-n+1) { background: var(--color-danger); }
+.pw-strength[data-score="1"] .pw-strength-seg:nth-child(-n+2) { background: var(--sun-amber); }
+.pw-strength[data-score="2"] .pw-strength-seg:nth-child(-n+3) { background: var(--earth-soil); }
+.pw-strength[data-score="3"] .pw-strength-seg:nth-child(-n+4) { background: var(--mint-fresh); }
+.pw-strength[data-score="4"] .pw-strength-seg:nth-child(-n+4) { background: var(--forest-light); }
+
+/* Label — fixed height prevents layout shift when text appears */
+.pw-strength-label {
+    display: block;
+    font-size: 0.8rem;
+    font-family: var(--font-body);
+    line-height: 1.5;
+    height: 1.5em;     /* exakt eine Zeile: identisch ob leer oder befüllt */
+    overflow: hidden;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+    transition: color var(--transition-fast);
+}
+
+.pw-strength[data-score="0"] .pw-strength-label { color: var(--color-danger); }
+.pw-strength[data-score="1"] .pw-strength-label { color: var(--sun-amber); }
+.pw-strength[data-score="2"] .pw-strength-label { color: var(--earth-soil); }
+.pw-strength[data-score="3"] .pw-strength-label { color: var(--mint-fresh); }
+.pw-strength[data-score="4"] .pw-strength-label { color: var(--forest-light); }
+
+/* ========================================
    Messages
    ======================================== */
 .error {
@@ -559,12 +608,20 @@ a:hover {
    ======================================== */
 @media (max-width: 600px) {
     .page-content {
-        padding: var(--space-md);
+        padding: var(--space-md) var(--space-sm);
     }
 
-    .card, .settings-section, .auth-container {
-        padding: var(--space-lg);
+    .card, .settings-section {
+        padding: var(--space-lg) var(--space-md);
         border-radius: var(--radius-md);
+    }
+
+    /* Auth container: full width with safe margins on mobile */
+    .auth-container {
+        max-width: 100%;
+        margin: var(--space-lg) var(--space-sm);
+        padding: var(--space-lg) var(--space-md);
+        border-radius: var(--radius-lg);
     }
 
     .form-actions {
@@ -573,5 +630,23 @@ a:hover {
 
     .form-actions .btn {
         width: 100%;
+    }
+
+    /* Larger touch targets for buttons */
+    .btn {
+        min-height: 44px;
+    }
+
+    /* Inputs get larger touch area */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        min-height: 44px;
+        font-size: 1rem; /* Prevent iOS zoom on focus */
+    }
+
+    /* No-team empty state needs less padding */
+    .no-team {
+        padding: var(--space-xl) var(--space-md);
     }
 }

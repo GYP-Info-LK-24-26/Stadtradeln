@@ -22,6 +22,12 @@ class AuthController
     private const RESET_IP_MAX_ATTEMPTS = 5;
     private const RESET_IP_WINDOW_MINUTES = 60;
 
+    private const LOGIN_MAX_ATTEMPTS = 10;
+    private const LOGIN_WINDOW_MINUTES = 15;
+
+    private const REGISTER_MAX_ATTEMPTS = 5;
+    private const REGISTER_WINDOW_MINUTES = 60;
+
     public function __construct()
     {
         $this->userRepository = new UserRepository();
@@ -44,8 +50,14 @@ class AuthController
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         $error = '';
+        $clientIp = RateLimitRepository::getClientIp();
 
-        if (empty($email)) {
+        if ($this->rateLimitRepository->isRateLimited(
+            $clientIp, 'login_failed',
+            self::LOGIN_MAX_ATTEMPTS, self::LOGIN_WINDOW_MINUTES
+        )) {
+            $error = 'Zu viele fehlgeschlagene Versuche. Bitte versuche es später erneut.';
+        } elseif (empty($email)) {
             $error = 'Du musst eine E-Mail eingeben';
         } elseif (empty($password)) {
             $error = 'Du musst ein Passwort eingeben';
@@ -53,6 +65,7 @@ class AuthController
             $user = $this->userRepository->findByEmail($email);
 
             if ($user === null || !password_verify($password, $user->password)) {
+                $this->rateLimitRepository->record($clientIp, 'login_failed');
                 $error = 'E-Mail oder Passwort ist falsch';
             } else {
                 Session::login($user->id, $user->name, $user->teamId);
@@ -79,6 +92,18 @@ class AuthController
     {
         $data = array_map('trim', $_POST);
         $error = '';
+        $clientIp = RateLimitRepository::getClientIp();
+
+        if ($this->rateLimitRepository->isRateLimited(
+            $clientIp, 'register',
+            self::REGISTER_MAX_ATTEMPTS, self::REGISTER_WINDOW_MINUTES
+        )) {
+            $error = 'Zu viele Registrierungsversuche. Bitte versuche es später erneut.';
+            View::render('pages/register', ['error' => $error, 'data' => $data]);
+            return;
+        }
+
+        $this->rateLimitRepository->record($clientIp, 'register');
 
         if (empty($data['name'])) {
             $error = 'Du musst einen Namen eingeben';

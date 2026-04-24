@@ -369,7 +369,16 @@
                             </div>
                             <div class="form-group">
                                 <label for="new_password">Neues Passwort</label>
-                                <input type="password" id="new_password" name="new_password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen" required>
+                                <input type="password" id="new_password" name="new_password" autocomplete="new-password" placeholder="Mindestens mäßige Stärke" required>
+                                <div class="pw-strength" id="pw-strength-new_password" aria-live="polite">
+                                    <div class="pw-strength-bar">
+                                        <div class="pw-strength-seg"></div>
+                                        <div class="pw-strength-seg"></div>
+                                        <div class="pw-strength-seg"></div>
+                                        <div class="pw-strength-seg"></div>
+                                    </div>
+                                    <span class="pw-strength-label"></span>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="confirm_password">Neues Passwort bestätigen</label>
@@ -385,6 +394,21 @@
         </div>
     </div>
 
+    <script src="/js/zxcvbn.js"></script>
+    <script src="/js/password-strength.js"></script>
+    <script>
+        // Meter erst initialisieren wenn das Passwort-Akkordeon geöffnet wird,
+        // damit zxcvbn nicht läuft bevor der Nutzer die Sektion öffnet.
+        document.querySelectorAll('.setting-item').forEach(function (details) {
+            details.addEventListener('toggle', function () {
+                if (this.open && document.getElementById('new_password') &&
+                    !this._pwStrengthInit) {
+                    this._pwStrengthInit = true;
+                    initPasswordStrength('new_password');
+                }
+            });
+        });
+    </script>
     <script>
     function editName() {
         const wrapper = document.getElementById('nameForm');
