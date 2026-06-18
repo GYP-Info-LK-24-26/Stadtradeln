@@ -36,7 +36,7 @@ if ($isLoggedIn) {
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
             <path d="M5 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm14 6a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7-8h3l2 4h-4l-1-4zm-2 0L8 8H5V6h4l1-2zm3 4l2 4H9l-1-4h5z"/>
         </svg>
-        Stadtradeln
+        GYP-Radeln
     </a>
 
     <button class="nav-toggle" id="nav-toggle" aria-label="Navigation öffnen" aria-expanded="false" aria-controls="topnav">

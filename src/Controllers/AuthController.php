@@ -16,7 +16,7 @@ class AuthController
     private RateLimitRepository $rateLimitRepository;
 
     private const RESET_FROM_EMAIL = 'no-reply@stadtradeln.gymnasium-penzberg.de';
-    private const RESET_FROM_NAME = 'Stadtradeln';
+    private const RESET_FROM_NAME = 'GYP-Radeln';
     private const RESET_EXPIRY_HOURS = 1;
     private const RESET_COOLDOWN_MINUTES = 10;
     private const RESET_IP_MAX_ATTEMPTS = 5;
@@ -241,9 +241,9 @@ class AuthController
             . "{$resetUrl}\n\n"
             . "Der Link ist " . self::RESET_EXPIRY_HOURS . " Stunde gültig.\n\n"
             . "Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren.\n\n"
-            . "Viele Grüße\nDein Stadtradeln-Team";
+            . "Viele Grüße\nDein GYP-Radeln-Team";
 
-        return mail($email, 'Passwort zurücksetzen - Stadtradeln', $message, [
+        return mail($email, 'Passwort zurücksetzen - GYP-Radeln', $message, [
             'From' => self::RESET_FROM_NAME . ' <' . self::RESET_FROM_EMAIL . '>',
             'Reply-To' => self::RESET_FROM_EMAIL,
             'Content-Type' => 'text/plain; charset=UTF-8'

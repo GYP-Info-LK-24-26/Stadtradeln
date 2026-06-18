@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Einstellungen - Stadtradeln</title>
+    <title>Einstellungen - GYP-Radeln</title>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/components/nav.css">
     <style>

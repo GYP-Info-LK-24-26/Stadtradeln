@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Stadtradeln - Gemeinsam radeln für das Klima</title>
+    <title>GYP-Radeln - Gemeinsam radeln für das Klima</title>
     <link rel="stylesheet" href="/css/main.css">
     <style>
         /* Hero Section */
@@ -298,7 +298,7 @@
             </div>
 
             <h1>
-                Stadtradeln
+                GYP-Radeln
                 <span>Gemeinsam radeln für das Klima</span>
             </h1>
 
