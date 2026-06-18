@@ -203,7 +203,10 @@
     margin: 0;
 }
 
-.dropdown-menu a {
+.dropdown-menu a,
+.dropdown-menu .logout-form button {
+    display: block;
+    width: 100%;
     text-align: left;
     white-space: nowrap;
     padding: var(--space-sm) var(--space-md);
@@ -211,6 +214,17 @@
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
     color: light-dark(var(--forest-deep), var(--mint-pale));
+}
+
+.dropdown-menu .logout-form {
+    margin: 0;
+}
+
+.dropdown-menu .logout-form button {
+    background: none;
+    border: none;
+    font: inherit;
+    cursor: pointer;
 }
 
 .dropdown-menu a:hover {
@@ -228,14 +242,14 @@
     box-shadow: none;
 }
 
-.dropdown-menu a[href="/logout"] {
+.dropdown-menu .logout-form button {
     color: var(--color-danger);
     border-top: 1px solid var(--color-border);
     margin-top: var(--space-sm);
     padding-top: var(--space-sm);
 }
 
-.dropdown-menu a[href="/logout"]:hover {
+.dropdown-menu .logout-form button:hover {
     background: light-dark(rgba(193, 87, 74, 0.1), rgba(193, 87, 74, 0.15));
 }
 
@@ -374,7 +388,8 @@
         display: none;
     }
 
-    .dropdown-menu a {
+    .dropdown-menu a,
+    .dropdown-menu .logout-form button {
         padding: var(--space-xs) var(--space-sm);
         font-size: 0.9rem;
         white-space: normal;
@@ -383,7 +398,7 @@
         align-items: center;
     }
 
-    .dropdown-menu a[href="/logout"] {
+    .dropdown-menu .logout-form button {
         border-top: none;
         margin-top: var(--space-xs);
         padding-top: var(--space-xs);

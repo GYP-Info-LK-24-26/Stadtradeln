@@ -52,10 +52,16 @@ if ($isLoggedIn) {
                 <ul class="dropdown-menu">
                     <?php foreach ($accountItems as $path => $label): ?>
                         <li>
-                            <a href="<?= $path ?>"
-                               class="<?= $currentPath === $path ? 'active' : '' ?>">
-                                <?= htmlspecialchars($label) ?>
-                            </a>
+                            <?php if ($path === '/logout'): ?>
+                                <form method="post" action="/logout" class="logout-form">
+                                    <button type="submit"><?= htmlspecialchars($label) ?></button>
+                                </form>
+                            <?php else: ?>
+                                <a href="<?= $path ?>"
+                                   class="<?= $currentPath === $path ? 'active' : '' ?>">
+                                    <?= htmlspecialchars($label) ?>
+                                </a>
+                            <?php endif; ?>
                         </li>
                     <?php endforeach; ?>
                 </ul>
