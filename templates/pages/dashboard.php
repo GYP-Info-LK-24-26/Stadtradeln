@@ -6,8 +6,8 @@
     <title>Dashboard - GYP-Radeln</title>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/components/nav.css">
-    <link rel="stylesheet" href="/css/components/list.css">
     <link rel="stylesheet" href="/css/components/popup.css">
+    <link rel="stylesheet" href="/css/components/calendar.css">
     <style>
         .dashboard-header {
             text-align: center;
@@ -65,39 +65,24 @@
             font-size: 0.4em;
             opacity: 0.7;
         }
-
-        .dashboard-actions {
-            display: flex;
-            justify-content: center;
-            gap: var(--space-md);
-            margin-bottom: var(--space-xl);
-        }
-
-        .tour-history h2 {
-            text-align: center;
-            margin-bottom: var(--space-lg);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: var(--space-2xl);
-            color: var(--color-text-muted);
-        }
-
-        .empty-state svg {
-            width: 64px;
-            height: 64px;
-            fill: var(--color-border);
-            margin-bottom: var(--space-md);
-        }
     </style>
 </head>
 <body>
     <?php
-        $tourError   = \App\Core\Session::getFlash('tour_error');
-        $tourPopup   = \App\Core\Session::getFlash('tour_popup');
-        $tourPopupDataRaw = \App\Core\Session::getFlash('tour_popup_data');
-        $tourPopupData = $tourPopupDataRaw ? json_decode($tourPopupDataRaw, true) : null;
+        $tourError       = \App\Core\Session::getFlash('tour_error');
+        $tourPopupDate   = \App\Core\Session::getFlash('tour_popup_date');
+
+        // Touren je Tag für das Popup als JS-Datenstruktur aufbereiten
+        $toursByDate = [];
+        foreach ($calendar as $week) {
+            foreach ($week as $cell) {
+                if (!empty($cell['tours'])) {
+                    $toursByDate[$cell['date']] = $cell['tours'];
+                }
+            }
+        }
+
+        $weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
     ?>
     <?php require __DIR__ . '/../layout/nav.php'; ?>
 
@@ -120,95 +105,80 @@
             </span>
         </div>
 
-        <div class="dashboard-actions">
-            <button class="btn btn-primary btn-lg" onclick="openTourPopup()">
-                + Tour hinzufügen
-            </button>
-        </div>
+        <div class="calendar-card">
+            <h2>Letzte zwei Wochen</h2>
+            <p class="calendar-hint">Klicke auf einen Tag, um eine Tour einzutragen.</p>
 
-        <div class="tour-history">
-            <h2>Deine Touren</h2>
+            <div class="calendar-grid">
+                <?php foreach ($weekdays as $wd): ?>
+                    <div class="calendar-weekday"><?= $wd ?></div>
+                <?php endforeach; ?>
 
-            <?php if (empty($tours)): ?>
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm14 6a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7-8h3l2 4h-4l-1-4zm-2 0L8 8H5V6h4l1-2zm3 4l2 4H9l-1-4h5z"/>
-                    </svg>
-                    <p>Du hast noch keine Touren eingetragen.</p>
-                    <p>Klicke auf "Tour hinzufügen" um deine erste Fahrt zu erfassen!</p>
-                </div>
-            <?php else: ?>
-                <ul class="stat-list">
-                    <?php foreach ($tours as $tour): ?>
-                        <li onclick="openEditPopup(<?= $tour->id ?>, '<?= htmlspecialchars($tour->date) ?>', <?= $tour->distance ?>)" style="cursor: pointer;">
-                            <span class="small-right"><?= number_format($tour->distance, 1) ?> km</span>
-                            <span class="small"><?= htmlspecialchars($tour->getFormattedDate()) ?></span>
-                        </li>
+                <?php foreach ($calendar as $week): ?>
+                    <?php foreach ($week as $cell): ?>
+                        <?php if (!$cell['inRange']): ?>
+                            <div class="cal-day is-outside" aria-hidden="true">
+                                <span class="cal-day-num"><?= $cell['day'] ?></span>
+                            </div>
+                        <?php else: ?>
+                            <?php
+                                $classes = 'cal-day level-' . $cell['level'];
+                                if ($cell['isToday']) {
+                                    $classes .= ' is-today';
+                                }
+                                if ($cell['total'] <= 0) {
+                                    $classes .= ' day-zero';
+                                }
+                            ?>
+                            <button type="button"
+                                    class="<?= $classes ?>"
+                                    data-date="<?= htmlspecialchars($cell['date']) ?>"
+                                    title="<?= htmlspecialchars($cell['label']) ?> – <?= number_format($cell['total'], 1) ?> km"
+                                    onclick="openDayPopup('<?= htmlspecialchars($cell['date']) ?>')">
+                                <span class="cal-day-num"><?= $cell['day'] ?></span>
+                                <?php if ($cell['total'] > 0): ?>
+                                    <span class="cal-day-km"><?= number_format($cell['total'], 1) ?><span class="unit">km</span></span>
+                                <?php endif; ?>
+                            </button>
+                        <?php endif; ?>
                     <?php endforeach; ?>
-                </ul>
-            <?php endif; ?>
-        </div>
+                <?php endforeach; ?>
+            </div>
 
-        <!-- Add Tour Popup -->
-        <div class="popup-overlay" id="tourPopup">
-            <div class="popup">
-                <span class="close" onclick="closeTourPopup()">&times;</span>
-
-                <h3>Neue Tour hinzufügen</h3>
-
-                <?php if ($tourError && $tourPopup === 'add'): ?>
-                    <p class="error"><?= htmlspecialchars($tourError) ?></p>
-                <?php endif; ?>
-
-                <form method="post" action="/dashboard/tour">
-                    <div class="form-group">
-                        <label for="date">Datum</label>
-                        <input type="date" id="date" name="date" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="distance">Distanz (km)</label>
-                        <input
-                            type="number"
-                            step="0.1"
-                            id="distance"
-                            name="distance"
-                            min="0"
-                            placeholder="z.B. 15.5"
-                            required
-                        >
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Hinzufügen</button>
-                </form>
+            <div class="calendar-legend">
+                <span>Weniger</span>
+                <span class="legend-cell"></span>
+                <span class="legend-cell level-1"></span>
+                <span class="legend-cell level-2"></span>
+                <span class="legend-cell level-3"></span>
+                <span class="legend-cell level-4"></span>
+                <span>Mehr</span>
             </div>
         </div>
 
-        <!-- Edit Tour Popup -->
-        <div class="popup-overlay" id="editTourPopup">
+        <!-- Day Popup: list + add/edit tour for a single day -->
+        <div class="popup-overlay" id="dayPopup">
             <div class="popup">
-                <span class="close" onclick="closeEditPopup()">&times;</span>
+                <span class="close" onclick="closeDayPopup()">&times;</span>
 
-                <h3>Tour bearbeiten</h3>
+                <h3 id="dayPopupTitle">Touren</h3>
 
-                <?php if ($tourError && $tourPopup === 'edit'): ?>
-                    <p class="error"><?= htmlspecialchars($tourError) ?></p>
-                <?php endif; ?>
+                <p class="error" id="dayPopupError" style="display: none;"></p>
 
-                <form method="post" action="/dashboard/tour/update">
-                    <input type="hidden" id="edit_tour_id" name="tour_id">
+                <ul class="day-tour-list" id="dayTourList"></ul>
 
-                    <div class="form-group">
-                        <label for="edit_date">Datum</label>
-                        <input type="date" id="edit_date" name="date" required>
-                    </div>
+                <hr class="day-form-divider">
+
+                <form method="post" id="tourForm" action="/dashboard/tour">
+                    <input type="hidden" name="tour_id" id="formTourId" value="">
+                    <input type="hidden" name="date" id="formDate" value="">
 
                     <div class="form-group">
-                        <label for="edit_distance">Distanz (km)</label>
+                        <label for="formDistance" id="formDistanceLabel">Distanz (km)</label>
                         <input
                             type="number"
                             step="0.1"
-                            id="edit_distance"
+                            id="formDistance"
                             name="distance"
                             min="0"
                             placeholder="z.B. 15.5"
@@ -216,78 +186,127 @@
                         >
                     </div>
 
-                    <div style="display: flex; gap: var(--space-sm); justify-content: space-between;">
-                        <button type="submit" class="btn btn-primary">Speichern</button>
-                        <button type="button" class="btn btn-danger" onclick="deleteTour()">Löschen</button>
-                    </div>
+                    <button type="submit" class="btn btn-primary" id="formSubmit">Hinzufügen</button>
+                    <button type="button" class="btn btn-secondary" id="formCancelEdit"
+                            style="display: none; margin-top: var(--space-sm);"
+                            onclick="resetTourForm()">Abbrechen</button>
                 </form>
 
                 <form id="deleteForm" method="post" action="/dashboard/tour/delete" style="display: none;">
-                    <input type="hidden" id="delete_tour_id" name="tour_id">
+                    <input type="hidden" id="deleteTourId" name="tour_id">
                 </form>
             </div>
         </div>
     </div>
 
     <script>
-        // Set default date to today
-        document.getElementById('date').valueAsDate = new Date();
+        const toursByDate = <?= json_encode($toursByDate, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+        const flashError = <?= json_encode($tourError ?: null) ?>;
+        const reopenDate = <?= json_encode($tourPopupDate ?: null) ?>;
 
-        // Re-open popup after server-side validation error
-        <?php if ($tourPopup === 'add'): ?>
-        openTourPopup();
-        <?php elseif ($tourPopup === 'edit' && $tourPopupData): ?>
-        openEditPopup(
-            <?= (int)$tourPopupData['id'] ?>,
-            '<?= htmlspecialchars($tourPopupData['date']) ?>',
-            <?= (float)$tourPopupData['distance'] ?>
-        );
-        <?php endif; ?>
+        const fmtKm = (n) => Number(n).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        const fmtDate = (iso) => {
+            const [y, m, d] = iso.split('-');
+            return `${d}.${m}.${y}`;
+        };
 
-        function openTourPopup() {
-            document.getElementById('tourPopup').style.display = 'block';
+        function renderTourList(date) {
+            const list = document.getElementById('dayTourList');
+            list.innerHTML = '';
+            const tours = toursByDate[date] || [];
+            tours.forEach((tour) => {
+                const li = document.createElement('li');
+
+                const dist = document.createElement('span');
+                dist.className = 'tour-dist';
+                dist.textContent = fmtKm(tour.distance) + ' km';
+
+                const actions = document.createElement('div');
+                actions.className = 'day-tour-actions';
+
+                const edit = document.createElement('button');
+                edit.type = 'button';
+                edit.className = 'edit-tour';
+                edit.textContent = 'Bearbeiten';
+                edit.onclick = () => startEdit(tour.id, tour.distance);
+
+                const del = document.createElement('button');
+                del.type = 'button';
+                del.className = 'delete-tour';
+                del.textContent = 'Löschen';
+                del.onclick = () => deleteTour(tour.id);
+
+                actions.appendChild(edit);
+                actions.appendChild(del);
+                li.appendChild(dist);
+                li.appendChild(actions);
+                list.appendChild(li);
+            });
         }
 
-        function closeTourPopup() {
-            document.getElementById('tourPopup').style.display = 'none';
+        function openDayPopup(date) {
+            document.getElementById('dayPopupTitle').textContent = 'Touren am ' + fmtDate(date);
+            document.getElementById('formDate').value = date;
+            renderTourList(date);
+            resetTourForm();
+            document.getElementById('dayPopup').style.display = 'block';
+            document.getElementById('formDistance').focus();
         }
 
-        function openEditPopup(tourId, date, distance) {
-            document.getElementById('edit_tour_id').value = tourId;
-            document.getElementById('edit_date').value = date;
-            document.getElementById('edit_distance').value = distance;
-            document.getElementById('editTourPopup').style.display = 'block';
+        function closeDayPopup() {
+            document.getElementById('dayPopup').style.display = 'none';
+            document.getElementById('dayPopupError').style.display = 'none';
         }
 
-        function closeEditPopup() {
-            document.getElementById('editTourPopup').style.display = 'none';
+        // Switch the form into "edit existing tour" mode
+        function startEdit(tourId, distance) {
+            document.getElementById('formTourId').value = tourId;
+            document.getElementById('formDistance').value = distance;
+            document.getElementById('tourForm').action = '/dashboard/tour/update';
+            document.getElementById('formSubmit').textContent = 'Speichern';
+            document.getElementById('formDistanceLabel').textContent = 'Distanz bearbeiten (km)';
+            document.getElementById('formCancelEdit').style.display = 'inline-flex';
+            document.getElementById('formDistance').focus();
         }
 
-        // Close popup when clicking outside
-        document.getElementById('tourPopup').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeTourPopup();
-            }
-        });
+        // Back to "add new tour" mode
+        function resetTourForm() {
+            document.getElementById('formTourId').value = '';
+            document.getElementById('formDistance').value = '';
+            document.getElementById('tourForm').action = '/dashboard/tour';
+            document.getElementById('formSubmit').textContent = 'Hinzufügen';
+            document.getElementById('formDistanceLabel').textContent = 'Distanz (km)';
+            document.getElementById('formCancelEdit').style.display = 'none';
+        }
 
-        document.getElementById('editTourPopup').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditPopup();
-            }
-        });
-
-        // Close popup with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeTourPopup();
-                closeEditPopup();
-            }
-        });
-
-        function deleteTour() {
+        function deleteTour(tourId) {
             if (confirm('Möchtest du diese Tour wirklich löschen?')) {
-                document.getElementById('delete_tour_id').value = document.getElementById('edit_tour_id').value;
+                document.getElementById('deleteTourId').value = tourId;
                 document.getElementById('deleteForm').submit();
+            }
+        }
+
+        // Close popup when clicking the backdrop
+        document.getElementById('dayPopup').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeDayPopup();
+            }
+        });
+
+        // Close popup with Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeDayPopup();
+            }
+        });
+
+        // Re-open the relevant day after a server-side validation error
+        if (reopenDate) {
+            openDayPopup(reopenDate);
+            if (flashError) {
+                const err = document.getElementById('dayPopupError');
+                err.textContent = flashError;
+                err.style.display = 'block';
             }
         }
     </script>

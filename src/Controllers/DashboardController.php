@@ -15,6 +15,9 @@ class DashboardController
         $this->tourRepository = new TourRepository();
     }
 
+    /** Anzahl der im Kalender angezeigten und bearbeitbaren Tage (zwei Wochen inkl. heute). */
+    private const CALENDAR_DAYS = 14;
+
     public function index(): void
     {
         Session::requireLogin();
@@ -23,9 +26,74 @@ class DashboardController
 
         View::render('pages/dashboard', [
             'teamId' => Session::getTeamId(),
-            'tours' => $tours,
-            'totalDistance' => array_sum(array_map(fn($t) => $t->distance, $tours))
+            'totalDistance' => array_sum(array_map(fn($t) => $t->distance, $tours)),
+            'calendar' => $this->buildCalendar($tours),
         ]);
+    }
+
+    /**
+     * Baut ein wochenweise (Mo–So) ausgerichtetes Kalender-Raster der letzten
+     * zwei Wochen. Jede Zelle enthält Tagessumme, Farbstufe (0–4, GitHub-Stil)
+     * und die einzelnen Touren des Tages.
+     */
+    private function buildCalendar(array $tours): array
+    {
+        // Touren nach Datum gruppieren
+        $toursByDate = [];
+        foreach ($tours as $tour) {
+            $toursByDate[$tour->date][] = ['id' => $tour->id, 'distance' => $tour->distance];
+        }
+
+        $today = new \DateTimeImmutable('today');
+        $windowStart = $today->modify('-' . (self::CALENDAR_DAYS - 1) . ' days');
+
+        // Tagessummen im Fenster für die Farbskalierung sammeln
+        $dailyTotals = [];
+        for ($d = $windowStart; $d <= $today; $d = $d->modify('+1 day')) {
+            $key = $d->format('Y-m-d');
+            $dailyTotals[$key] = array_sum(array_column($toursByDate[$key] ?? [], 'distance'));
+        }
+        $maxDistance = $dailyTotals ? max($dailyTotals) : 0.0;
+
+        // Raster auf volle Wochen erweitern (Montag … Sonntag)
+        $gridStart = $windowStart->modify('-' . ((int)$windowStart->format('N') - 1) . ' days');
+        $gridEnd = $today->modify('+' . (7 - (int)$today->format('N')) . ' days');
+
+        $weeks = [];
+        $week = [];
+        for ($d = $gridStart; $d <= $gridEnd; $d = $d->modify('+1 day')) {
+            $key = $d->format('Y-m-d');
+            $inRange = ($d >= $windowStart && $d <= $today);
+            $total = $inRange ? $dailyTotals[$key] : 0.0;
+
+            $week[] = [
+                'date'     => $key,
+                'day'      => (int)$d->format('j'),
+                'label'    => $d->format('d.m.Y'),
+                'total'    => $total,
+                'level'    => $this->intensityLevel($total, $maxDistance),
+                'inRange'  => $inRange,
+                'isToday'  => $key === $today->format('Y-m-d'),
+                'isFuture' => $d > $today,
+                'tours'    => $inRange ? ($toursByDate[$key] ?? []) : [],
+            ];
+
+            if (count($week) === 7) {
+                $weeks[] = $week;
+                $week = [];
+            }
+        }
+
+        return $weeks;
+    }
+
+    /** GitHub-artige Intensitätsstufe 0–4, relativ zum Maximum des Fensters. */
+    private function intensityLevel(float $total, float $max): int
+    {
+        if ($total <= 0 || $max <= 0) {
+            return 0;
+        }
+        return (int)max(1, min(4, ceil($total / $max * 4)));
     }
 
     private const MAX_DISTANCE_PER_DAY = 300.0;
@@ -37,9 +105,9 @@ class DashboardController
             return 'Die Distanz muss größer als 0 km sein.';
         }
 
-        // Datum muss zwischen vor einer Woche und heute liegen
+        // Datum muss innerhalb der angezeigten zwei Wochen (inkl. heute) liegen
         $today = new \DateTimeImmutable('today');
-        $minDate = $today->modify('-7 days');
+        $minDate = $today->modify('-' . (self::CALENDAR_DAYS - 1) . ' days');
         $tourDate = \DateTimeImmutable::createFromFormat('Y-m-d', $date);
 
         if ($tourDate === false) {
@@ -80,7 +148,7 @@ class DashboardController
             $error = $this->validateTourInput($distance, $date);
             if ($error !== null) {
                 Session::setFlash('tour_error', $error);
-                Session::setFlash('tour_popup', 'add');
+                Session::setFlash('tour_popup_date', $date);
                 header("Location: /dashboard");
                 exit;
             }
@@ -105,12 +173,7 @@ class DashboardController
                 $error = $this->validateTourInput($distance, $date, $tourId);
                 if ($error !== null) {
                     Session::setFlash('tour_error', $error);
-                    Session::setFlash('tour_popup', 'edit');
-                    Session::setFlash('tour_popup_data', json_encode([
-                        'id' => $tourId,
-                        'date' => $date,
-                        'distance' => $distance,
-                    ]));
+                    Session::setFlash('tour_popup_date', $date);
                     header("Location: /dashboard");
                     exit;
                 }
