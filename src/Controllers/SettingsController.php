@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Session;
 use App\Core\View;
+use App\Models\User;
 use App\Repository\UserRepository;
 use App\Repository\RateLimitRepository;
 
@@ -84,6 +85,8 @@ class SettingsController
 
         if (empty($name)) {
             $error = 'Name darf nicht leer sein.';
+        } elseif (mb_strlen($name) > User::NAME_MAX_LENGTH) {
+            $error = 'Der Name darf höchstens ' . User::NAME_MAX_LENGTH . ' Zeichen lang sein.';
         } else {
             $this->userRepository->updateName($userId, $name);
             Session::setName($name);

@@ -107,6 +107,8 @@ class AuthController
 
         if (empty($data['name'])) {
             $error = 'Du musst einen Namen eingeben';
+        } elseif (mb_strlen($data['name']) > User::NAME_MAX_LENGTH) {
+            $error = 'Der Name darf höchstens ' . User::NAME_MAX_LENGTH . ' Zeichen lang sein';
         } elseif (empty($data['email'])) {
             $error = 'Du musst eine E-Mail eingeben';
         } elseif (empty($data['password'])) {

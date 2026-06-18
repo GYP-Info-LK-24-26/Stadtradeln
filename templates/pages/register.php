@@ -86,6 +86,7 @@
                     name="name"
                     value="<?= htmlspecialchars($data['name'] ?? '') ?>"
                     placeholder="Max Mustermann"
+                    maxlength="<?= \App\Models\User::NAME_MAX_LENGTH ?>"
                     required
                 >
             </div>

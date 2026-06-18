@@ -15,6 +15,7 @@ spl_autoload_register(function ($class) {
 });
 
 use App\Core\Router;
+use App\Core\Session;
 use App\Core\View;
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
@@ -25,7 +26,12 @@ use App\Controllers\SettingsController;
 $router = new Router();
 
 $router
-    ->get('/', fn() => View::render('pages/home'))
+    ->get('/', function () {
+        // Session vor jeglicher Ausgabe starten, damit die Startseite den
+        // Login-Status prüfen kann (kein Controller geht hier voraus).
+        Session::start();
+        View::render('pages/home');
+    })
 
     ->get('/login', [AuthController::class, 'showLogin'])
     ->post('/login', [AuthController::class, 'login'])

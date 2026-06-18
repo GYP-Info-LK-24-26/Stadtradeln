@@ -307,8 +307,12 @@
             </p>
 
             <div class="hero-actions">
-                <a href="/register" class="btn btn-primary btn-lg">Jetzt registrieren</a>
-                <a href="/login" class="btn btn-secondary btn-lg">Anmelden</a>
+                <?php if (\App\Core\Session::isLoggedIn()): ?>
+                    <a href="/dashboard" class="btn btn-primary btn-lg">Zum Dashboard</a>
+                <?php else: ?>
+                    <a href="/register" class="btn btn-primary btn-lg">Jetzt registrieren</a>
+                    <a href="/login" class="btn btn-secondary btn-lg">Anmelden</a>
+                <?php endif; ?>
                 <a href="/leaderboard" class="btn btn-secondary btn-lg">Rangliste ansehen</a>
             </div>
 

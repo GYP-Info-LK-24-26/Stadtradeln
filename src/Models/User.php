@@ -4,6 +4,9 @@ namespace App\Models;
 
 class User
 {
+    /** Maximale Länge des Anzeigenamens (Zeichen). */
+    public const NAME_MAX_LENGTH = 50;
+
     public ?string $email = null;
     public ?string $password = null;
 
