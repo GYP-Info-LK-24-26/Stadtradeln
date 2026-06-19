@@ -97,6 +97,18 @@
             color: var(--forest-deep);
         }
 
+        .make-leader-form {
+            grid-column: 1 / -1;
+            justify-self: end;
+            margin: var(--space-sm) 0 0;
+        }
+
+        .make-leader-btn {
+            font-size: 0.8rem;
+            padding: var(--space-xs) var(--space-md);
+            white-space: nowrap;
+        }
+
         .no-team-container {
             text-align: center;
             padding: var(--space-2xl);
@@ -251,7 +263,7 @@
                 </h3>
 
                 <ul class="stat-list">
-                    <?php foreach ($members as $member): ?>
+                    <?php foreach ($members as $index => $member): ?>
                         <li>
                             <span class="name">
                                 <?= htmlspecialchars($member->name) ?>
@@ -262,6 +274,15 @@
                                     <span class="member-badge teamleiter">Teamleiter</span>
                                 <?php endif; ?>
                             </span>
+                            <span class="big">#<?= $index + 1 ?></span>
+                            <span class="small"><?= number_format($member->totalDistance, 1) ?> km</span>
+                            <?php if ($userId === $team->teamleiterId && $member->id !== $team->teamleiterId): ?>
+                                <form method="post" action="/team/leader" class="make-leader-form"
+                                      onsubmit="return confirm('Möchtest du die Teamleitung an dieses Mitglied übergeben? Du verlierst dann deine Teamleiter-Rechte.');">
+                                    <input type="hidden" name="new_leader" value="<?= (int)$member->id ?>">
+                                    <button type="submit" class="btn btn-secondary make-leader-btn">Zum Teamleiter machen</button>
+                                </form>
+                            <?php endif; ?>
                         </li>
                     <?php endforeach; ?>
                 </ul>

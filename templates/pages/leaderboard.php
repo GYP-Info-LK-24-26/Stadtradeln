@@ -76,7 +76,7 @@
                     class="<?= $currentType === 'users' || !$currentType ? 'active' : '' ?>"
                     onclick="setType('users')"
                 >
-                    Alle Benutzer
+                    Benutzer
                 </button>
                 <button
                     class="<?= $currentType === 'teams' ? 'active' : '' ?>"
@@ -84,14 +84,6 @@
                 >
                     Teams
                 </button>
-                <?php if ($isLoggedIn): ?>
-                <button
-                    class="<?= $currentType === 'my-team' ? 'active' : '' ?>"
-                    onclick="setType('my-team')"
-                >
-                    Mein Team
-                </button>
-                <?php endif; ?>
             </div>
         </div>
 

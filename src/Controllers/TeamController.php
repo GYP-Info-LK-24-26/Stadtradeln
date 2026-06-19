@@ -40,7 +40,7 @@ class TeamController
         }
 
         $team = $this->teamRepository->findById($teamId);
-        $members = $this->userRepository->findByTeam($teamId);
+        $members = $this->userRepository->findByTeamWithDistance($teamId);
         $stats = $this->tourRepository->getStatsForTeam($teamId);
 
         View::render('pages/team', [
@@ -114,7 +114,8 @@ class TeamController
         View::render('pages/team-join', [
             'showCreate' => $isCreate,
             'teams' => $teams,
-            'error' => $error
+            'error' => $error,
+            'teamName' => $teamName
         ]);
     }
 
@@ -130,12 +131,21 @@ class TeamController
             exit;
         }
 
+        $team = $this->teamRepository->findById($teamId);
+        $wasLeader = $team !== null && $team->teamleiterId === $userId;
+
         // Remove user from team
         $this->userRepository->updateTeam($userId, null);
         Session::setTeamId(null);
 
-        // Delete team if it's now empty
-        $this->teamRepository->deleteIfEmpty($teamId);
+        // Delete the team if it's now empty; otherwise, if the Teamleiter left,
+        // promote the remaining member with the most kilometers.
+        if (!$this->teamRepository->deleteIfEmpty($teamId) && $wasLeader) {
+            $members = $this->userRepository->findByTeamWithDistance($teamId);
+            if (!empty($members)) {
+                $this->teamRepository->updateLeader($teamId, $members[0]->id);
+            }
+        }
 
         header("Location: /team");
         exit;
@@ -164,6 +174,37 @@ class TeamController
 
         if (!empty($newName) && $newName !== $team->name && $this->teamRepository->getIdByName($newName) === null) {
             $this->teamRepository->updateName($teamId, $newName);
+        }
+
+        header("Location: /team");
+        exit;
+    }
+
+    public function transferLeader(): void
+    {
+        Session::requireLogin();
+
+        $userId = Session::getUserId();
+        $teamId = Session::getTeamId();
+        $newLeaderId = (int)($_POST['new_leader'] ?? 0);
+
+        if ($teamId === null) {
+            header("Location: /team");
+            exit;
+        }
+
+        $team = $this->teamRepository->findById($teamId);
+
+        // Only the current Teamleiter may hand over the role
+        if ($team === null || $team->teamleiterId !== $userId) {
+            header("Location: /team");
+            exit;
+        }
+
+        // The new leader must be another member of the same team
+        $newLeader = $this->userRepository->findById($newLeaderId);
+        if ($newLeader !== null && $newLeader->teamId === $teamId && $newLeaderId !== $userId) {
+            $this->teamRepository->updateLeader($teamId, $newLeaderId);
         }
 
         header("Location: /team");

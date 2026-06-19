@@ -104,7 +104,7 @@
             </div>
         </div>
 
-        <?php if (!empty($error)): ?>
+        <?php if (!empty($error) && !$showCreate): ?>
             <p class="error" style="text-align: center;"><?= htmlspecialchars($error) ?></p>
         <?php endif; ?>
 
@@ -124,7 +124,7 @@
                             <li data-team="<?= htmlspecialchars($team->name) ?>">
                                 <span class="name"><?= htmlspecialchars($team->name) ?></span>
                                 <span class="big"><?= $team->memberCount ?></span>
-                                <span class="small"><?= number_format($team->totalDistance, 1) ?> km gefahren</span>
+                                <span class="small"><?= number_format($team->totalDistance, 1) ?> km</span>
                             </li>
                         <?php endforeach; ?>
                     </ul>
@@ -139,6 +139,10 @@
 
                 <h3>Neues Team erstellen</h3>
 
+                <?php if (!empty($error) && $showCreate): ?>
+                    <p class="error"><?= htmlspecialchars($error) ?></p>
+                <?php endif; ?>
+
                 <form method="post" action="/team/join">
                     <input type="hidden" name="type" value="create">
 
@@ -149,6 +153,7 @@
                             id="team_name"
                             name="team_name"
                             placeholder="z.B. Die Radler"
+                            value="<?= htmlspecialchars($teamName ?? '') ?>"
                             required
                         >
                     </div>

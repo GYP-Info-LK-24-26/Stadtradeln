@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Core\Session;
 use App\Core\View;
 use App\Repository\TeamRepository;
 use App\Repository\UserRepository;
@@ -20,24 +19,14 @@ class LeaderboardController
 
     public function index(): void
     {
-        $isLoggedIn = Session::isLoggedIn();
-        $type = $_GET['type'] ?? 'users';
         $page = (int)($_GET['page'] ?? 0);
-
-        if ($type === 'my-team' && !$isLoggedIn) {
-            header('Location: /login?redirect=' . urlencode('/leaderboard?type=my-team'));
-            exit;
-        }
-
-        $viewUsers = ($type === 'users' || $type === 'my-team');
-        $teamId = ($type === 'my-team') ? Session::getTeamId() : null;
+        $viewUsers = (($_GET['type'] ?? 'users') !== 'teams');
 
         View::render('pages/leaderboard', [
             'viewUsers' => $viewUsers,
-            'users' => $viewUsers ? $this->userRepository->findByTeamWithDistance($teamId, $page) : [],
+            'users' => $viewUsers ? $this->userRepository->findByTeamWithDistance(null, $page) : [],
             'teams' => $this->teamRepository->findAllWithStats(),
-            'currentType' => $type,
-            'isLoggedIn' => $isLoggedIn
+            'currentType' => $viewUsers ? 'users' : 'teams',
         ]);
     }
 }

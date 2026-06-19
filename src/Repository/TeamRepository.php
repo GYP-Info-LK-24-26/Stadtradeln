@@ -70,6 +70,15 @@ class TeamRepository
         return $stmt->execute();
     }
 
+    public function updateLeader(int $teamId, int $userId): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE teams SET teamleiterID = ? WHERE teamID = ?");
+        $stmt->bind_param("ii", $userId, $teamId);
+
+        return $stmt->execute();
+    }
+
     public function delete(int $teamId): bool
     {
         $conn = Database::getConnection();
