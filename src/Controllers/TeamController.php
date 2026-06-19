@@ -91,7 +91,7 @@ class TeamController
                         $this->userRepository->updateTeam($userId, $teamId);
                         Session::setTeamId($teamId);
 
-                        header("Location: /dashboard");
+                        header("Location: /team");
                         exit;
                     } catch (\Exception $e) {
                         $error = 'Interner Fehler';
@@ -104,7 +104,7 @@ class TeamController
                     $this->userRepository->updateTeam($userId, $existingId);
                     Session::setTeamId($existingId);
 
-                    header("Location: /dashboard");
+                    header("Location: /team");
                     exit;
                 }
             }
