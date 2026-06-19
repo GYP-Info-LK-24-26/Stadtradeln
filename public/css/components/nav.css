@@ -318,9 +318,10 @@
         font-size: 1rem;
     }
 
-    /* Show hamburger button */
+    /* Show hamburger button, pushed to the right edge like the desktop nav items */
     .nav-toggle {
         display: flex;
+        margin-left: auto;
     }
 
     /* Hide nav list by default; show when toggled */
