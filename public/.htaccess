@@ -16,3 +16,14 @@ RewriteRule ^(.*)$ index.php [L,QSA]
     Order allow,deny
     Deny from all
 </FilesMatch>
+
+# PWA: korrekte MIME-Typen
+AddType application/manifest+json .webmanifest
+AddType image/svg+xml .svg
+
+# PWA: Service Worker darf nicht gecacht werden, damit Updates ankommen
+<IfModule mod_headers.c>
+    <Files "sw.js">
+        Header set Cache-Control "no-cache"
+    </Files>
+</IfModule>

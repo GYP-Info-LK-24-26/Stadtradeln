@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Registrieren - GYP-Radeln</title>
+    <?php require __DIR__ . '/../layout/pwa-head.php'; ?>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/components/nav.css">
     <style>

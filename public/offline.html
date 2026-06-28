@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1B4332">
+    <title>Offline · GYP-Radeln</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.svg">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .offline-wrap {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1rem;
+            padding: 2rem;
+        }
+        .offline-icon {
+            width: 96px;
+            height: 96px;
+            fill: var(--color-primary);
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="offline-wrap">
+            <svg class="offline-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GYP-Radeln">
+                <path d="M5 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm14 6a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7-8h3l2 4h-4l-1-4zm-2 0L8 8H5V6h4l1-2zm3 4l2 4H9l-1-4h5z"/>
+            </svg>
+            <h1>Keine Verbindung</h1>
+            <p>Du bist gerade offline. Sobald du wieder im Netz bist, geht es weiter.</p>
+            <p><a href="/dashboard">Erneut versuchen</a></p>
+        </div>
+    </main>
+</body>
+</html>
