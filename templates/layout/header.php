@@ -31,6 +31,8 @@ $bodyClasses = 'layout-' . $layout . ($isLoggedIn ? ' has-tabbar' : '');
     <?php require __DIR__ . '/pwa-head.php'; ?>
     <link rel="preload" href="/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<?= View::asset('/css/app.css') ?>">
+    <!-- Leeres Inline-Script: zwingt Firefox, vor dem ersten Rendern auf app.css zu warten (verhindert FOUC) -->
+    <script>0</script>
     <script src="<?= View::asset('/js/app.js') ?>" defer></script>
 </head>
 <body class="<?= $bodyClasses ?>">

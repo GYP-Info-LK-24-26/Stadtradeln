@@ -12,7 +12,7 @@
  * Bei jeder Änderung an den Assets CACHE_VERSION erhöhen, damit alte
  * Caches verworfen werden.
  */
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const CACHE_NAME = `gyp-radeln-${CACHE_VERSION}`;
 
 // App-Shell: wird bei der Installation vorab gecacht.

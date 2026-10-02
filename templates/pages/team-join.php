@@ -7,11 +7,11 @@ require __DIR__ . '/../layout/header.php';
 ?>
 <div class="container page">
     <header class="page-header">
-        <div class="page-header-text">
+        <div class="page-header-text reveal">
             <h1>Team finden</h1>
             <p class="lead">Tritt einem bestehenden Team bei oder gründe dein eigenes.</p>
         </div>
-        <div class="page-actions">
+        <div class="page-actions reveal" style="--i: 1">
             <button type="button" class="btn btn-primary" data-dialog-open="createDialog">
                 <?= Icon::svg('plus') ?> Neues Team
             </button>
@@ -26,7 +26,7 @@ require __DIR__ . '/../layout/header.php';
     <?php endif; ?>
 
     <?php if (empty($teams)): ?>
-        <div class="card empty">
+        <div class="card empty reveal" style="--i: 2">
             <span class="empty-icon"><?= Icon::svg('users') ?></span>
             <h2>Noch keine Teams</h2>
             <p>Sei die erste Person und gründe ein Team!</p>
@@ -35,7 +35,7 @@ require __DIR__ . '/../layout/header.php';
             </button>
         </div>
     <?php else: ?>
-        <div class="toolbar">
+        <div class="toolbar reveal" style="--i: 2">
             <div class="input-wrap">
                 <?= Icon::svg('search') ?>
                 <input class="input" type="search" id="teamSearch" placeholder="Team suchen …"
@@ -49,7 +49,7 @@ require __DIR__ . '/../layout/header.php';
                       data-confirm="Du wirst Mitglied im Team „<?= htmlspecialchars($team->name) ?>“."
                       data-confirm-title="Team beitreten?" data-confirm-ok="Beitreten">
                     <input type="hidden" name="team_name" value="<?= htmlspecialchars($team->name) ?>">
-                    <button type="submit" class="team-card">
+                    <button type="submit" class="team-card" style="--i: <?= min($i, 12) ?>">
                         <?= View::avatar($team->name) ?>
                         <span class="team-card-text">
                             <span class="team-card-name"><?= htmlspecialchars($team->name) ?></span>
