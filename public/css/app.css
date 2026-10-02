@@ -5,6 +5,24 @@
    6. Seiten   7. Animationen   8. Utilities
    ========================================================================== */
 
+/* ---------- 0. Schrift (selbst gehostet, OFL – siehe /fonts/OFL.txt) ---------- */
+@font-face {
+    font-family: 'Plus Jakarta Sans';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url('/fonts/plus-jakarta-sans-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Plus Jakarta Sans';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url('/fonts/plus-jakarta-sans-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 /* ---------- 1. Tokens ---------- */
 :root {
     color-scheme: light dark;
@@ -126,6 +144,7 @@
 [hidden] { display: none !important; }
 
 html {
+    background: var(--bg);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     scroll-behavior: smooth;
@@ -793,7 +812,6 @@ img, svg { display: block; }
     font-size: 0.9rem;
     font-weight: 500;
     line-height: 1.45;
-    animation: pop-in 0.35s var(--ease-out);
 }
 .alert > .icon { width: 18px; height: 18px; margin-top: 1px; }
 .alert a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
@@ -1310,8 +1328,6 @@ img, svg { display: block; }
     aspect-ratio: 1;
     border-radius: 6px;
     background: var(--heat-0);
-    animation: pop-in 0.5s var(--ease-spring) both;
-    animation-delay: calc(var(--i) * 35ms + 300ms);
 }
 .preview-rank {
     margin-right: 40px;
@@ -1395,8 +1411,6 @@ img, svg { display: block; }
     color: var(--text);
     text-align: left;
     transition: transform 0.2s var(--ease-out), box-shadow 0.2s, border-color 0.2s;
-    animation: pop-in 0.45s var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 18ms);
 }
 button.cal-day:hover {
     transform: translateY(-2px);
@@ -1550,11 +1564,10 @@ button.cal-day:hover .cal-day-add, button.cal-day:focus-visible .cal-day-add { o
     box-shadow: var(--shadow-sm);
     text-align: center;
     min-width: 0;
-    animation: rise 0.5s var(--ease-out) both;
 }
-.podium-place.place-1 { order: 2; padding-top: 28px; padding-bottom: 28px; animation-delay: 0.05s; }
-.podium-place.place-2 { order: 1; animation-delay: 0.15s; }
-.podium-place.place-3 { order: 3; animation-delay: 0.25s; }
+.podium-place.place-1 { order: 2; padding-top: 28px; padding-bottom: 28px; }
+.podium-place.place-2 { order: 1; }
+.podium-place.place-3 { order: 3; }
 .podium-place.place-1 {
     border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
     background: linear-gradient(180deg, var(--accent-soft), var(--surface) 70%);
@@ -1672,8 +1685,6 @@ button.cal-day:hover .cal-day-add, button.cal-day:focus-visible .cal-day-add { o
     background: var(--surface);
     box-shadow: var(--shadow-sm);
     text-align: left;
-    animation: rise 0.4s var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 40ms);
     transition: transform 0.2s var(--ease-out), box-shadow 0.2s, border-color 0.2s;
 }
 .team-card:hover {
@@ -1733,14 +1744,15 @@ button.cal-day:hover .cal-day-add, button.cal-day:focus-visible .cal-day-add { o
 /* ---------- 7. Animationen ---------- */
 @view-transition { navigation: auto; }
 
-::view-transition-old(root) { animation: 0.16s ease-in both fade-out; }
-::view-transition-new(root) { animation: 0.28s var(--ease-out) both rise-soft; }
+/* Die neue Seite ist sofort vollständig sichtbar; nur die alte blendet kurz
+   darüber aus. Kein Ein-Animieren von Inhalten beim Laden – das wirkte wie
+   verspätet geladenes CSS. */
+::view-transition-old(root) { animation: 0.15s ease-out both fade-out; }
+::view-transition-new(root) { animation: none; }
 
 @keyframes fade-in { from { opacity: 0; } }
 @keyframes fade-out { to { opacity: 0; } }
 @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
-@keyframes rise-soft { from { opacity: 0; transform: translateY(6px); } }
-@keyframes pop-in { from { opacity: 0; transform: scale(0.92); } }
 @keyframes grow-x { from { transform: scaleX(0); } }
 @keyframes dialog-in { from { opacity: 0; transform: translateY(12px) scale(0.96); } }
 @keyframes dialog-out { to { opacity: 0; transform: translateY(8px) scale(0.97); } }
@@ -1748,12 +1760,6 @@ button.cal-day:hover .cal-day-add, button.cal-day:focus-visible .cal-day-add { o
 @keyframes sheet-out { to { transform: translateY(100%); } }
 @keyframes float { 50% { transform: translateY(-8px); } }
 @keyframes bob { 50% { transform: translateY(-3px) rotate(-4deg); } }
-
-/* Einblenden beim Laden, gestaffelt über --i */
-.reveal {
-    animation: rise 0.55s var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 70ms);
-}
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

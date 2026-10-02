@@ -12,16 +12,16 @@ $previewLevels = [0, 2, 1, 0, 3, 4, 2, 1, 0, 2, 4, 3, 0, 1];
 <section class="hero">
     <div class="container hero-grid">
         <div>
-            <span class="pill reveal">
+            <span class="pill">
                 <span class="pill-dot"><?= Icon::svg('leaf') ?></span>
                 Stadtradeln am Gymnasium Penzberg
             </span>
-            <h1 class="reveal" style="--i: 1">Gemeinsam radeln<br>für das <em>Klima.</em></h1>
-            <p class="hero-lead reveal" style="--i: 2">
+            <h1 >Gemeinsam radeln<br>für das <em>Klima.</em></h1>
+            <p class="hero-lead">
                 Trag deine Fahrradtouren ein, schließ dich einem Team an und sammelt
                 zusammen Kilometer für eine nachhaltige Zukunft.
             </p>
-            <div class="hero-actions reveal" style="--i: 3">
+            <div class="hero-actions">
                 <?php if (Session::isLoggedIn()): ?>
                     <a href="/dashboard" class="btn btn-primary btn-lg">
                         Zum Dashboard <?= Icon::svg('arrow-right') ?>
@@ -37,7 +37,7 @@ $previewLevels = [0, 2, 1, 0, 3, 4, 2, 1, 0, 2, 4, 3, 0, 1];
             </div>
         </div>
 
-        <div class="preview reveal" style="--i: 2" aria-hidden="true">
+        <div class="preview" aria-hidden="true">
             <div class="card stat stat-hero preview-km">
                 <span class="stat-icon"><?= Icon::svg('route') ?></span>
                 <span class="stat-label">Deine Kilometer</span>
@@ -47,7 +47,7 @@ $previewLevels = [0, 2, 1, 0, 3, 4, 2, 1, 0, 2, 4, 3, 0, 1];
                 <div class="card-title">Letzte zwei Wochen</div>
                 <div class="preview-cells">
                     <?php foreach ($previewLevels as $i => $level): ?>
-                        <span style="--i: <?= $i ?>; <?= $level ? 'background: var(--heat-' . $level . ')' : '' ?>"></span>
+                        <span<?= $level ? ' style="background: var(--heat-' . $level . ')"' : '' ?>></span>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -63,19 +63,19 @@ $previewLevels = [0, 2, 1, 0, 3, 4, 2, 1, 0, 2, 4, 3, 0, 1];
 </section>
 
 <section class="container features">
-    <article class="card feature reveal" style="--i: 3">
+    <article class="card feature">
         <span class="feature-step">1</span>
         <span class="stat-icon"><?= Icon::svg('calendar') ?></span>
         <h3>Touren eintragen</h3>
         <p>Tipp auf einen Tag im Kalender und trag deine gefahrenen Kilometer ein – fertig.</p>
     </article>
-    <article class="card feature reveal" style="--i: 4">
+    <article class="card feature">
         <span class="feature-step">2</span>
         <span class="stat-icon"><?= Icon::svg('users') ?></span>
         <h3>Im Team fahren</h3>
         <p>Tritt einem Team bei oder gründe dein eigenes. Jeder Kilometer zählt fürs ganze Team.</p>
     </article>
-    <article class="card feature reveal" style="--i: 5">
+    <article class="card feature">
         <span class="feature-step">3</span>
         <span class="stat-icon stat-icon-accent"><?= Icon::svg('trophy') ?></span>
         <h3>Ranglisten erklimmen</h3>

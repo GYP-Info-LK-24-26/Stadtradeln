@@ -10,7 +10,7 @@ if ($valid) {
 require __DIR__ . '/../layout/header.php';
 ?>
 <div class="auth">
-    <div class="card auth-card reveal">
+    <div class="card auth-card">
         <div class="auth-head">
             <span class="brand-mark"><?= Icon::svg('key') ?></span>
             <h1>Neues Passwort</h1>

@@ -42,11 +42,11 @@ require __DIR__ . '/../layout/header.php';
 ?>
 <div class="container page">
     <header class="page-header">
-        <div class="page-header-text reveal">
+        <div class="page-header-text">
             <span class="eyebrow"><?= View::longDate(new DateTimeImmutable('today')) ?></span>
             <h1>Hallo, <?= htmlspecialchars(Session::getDisplayName() ?? '') ?>!</h1>
         </div>
-        <div class="page-actions reveal" style="--i: 1">
+        <div class="page-actions">
             <button type="button" class="btn btn-primary" data-open-day="<?= htmlspecialchars($todayDate ?? '') ?>">
                 <?= Icon::svg('plus') ?> Tour eintragen
             </button>
@@ -55,7 +55,7 @@ require __DIR__ . '/../layout/header.php';
 
     <div class="stack-lg">
         <?php if ($teamId === null): ?>
-            <div class="alert alert-warning alert-banner reveal" style="--i: 1">
+            <div class="alert alert-warning alert-banner">
                 <?= Icon::svg('users') ?>
                 <span>Du bist noch in keinem Team. Gemeinsam macht's mehr Spaß!</span>
                 <a href="/team/join" class="btn btn-sm btn-secondary">Team finden</a>
@@ -63,28 +63,28 @@ require __DIR__ . '/../layout/header.php';
         <?php endif; ?>
 
         <section class="stat-grid" aria-label="Deine Statistik">
-            <div class="stat stat-hero reveal" style="--i: 1">
+            <div class="stat stat-hero">
                 <span class="stat-icon"><?= Icon::svg('route') ?></span>
                 <span class="stat-label">Kilometer gesamt</span>
                 <span class="stat-value">
                     <span data-count-to="<?= $totalDistance ?>" data-decimals="1"><?= View::number($totalDistance) ?></span><span class="stat-unit">km</span>
                 </span>
             </div>
-            <div class="stat reveal" style="--i: 2">
+            <div class="stat">
                 <span class="stat-icon"><?= Icon::svg('trending-up') ?></span>
                 <span class="stat-label">Letzte 14 Tage</span>
                 <span class="stat-value">
                     <span data-count-to="<?= $windowDistance ?>" data-decimals="1"><?= View::number($windowDistance) ?></span><span class="stat-unit">km</span>
                 </span>
             </div>
-            <div class="stat reveal" style="--i: 3">
+            <div class="stat">
                 <span class="stat-icon stat-icon-accent"><?= Icon::svg('flame') ?></span>
                 <span class="stat-label">Aktive Tage</span>
                 <span class="stat-value">
                     <span data-count-to="<?= $activeDays ?>"><?= $activeDays ?></span><span class="stat-unit">/ <?= $windowDays ?></span>
                 </span>
             </div>
-            <div class="stat reveal" style="--i: 4">
+            <div class="stat">
                 <span class="stat-icon"><?= Icon::svg('bike') ?></span>
                 <span class="stat-label">Touren (14 Tage)</span>
                 <span class="stat-value">
@@ -93,7 +93,7 @@ require __DIR__ . '/../layout/header.php';
             </div>
         </section>
 
-        <section class="card card-calendar reveal" style="--i: 3" aria-labelledby="calendarTitle">
+        <section class="card card-calendar" aria-labelledby="calendarTitle">
             <div class="card-header">
                 <div>
                     <h2 class="card-title" id="calendarTitle">Letzte zwei Wochen</h2>
@@ -106,10 +106,10 @@ require __DIR__ . '/../layout/header.php';
                     <div class="calendar-weekday"><?= $wd ?></div>
                 <?php endforeach; ?>
 
-                <?php $i = 0; foreach ($calendar as $week): ?>
-                    <?php foreach ($week as $cell): $i++; ?>
+                <?php foreach ($calendar as $week): ?>
+                    <?php foreach ($week as $cell): ?>
                         <?php if (!$cell['inRange']): ?>
-                            <div class="cal-day is-outside" style="--i: <?= $i ?>" aria-hidden="true">
+                            <div class="cal-day is-outside" aria-hidden="true">
                                 <span class="cal-day-num"><?= $cell['day'] ?></span>
                             </div>
                         <?php else: ?>
@@ -120,7 +120,7 @@ require __DIR__ . '/../layout/header.php';
                                 }
                                 $kmLabel = View::number($cell['total']) . ' km';
                             ?>
-                            <button type="button" class="<?= $classes ?>" style="--i: <?= $i ?>"
+                            <button type="button" class="<?= $classes ?>"
                                     data-open-day="<?= htmlspecialchars($cell['date']) ?>"
                                     aria-label="<?= htmlspecialchars($cell['label']) ?>: <?= $kmLabel ?>">
                                 <span class="cal-day-num"><?= $cell['day'] ?></span>

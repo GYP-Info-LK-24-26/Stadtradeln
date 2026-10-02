@@ -19,14 +19,14 @@ require __DIR__ . '/../layout/header.php';
 ?>
 <div class="container container-narrow page">
     <header class="page-header">
-        <div class="page-header-text reveal">
+        <div class="page-header-text">
             <h1>Einstellungen</h1>
             <p class="lead">Verwalte dein Profil und deine Zugangsdaten.</p>
         </div>
     </header>
 
     <div class="stack-lg">
-        <section class="card profile-card reveal" style="--i: 1" aria-label="Profil">
+        <section class="card profile-card" aria-label="Profil">
             <?= View::avatar($name, 'xl') ?>
             <div class="profile-text">
                 <div class="profile-name">
@@ -49,7 +49,7 @@ require __DIR__ . '/../layout/header.php';
             <div class="alert alert-error" role="alert"><?= Icon::svg('alert') ?><span><?= htmlspecialchars($error) ?></span></div>
         <?php endif; ?>
 
-        <section class="reveal" style="--i: 2">
+        <section >
             <div class="section-title mt-0"><h2>Zugangsdaten</h2></div>
             <div class="card card-flush">
                 <details class="setting" <?= $emailSuccess || $emailError ? 'open' : '' ?>>
@@ -121,7 +121,7 @@ require __DIR__ . '/../layout/header.php';
             </div>
         </section>
 
-        <section class="reveal" style="--i: 3">
+        <section >
             <div class="section-title mt-0"><h2>Sitzung</h2></div>
             <form method="post" action="/logout" class="card card-row">
                 <div>

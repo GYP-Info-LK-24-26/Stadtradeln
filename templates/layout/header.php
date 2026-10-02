@@ -20,11 +20,16 @@ $bodyClasses = 'layout-' . $layout . ($isLoggedIn ? ' has-tabbar' : '');
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <style>
+        /* Kritische Grundfarben inline, damit schon der erste Frame (vor app.css) im
+           richtigen Farbschema gemalt wird – verhindert den weißen Blitz im Dark Mode. */
+        html { background: #F4F7F5; color: #0F2419; }
+        @media (prefers-color-scheme: dark) { html { background: #0A120E; color: #E6EFE9; } }
+    </style>
     <title><?= isset($title) ? htmlspecialchars($title) . ' · GYP-Radeln' : 'GYP-Radeln' ?></title>
     <?php require __DIR__ . '/pwa-head.php'; ?>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <link rel="preload" href="/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<?= View::asset('/css/app.css') ?>">
     <script src="<?= View::asset('/js/app.js') ?>" defer></script>
 </head>
