@@ -6,7 +6,7 @@ $layout = 'auth';
 require __DIR__ . '/../layout/header.php';
 ?>
 <div class="auth">
-    <div class="card auth-card">
+    <div class="card auth-card reveal">
         <div class="auth-head">
             <span class="brand-mark"><?= Icon::svg('key') ?></span>
             <h1>Passwort vergessen?</h1>

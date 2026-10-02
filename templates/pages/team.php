@@ -10,7 +10,7 @@ require __DIR__ . '/../layout/header.php';
 ?>
 <div class="container page">
     <?php if (!$hasTeam): ?>
-        <div class="card empty">
+        <div class="card empty reveal">
             <span class="empty-icon"><?= Icon::svg('users') ?></span>
             <h1>Noch kein Team</h1>
             <p>Tritt einem bestehenden Team bei oder gründe dein eigenes – gemeinsam sammelt ihr mehr Kilometer.</p>
@@ -18,7 +18,7 @@ require __DIR__ . '/../layout/header.php';
         </div>
     <?php elseif ($team): ?>
         <header class="page-header">
-            <div class="team-title">
+            <div class="team-title reveal">
                 <span class="team-mark"><?= Icon::svg('users') ?></span>
                 <div class="page-header-text">
                     <span class="eyebrow">Dein Team</span>
@@ -38,25 +38,25 @@ require __DIR__ . '/../layout/header.php';
                     </h1>
                 </div>
             </div>
-            <div class="page-actions">
+            <div class="page-actions reveal" style="--i: 1">
                 <a href="/leaderboard?type=teams" class="btn btn-secondary"><?= Icon::svg('trophy') ?> Teamrangliste</a>
             </div>
         </header>
 
         <section class="stat-grid" aria-label="Team-Statistik">
-            <div class="stat stat-hero">
+            <div class="stat stat-hero reveal" style="--i: 1">
                 <span class="stat-icon"><?= Icon::svg('route') ?></span>
                 <span class="stat-label">Kilometer gesamt</span>
                 <span class="stat-value">
                     <span data-count-to="<?= $stats['totalDistance'] ?>" data-decimals="1"><?= View::number($stats['totalDistance']) ?></span><span class="stat-unit">km</span>
                 </span>
             </div>
-            <div class="stat">
+            <div class="stat reveal" style="--i: 2">
                 <span class="stat-icon"><?= Icon::svg('bike') ?></span>
                 <span class="stat-label">Touren</span>
                 <span class="stat-value"><span data-count-to="<?= $stats['totalTours'] ?>"><?= $stats['totalTours'] ?></span></span>
             </div>
-            <div class="stat">
+            <div class="stat reveal" style="--i: 3">
                 <span class="stat-icon stat-icon-accent"><?= Icon::svg('gauge') ?></span>
                 <span class="stat-label">Ø pro Tour</span>
                 <?php $avg = $stats['totalTours'] > 0 ? $stats['totalDistance'] / $stats['totalTours'] : 0; ?>
@@ -66,11 +66,11 @@ require __DIR__ . '/../layout/header.php';
             </div>
         </section>
 
-        <div class="section-title">
+        <div class="section-title reveal" style="--i: 3">
             <h2>Mitglieder <span class="badge"><?= count($members) ?></span></h2>
         </div>
 
-        <div class="card card-flush">
+        <div class="card card-flush reveal" style="--i: 4">
             <ol class="rank-list">
                 <?php foreach ($members as $index => $member): ?>
                     <?php
@@ -112,7 +112,7 @@ require __DIR__ . '/../layout/header.php';
             </ol>
         </div>
 
-        <div class="danger-zone">
+        <div class="danger-zone reveal" style="--i: 5">
             <div>
                 <strong>Team verlassen</strong>
                 <p>Deine Kilometer zählen danach nicht mehr für dieses Team.</p>

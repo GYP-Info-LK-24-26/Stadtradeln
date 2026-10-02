@@ -20,11 +20,11 @@ require __DIR__ . '/../layout/header.php';
 ?>
 <div class="container container-narrow page">
     <header class="page-header">
-        <div class="page-header-text">
+        <div class="page-header-text reveal">
             <h1>Rangliste</h1>
             <p class="lead">Wer hat die meisten Kilometer gesammelt?</p>
         </div>
-        <nav class="segmented" style="--count: 2; --index: <?= $viewUsers ? 0 : 1 ?>" aria-label="Ansicht">
+        <nav class="segmented reveal" style="--i: 1; --count: 2; --index: <?= $viewUsers ? 0 : 1 ?>" aria-label="Ansicht">
             <a href="/leaderboard?type=users" class="segmented-item<?= $viewUsers ? ' is-active' : '' ?>"
                <?= $viewUsers ? 'aria-current="page"' : '' ?>>
                 <?= Icon::svg('user') ?> Personen
@@ -37,7 +37,7 @@ require __DIR__ . '/../layout/header.php';
     </header>
 
     <?php if (empty($entries)): ?>
-        <div class="card empty">
+        <div class="card empty reveal">
             <span class="empty-icon"><?= Icon::svg('trophy') ?></span>
             <h2>Noch keine Einträge</h2>
             <p>Sobald die ersten Kilometer eingetragen sind, erscheint hier die Rangliste.</p>
@@ -65,7 +65,7 @@ require __DIR__ . '/../layout/header.php';
         <?php endif; ?>
 
         <?php if ($rest): ?>
-            <div class="card card-flush">
+            <div class="card card-flush reveal" style="--i: 2">
                 <ol class="rank-list" start="<?= $offset + count($podium) + 1 ?>">
                     <?php foreach ($rest as $index => $entry): ?>
                         <?php

@@ -48,7 +48,7 @@ Request → Router → Controller → Repository → Database
 - `public/fonts/` - Self-hosted Plus Jakarta Sans (variable woff2, OFL). Don't load fonts or other assets from external hosts (render blocking, GDPR, offline PWA)
 - `public/js/` - `app.js` (shared UI behavior, see below), `dashboard.js` (tour dialog), `zxcvbn.js` (self-hosted, password strength), `password-strength.js` (meter UI)
 
-**UI helpers**: `View::asset()` (cache-busted URLs), `View::number()` (German number format), `View::avatar()` (initials avatar), `Icon::svg('name')` (inline Lucide icons). `app.js` provides declarative behaviors: `data-dialog-open="id"` / `data-dialog-close` for native `<dialog>`s, `form[data-confirm]` for confirmation dialogs (instead of `confirm()`), `data-count-to` count-up numbers, `data-inline-edit` name editing, `data-menu` dropdowns. Avoid entrance animations on page load (they read as late-loading CSS); animate only in response to interaction.
+**UI helpers**: `View::asset()` (cache-busted URLs), `View::number()` (German number format), `View::avatar()` (initials avatar), `Icon::svg('name')` (inline Lucide icons). `app.js` provides declarative behaviors: `data-dialog-open="id"` / `data-dialog-close` for native `<dialog>`s, `form[data-confirm]` for confirmation dialogs (instead of `confirm()`), `data-count-to` count-up numbers, `data-inline-edit` name editing, `data-menu` dropdowns. Staggered entrance animations use the `.reveal` class with `style="--i: n"`. Keep the `<script>0</script>` after the stylesheet in `layout/header.php`: it makes Firefox wait for `app.css` before the first paint.
 
 **Session**: 30-minute inactivity timeout. Use `Session::requireLogin()` to guard protected routes. Use `Session::getDisplayName()` to get the user's full name.
 
