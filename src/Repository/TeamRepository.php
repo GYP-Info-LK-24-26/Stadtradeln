@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Core\Database;
+use App\Core\Event;
 use App\Models\Team;
 
 class TeamRepository
@@ -117,11 +118,14 @@ class TeamRepository
                     COUNT(DISTINCT users.id) AS memberCount,
                     teams.teamleiterID
              FROM users
-             LEFT JOIN tours ON users.id = tours.userID
+             LEFT JOIN tours ON users.id = tours.userID AND tours.date BETWEEN ? AND ?
              INNER JOIN teams ON users.teamID = teams.teamID
              GROUP BY teams.teamID, teams.teamName
              ORDER BY totalDistance DESC"
         );
+        $start = Event::start()->format('Y-m-d');
+        $end = Event::end()->format('Y-m-d');
+        $stmt->bind_param("ss", $start, $end);
         $stmt->execute();
         $result = $stmt->get_result();
 

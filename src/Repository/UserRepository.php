@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Core\Database;
+use App\Core\Event;
 use App\Models\User;
 
 class UserRepository
@@ -149,7 +150,7 @@ class UserRepository
 
         $sql = "SELECT users.id, users.name, COALESCE(SUM(tours.distance), 0) AS totalDistance
                 FROM users
-                LEFT JOIN tours ON users.id = tours.userID ";
+                LEFT JOIN tours ON users.id = tours.userID AND tours.date BETWEEN ? AND ? ";
 
         if ($teamId !== null) {
             $sql .= "WHERE teamID = ? ";
@@ -163,11 +164,13 @@ class UserRepository
 
         $stmt = $conn->prepare($sql);
 
+        $start = Event::start()->format('Y-m-d');
+        $end = Event::end()->format('Y-m-d');
         if ($teamId !== null) {
-            $stmt->bind_param("i", $teamId);
+            $stmt->bind_param("ssi", $start, $end, $teamId);
         } else {
             $offset = $page * 20;
-            $stmt->bind_param("i", $offset);
+            $stmt->bind_param("ssi", $start, $end, $offset);
         }
 
         $stmt->execute();

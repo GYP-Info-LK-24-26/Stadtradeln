@@ -1,4 +1,5 @@
 <?php
+use App\Core\Event;
 use App\Core\Icon;
 use App\Core\Session;
 use App\Core\View;
@@ -9,31 +10,38 @@ $scripts = ['dashboard.js'];
 $tourError = Session::getFlash('tour_error');
 $tourPopupDate = Session::getFlash('tour_popup_date');
 
-// Touren je Tag (für den Dialog) und Kennzahlen des Zwei-Wochen-Fensters
+// Touren je Tag (für den Dialog) und Kennzahlen des Aktionszeitraums
 $toursByDate = [];
-$windowDistance = 0.0;
-$windowTours = 0;
+$eventTours = 0;
 $activeDays = 0;
-$windowDays = 0;
+$elapsedDays = 0;
 $todayDate = null;
 foreach ($calendar as $week) {
     foreach ($week as $cell) {
-        if (!$cell['inRange']) {
+        if (!$cell['editable']) {
             continue;
         }
-        $windowDays++;
+        $elapsedDays++;
         if ($cell['isToday']) {
             $todayDate = $cell['date'];
         }
         if (!empty($cell['tours'])) {
             $toursByDate[$cell['date']] = $cell['tours'];
-            $windowTours += count($cell['tours']);
+            $eventTours += count($cell['tours']);
         }
         if ($cell['total'] > 0) {
-            $windowDistance += $cell['total'];
             $activeDays++;
         }
     }
+}
+
+$today = new DateTimeImmutable('today');
+if (Event::isUpcoming()) {
+    $daysLabel = 'Start in';
+    $daysValue = (int)$today->diff(Event::start())->days;
+} else {
+    $daysLabel = 'Verbleibend';
+    $daysValue = Event::isOver() ? 0 : (int)$today->diff(Event::end())->days + 1;
 }
 
 $weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
@@ -47,13 +55,27 @@ require __DIR__ . '/../layout/header.php';
             <h1>Hallo, <?= htmlspecialchars(Session::getDisplayName() ?? '') ?>!</h1>
         </div>
         <div class="page-actions">
-            <button type="button" class="btn btn-primary" data-open-day="<?= htmlspecialchars($todayDate ?? '') ?>">
-                <?= Icon::svg('plus') ?> Tour eintragen
-            </button>
+            <?php if ($todayDate !== null): ?>
+                <button type="button" class="btn btn-primary" data-open-day="<?= htmlspecialchars($todayDate) ?>">
+                    <?= Icon::svg('plus') ?> Tour eintragen
+                </button>
+            <?php endif; ?>
         </div>
     </header>
 
     <div class="stack-lg">
+        <?php if (Event::isUpcoming()): ?>
+            <div class="alert alert-info alert-banner">
+                <?= Icon::svg('calendar') ?>
+                <span>Die Aktion läuft vom <?= Event::start()->format('d.m.') ?> bis <?= Event::end()->format('d.m.Y') ?>. Ab dem <?= Event::start()->format('d.m.') ?> kannst du Touren eintragen.</span>
+            </div>
+        <?php elseif (Event::isOver()): ?>
+            <div class="alert alert-info alert-banner">
+                <?= Icon::svg('check-circle') ?>
+                <span>Die Aktion ist beendet. Danke fürs Mitradeln!</span>
+            </div>
+        <?php endif; ?>
+
         <?php if ($teamId === null): ?>
             <div class="alert alert-warning alert-banner">
                 <?= Icon::svg('users') ?>
@@ -71,24 +93,24 @@ require __DIR__ . '/../layout/header.php';
                 </span>
             </div>
             <div class="stat">
-                <span class="stat-icon"><?= Icon::svg('trending-up') ?></span>
-                <span class="stat-label">Letzte 14 Tage</span>
+                <span class="stat-icon"><?= Icon::svg('bike') ?></span>
+                <span class="stat-label">Touren</span>
                 <span class="stat-value">
-                    <span data-count-to="<?= $windowDistance ?>" data-decimals="1"><?= View::number($windowDistance) ?></span><span class="stat-unit">km</span>
+                    <span data-count-to="<?= $eventTours ?>"><?= $eventTours ?></span>
                 </span>
             </div>
             <div class="stat">
                 <span class="stat-icon stat-icon-accent"><?= Icon::svg('flame') ?></span>
                 <span class="stat-label">Aktive Tage</span>
                 <span class="stat-value">
-                    <span data-count-to="<?= $activeDays ?>"><?= $activeDays ?></span><span class="stat-unit">/ <?= $windowDays ?></span>
+                    <span data-count-to="<?= $activeDays ?>"><?= $activeDays ?></span><span class="stat-unit">/ <?= $elapsedDays ?></span>
                 </span>
             </div>
             <div class="stat">
-                <span class="stat-icon"><?= Icon::svg('bike') ?></span>
-                <span class="stat-label">Touren (14 Tage)</span>
+                <span class="stat-icon"><?= Icon::svg('calendar') ?></span>
+                <span class="stat-label"><?= $daysLabel ?></span>
                 <span class="stat-value">
-                    <span data-count-to="<?= $windowTours ?>"><?= $windowTours ?></span>
+                    <span data-count-to="<?= $daysValue ?>"><?= $daysValue ?></span><span class="stat-unit"><?= $daysValue === 1 ? 'Tag' : 'Tage' ?></span>
                 </span>
             </div>
         </section>
@@ -96,7 +118,7 @@ require __DIR__ . '/../layout/header.php';
         <section class="card card-calendar" aria-labelledby="calendarTitle">
             <div class="card-header">
                 <div>
-                    <h2 class="card-title" id="calendarTitle">Letzte zwei Wochen</h2>
+                    <h2 class="card-title" id="calendarTitle">Aktionszeitraum <?= Event::label() ?></h2>
                     <p class="card-subtitle">Tippe auf einen Tag, um Touren einzutragen oder zu bearbeiten.</p>
                 </div>
             </div>
@@ -108,8 +130,12 @@ require __DIR__ . '/../layout/header.php';
 
                 <?php foreach ($calendar as $week): ?>
                     <?php foreach ($week as $cell): ?>
-                        <?php if (!$cell['inRange']): ?>
+                        <?php if (!$cell['inEvent']): ?>
                             <div class="cal-day is-outside" aria-hidden="true">
+                                <span class="cal-day-num"><?= $cell['day'] ?></span>
+                            </div>
+                        <?php elseif (!$cell['editable']): ?>
+                            <div class="cal-day is-future" aria-label="<?= htmlspecialchars($cell['label']) ?>: noch nicht erreicht">
                                 <span class="cal-day-num"><?= $cell['day'] ?></span>
                             </div>
                         <?php else: ?>

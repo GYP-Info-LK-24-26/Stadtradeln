@@ -1468,6 +1468,7 @@ button.cal-day:hover .cal-day-add, button.cal-day:focus-visible .cal-day-add { o
     border: 1px dashed var(--border);
 }
 .cal-day.is-outside .cal-day-num { color: var(--text-subtle); opacity: 0.6; }
+.cal-day.is-future { opacity: 0.55; }
 
 .calendar-legend {
     display: flex;

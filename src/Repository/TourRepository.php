@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Core\Database;
+use App\Core\Event;
 use App\Models\Tour;
 
 class TourRepository
@@ -103,9 +104,11 @@ class TourRepository
             "SELECT COALESCE(SUM(tours.distance), 0) AS totalDistance, COUNT(*) AS totalTours
              FROM tours
              INNER JOIN users ON tours.userID = users.id
-             WHERE users.teamID = ?"
+             WHERE users.teamID = ? AND tours.date BETWEEN ? AND ?"
         );
-        $stmt->bind_param("i", $teamId);
+        $start = Event::start()->format('Y-m-d');
+        $end = Event::end()->format('Y-m-d');
+        $stmt->bind_param("iss", $teamId, $start, $end);
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
