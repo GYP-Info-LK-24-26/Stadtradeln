@@ -25,7 +25,7 @@ For Apache, the vhost must set `DocumentRoot` to `public/` and `AllowOverride Al
 
 ## Deployment
 
-GitHub Actions deploys via FTP on release creation. Requires `FTP_PASSWORD` secret.
+GitHub Actions deploys via FTP on push to `main`. Requires `FTP_PASSWORD` secret.
 
 ## Architecture
 
