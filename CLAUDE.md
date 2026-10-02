@@ -54,6 +54,8 @@ Request → Router → Controller → Repository → Database
 
 **User Model**: Users are identified by email (login) with a single `name` attribute for display. Use `$user->name` or `$user->getDisplayName()` to get the name.
 
+**Event period**: `App\Core\Event` defines the campaign period (10.10.–31.10. of the current year). Tours can only be saved for event days up to today; all km totals (dashboard, team, leaderboard) only count tours within the period.
+
 **Database**: All queries must use prepared statements via `Database::getConnection()` (mysqli).
 
 ## Routes

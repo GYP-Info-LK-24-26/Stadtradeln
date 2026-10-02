@@ -44,7 +44,7 @@ $previewLevels = [0, 2, 1, 0, 3, 4, 2, 1, 0, 2, 4, 3, 0, 1];
                 <span class="stat-value"><span data-count-to="248.6" data-decimals="1">248,6</span><span class="stat-unit">km</span></span>
             </div>
             <div class="card preview-cal">
-                <div class="card-title">Letzte zwei Wochen</div>
+                <div class="card-title">Aktionszeitraum</div>
                 <div class="preview-cells">
                     <?php foreach ($previewLevels as $i => $level): ?>
                         <span<?= $level ? ' style="background: var(--heat-' . $level . ')"' : '' ?>></span>
