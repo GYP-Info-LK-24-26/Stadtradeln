@@ -1,358 +1,135 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Team - GYP-Radeln</title>
-    <?php require __DIR__ . '/../layout/pwa-head.php'; ?>
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/components/nav.css">
-    <link rel="stylesheet" href="/css/components/list.css">
-    <style>
-        .team-header {
-            text-align: center;
-            margin-bottom: var(--space-xl);
-        }
+<?php
+use App\Core\Icon;
+use App\Core\View;
 
-        .team-name {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-        }
+$title = $team ? $team->name : 'Team';
+$isLeader = $team && $userId === $team->teamleiterId;
+$maxDistance = max(array_merge([0.0], array_map(fn($m) => $m->totalDistance, $members)));
 
-        .team-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--forest-light), var(--mint-fresh));
-            border-radius: var(--radius-md);
-            margin-right: var(--space-sm);
-        }
-
-        .team-badge svg {
-            width: 24px;
-            height: 24px;
-            fill: white;
-        }
-
-        .team-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--space-md);
-            margin-bottom: var(--space-xl);
-        }
-
-        .stat-card {
-            background: var(--color-bg-card);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-lg);
-            padding: var(--space-lg);
-            text-align: center;
-        }
-
-        .stat-card-value {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--forest-light);
-            line-height: 1;
-            margin-bottom: var(--space-xs);
-        }
-
-        .stat-card-label {
-            font-size: 0.85rem;
-            color: var(--color-text-muted);
-        }
-
-        .members-section h3 {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-lg);
-        }
-
-        .members-section h3 a {
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .member-badge {
-            display: inline-block;
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: var(--radius-sm);
-            margin-left: var(--space-xs);
-        }
-
-        .member-badge.you {
-            background: var(--mint-pale);
-            color: var(--forest-deep);
-        }
-
-        .member-badge.teamleiter {
-            background: var(--sun-gold);
-            color: var(--forest-deep);
-        }
-
-        .make-leader-form {
-            grid-column: 1 / -1;
-            justify-self: end;
-            margin: var(--space-sm) 0 0;
-        }
-
-        .make-leader-btn {
-            font-size: 0.8rem;
-            padding: var(--space-xs) var(--space-md);
-            white-space: nowrap;
-        }
-
-        .no-team-container {
-            text-align: center;
-            padding: var(--space-2xl);
-        }
-
-        .no-team-container svg {
-            width: 80px;
-            height: 80px;
-            fill: var(--color-border);
-            margin-bottom: var(--space-lg);
-        }
-
-        .no-team-container h2 {
-            margin-bottom: var(--space-md);
-        }
-
-        .no-team-container p {
-            color: var(--color-text-muted);
-            margin-bottom: var(--space-xl);
-        }
-
-        .team-actions {
-            margin-top: var(--space-xl);
-            padding-top: var(--space-xl);
-            border-top: 1px solid var(--color-border);
-            text-align: center;
-        }
-
-        .team-name-wrapper {
-            display: inline;
-            position: relative;
-        }
-
-        .team-name-text {
-            display: inline;
-        }
-
-        .team-name-wrapper.editing .team-name-text {
-            visibility: hidden;
-        }
-
-        .team-name-wrapper.editing .edit-name-btn {
-            visibility: hidden;
-        }
-
-        .edit-name-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: var(--space-xs);
-            border-radius: var(--radius-sm);
-            opacity: 0.4;
-            transition: opacity 0.2s;
-            vertical-align: middle;
-            margin-left: var(--space-xs);
-        }
-
-        .edit-name-btn:hover {
-            opacity: 1;
-        }
-
-        .edit-name-btn svg {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-            display: block;
-        }
-
-        .team-name-input {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            font-family: inherit;
-            font-size: inherit;
-            font-weight: inherit;
-            color: inherit;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--forest-light);
-            padding: 0;
-            margin: 0;
-            text-align: left;
-            width: 100%;
-            display: none;
-        }
-
-        .team-name-wrapper.editing .team-name-input {
-            display: block;
-        }
-
-        .team-name-input:focus {
-            outline: none;
-            border-bottom-color: var(--mint-fresh);
-        }
-    </style>
-</head>
-<body>
-    <?php require __DIR__ . '/../layout/nav.php'; ?>
-
-    <div class="page-content">
-        <?php if (!$hasTeam): ?>
-            <div class="no-team-container">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                </svg>
-                <h2>Noch kein Team</h2>
-                <p>Du bist noch nicht Mitglied eines Teams. Tritt einem bestehenden Team bei oder erstelle dein eigenes!</p>
-                <a href="/team/join" class="btn btn-primary btn-lg">Team beitreten oder erstellen</a>
-            </div>
-        <?php elseif ($team): ?>
-            <div class="team-header">
-                <h1>
-                    <span class="team-badge">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                        </svg>
-                    </span>
-                    <?php if ($userId === $team->teamleiterId): ?>
-                    <form id="teamNameForm" method="post" action="/team/name" class="team-name-wrapper">
-                        <span class="team-name-text"><?= htmlspecialchars($team->name) ?></span>
-                        <input type="text" name="team_name" id="teamNameInput" class="team-name-input" value="<?= htmlspecialchars($team->name) ?>" required>
-                        <button type="button" class="edit-name-btn" onclick="editTeamName()" title="Teamname bearbeiten">
-                            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                        </button>
-                    </form>
-                    <?php else: ?>
-                    <span><?= htmlspecialchars($team->name) ?></span>
-                    <?php endif; ?>
-                </h1>
-            </div>
-
-            <div class="team-stats-grid">
-                <div class="stat-card">
-                    <div class="stat-card-value"><?= number_format($stats['totalDistance'], 1) ?></div>
-                    <div class="stat-card-label">Kilometer gesamt</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-value"><?= $stats['totalTours'] ?></div>
-                    <div class="stat-card-label">Touren</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-value"><?= $stats['totalTours'] > 0 ? number_format($stats['totalDistance'] / $stats['totalTours'], 1) : '0,0' ?></div>
-                    <div class="stat-card-label">km pro Tour</div>
+require __DIR__ . '/../layout/header.php';
+?>
+<div class="container page">
+    <?php if (!$hasTeam): ?>
+        <div class="card empty reveal">
+            <span class="empty-icon"><?= Icon::svg('users') ?></span>
+            <h1>Noch kein Team</h1>
+            <p>Tritt einem bestehenden Team bei oder gründe dein eigenes – gemeinsam sammelt ihr mehr Kilometer.</p>
+            <a href="/team/join" class="btn btn-primary btn-lg"><?= Icon::svg('user-plus') ?> Team finden oder gründen</a>
+        </div>
+    <?php elseif ($team): ?>
+        <header class="page-header">
+            <div class="team-title reveal">
+                <span class="team-mark"><?= Icon::svg('users') ?></span>
+                <div class="page-header-text">
+                    <span class="eyebrow">Dein Team</span>
+                    <h1>
+                        <?php if ($isLeader): ?>
+                            <form method="post" action="/team/name" class="inline-edit" data-inline-edit>
+                                <span class="inline-edit-text"><?= htmlspecialchars($team->name) ?></span>
+                                <input type="text" name="team_name" class="inline-edit-input"
+                                       value="<?= htmlspecialchars($team->name) ?>" aria-label="Teamname" required>
+                                <button type="button" class="inline-edit-btn" title="Teamname bearbeiten" aria-label="Teamname bearbeiten">
+                                    <?= Icon::svg('pencil') ?>
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <?= htmlspecialchars($team->name) ?>
+                        <?php endif; ?>
+                    </h1>
                 </div>
             </div>
+            <div class="page-actions reveal" style="--i: 1">
+                <a href="/leaderboard?type=teams" class="btn btn-secondary"><?= Icon::svg('trophy') ?> Teamrangliste</a>
+            </div>
+        </header>
 
-            <div class="members-section">
-                <h3>
-                    <span>Teammitglieder (<?= count($members) ?>)</span>
-                    <a href="/leaderboard?type=teams">Zur Teamrangliste</a>
-                </h3>
+        <section class="stat-grid" aria-label="Team-Statistik">
+            <div class="stat stat-hero reveal" style="--i: 1">
+                <span class="stat-icon"><?= Icon::svg('route') ?></span>
+                <span class="stat-label">Kilometer gesamt</span>
+                <span class="stat-value">
+                    <span data-count-to="<?= $stats['totalDistance'] ?>" data-decimals="1"><?= View::number($stats['totalDistance']) ?></span><span class="stat-unit">km</span>
+                </span>
+            </div>
+            <div class="stat reveal" style="--i: 2">
+                <span class="stat-icon"><?= Icon::svg('bike') ?></span>
+                <span class="stat-label">Touren</span>
+                <span class="stat-value"><span data-count-to="<?= $stats['totalTours'] ?>"><?= $stats['totalTours'] ?></span></span>
+            </div>
+            <div class="stat reveal" style="--i: 3">
+                <span class="stat-icon stat-icon-accent"><?= Icon::svg('gauge') ?></span>
+                <span class="stat-label">Ø pro Tour</span>
+                <?php $avg = $stats['totalTours'] > 0 ? $stats['totalDistance'] / $stats['totalTours'] : 0; ?>
+                <span class="stat-value">
+                    <span data-count-to="<?= $avg ?>" data-decimals="1"><?= View::number($avg) ?></span><span class="stat-unit">km</span>
+                </span>
+            </div>
+        </section>
 
-                <ul class="stat-list">
-                    <?php foreach ($members as $index => $member): ?>
-                        <li>
-                            <span class="name">
-                                <?= htmlspecialchars($member->name) ?>
-                                <?php if ($member->id === $userId): ?>
-                                    <span class="member-badge you">Du</span>
+        <div class="section-title reveal" style="--i: 3">
+            <h2>Mitglieder <span class="badge"><?= count($members) ?></span></h2>
+        </div>
+
+        <div class="card card-flush reveal" style="--i: 4">
+            <ol class="rank-list">
+                <?php foreach ($members as $index => $member): ?>
+                    <?php
+                        $isMe = $member->id === $userId;
+                        $isMemberLeader = $member->id === $team->teamleiterId;
+                        $percent = $maxDistance > 0 ? round($member->totalDistance / $maxDistance * 100, 1) : 0;
+                    ?>
+                    <li class="rank-row<?= $isMe ? ' is-me' : '' ?>">
+                        <span class="rank-pos"><?= $index + 1 ?></span>
+                        <?= View::avatar($member->name) ?>
+                        <div class="rank-main">
+                            <div class="rank-name">
+                                <span><?= htmlspecialchars($member->name) ?></span>
+                                <?php if ($isMe): ?>
+                                    <span class="badge badge-primary">Du</span>
                                 <?php endif; ?>
-                                <?php if ($team && $member->id === $team->teamleiterId): ?>
-                                    <span class="member-badge teamleiter">Teamleiter</span>
+                                <?php if ($isMemberLeader): ?>
+                                    <span class="badge badge-accent"><?= Icon::svg('crown') ?> Teamleitung</span>
                                 <?php endif; ?>
-                            </span>
-                            <span class="big">#<?= $index + 1 ?></span>
-                            <span class="small"><?= number_format($member->totalDistance, 1) ?> km</span>
-                            <?php if ($userId === $team->teamleiterId && $member->id !== $team->teamleiterId): ?>
-                                <form method="post" action="/team/leader" class="make-leader-form"
-                                      onsubmit="return confirm('Möchtest du die Teamleitung an dieses Mitglied übergeben? Du verlierst dann deine Teamleiter-Rechte.');">
+                            </div>
+                            <div class="bar"><span style="--p: <?= $percent ?>%; --i: <?= $index ?>"></span></div>
+                        </div>
+                        <div class="rank-side">
+                            <span class="rank-value"><?= View::number($member->totalDistance) ?> <small>km</small></span>
+                            <?php if ($isLeader && !$isMemberLeader): ?>
+                                <form method="post" action="/team/leader"
+                                      data-confirm="<?= htmlspecialchars($member->name) ?> übernimmt die Teamleitung. Du verlierst damit deine Teamleiter-Rechte."
+                                      data-confirm-title="Teamleitung übergeben?" data-confirm-ok="Übergeben">
                                     <input type="hidden" name="new_leader" value="<?= (int)$member->id ?>">
-                                    <button type="submit" class="btn btn-secondary make-leader-btn">Zum Teamleiter machen</button>
+                                    <button type="submit" class="btn btn-ghost btn-icon btn-sm"
+                                            title="Zum Teamleiter machen" aria-label="<?= htmlspecialchars($member->name) ?> zum Teamleiter machen">
+                                        <?= Icon::svg('crown') ?>
+                                    </button>
                                 </form>
                             <?php endif; ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+        </div>
+
+        <div class="danger-zone reveal" style="--i: 5">
+            <div>
+                <strong>Team verlassen</strong>
+                <p>Deine Kilometer zählen danach nicht mehr für dieses Team.</p>
             </div>
-
-            <div class="team-actions">
-                <form method="post" action="/team/leave" onsubmit="return confirm('Möchtest du das Team wirklich verlassen?');">
-                    <button type="submit" class="btn btn-danger">Team verlassen</button>
-                </form>
-            </div>
-        <?php else: ?>
-            <div class="no-team-container">
-                <p class="error">Teamdaten konnten nicht geladen werden.</p>
-                <a href="/team/join" class="btn btn-primary">Anderes Team wählen</a>
-            </div>
-        <?php endif; ?>
-    </div>
-
-    <script>
-    function editTeamName() {
-        const wrapper = document.getElementById('teamNameForm');
-        const input = document.getElementById('teamNameInput');
-        const textSpan = wrapper.querySelector('.team-name-text');
-
-        wrapper.classList.add('editing');
-        input.focus();
-        input.select();
-
-        function handleBlur() {
-            submitOrCancel();
-        }
-
-        function handleKeydown(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                input.removeEventListener('blur', handleBlur);
-                submitOrCancel();
-            } else if (e.key === 'Escape') {
-                input.removeEventListener('blur', handleBlur);
-                cancelEdit();
-            }
-        }
-
-        input.addEventListener('blur', handleBlur, { once: true });
-        input.addEventListener('keydown', handleKeydown);
-    }
-
-    function submitOrCancel() {
-        const wrapper = document.getElementById('teamNameForm');
-        const input = document.getElementById('teamNameInput');
-        const textSpan = wrapper.querySelector('.team-name-text');
-        const originalName = textSpan.textContent.trim();
-        const newName = input.value.trim();
-
-        if (newName && newName !== originalName) {
-            wrapper.submit();
-        } else {
-            cancelEdit();
-        }
-    }
-
-    function cancelEdit() {
-        const wrapper = document.getElementById('teamNameForm');
-        const input = document.getElementById('teamNameInput');
-        const textSpan = wrapper.querySelector('.team-name-text');
-
-        input.value = textSpan.textContent.trim();
-        wrapper.classList.remove('editing');
-    }
-    </script>
-</body>
-</html>
+            <form method="post" action="/team/leave"
+                  data-confirm="Du kannst danach einem anderen Team beitreten oder ein neues gründen."
+                  data-confirm-title="Team wirklich verlassen?" data-confirm-ok="Verlassen" data-confirm-variant="danger">
+                <button type="submit" class="btn btn-danger-soft"><?= Icon::svg('log-out') ?> Team verlassen</button>
+            </form>
+        </div>
+    <?php else: ?>
+        <div class="card empty">
+            <span class="empty-icon"><?= Icon::svg('alert') ?></span>
+            <h1>Teamdaten nicht verfügbar</h1>
+            <p>Die Daten deines Teams konnten nicht geladen werden.</p>
+            <a href="/team/join" class="btn btn-primary">Anderes Team wählen</a>
+        </div>
+    <?php endif; ?>
+</div>
+<?php require __DIR__ . '/../layout/footer.php'; ?>

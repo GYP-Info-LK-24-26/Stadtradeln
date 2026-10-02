@@ -1,121 +1,88 @@
 <?php
 
+use App\Core\Icon;
 use App\Core\Session;
+use App\Core\View;
 
-Session::start();
-$isLoggedIn = Session::isLoggedIn();
 $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-if ($isLoggedIn) {
-    $navItems = [
-        '/dashboard' => 'Dashboard',
-        '/leaderboard' => 'Rangliste',
-        '/team' => 'Team',
+$isActive = function (string $path) use ($currentPath): bool {
+    return $currentPath === $path || str_starts_with($currentPath, $path . '/');
+};
+
+$navItems = $isLoggedIn
+    ? [
+        '/dashboard' => ['Dashboard', 'dashboard'],
+        '/leaderboard' => ['Rangliste', 'trophy'],
+        '/team' => ['Team', 'users'],
+    ]
+    : [
+        '/leaderboard' => ['Rangliste', 'trophy'],
     ];
 
-    $accountItems = [
-        '/settings' => 'Einstellungen',
-        '/logout' => 'Abmelden',
-    ];
-
-    $userName = Session::getDisplayName() ?? 'Profil';
-} else {
-    $navItems = [
-        '/leaderboard' => 'Rangliste',
-    ];
-
-    $authItems = [
-        '/login' => 'Anmelden',
-        '/register' => 'Registrieren',
-    ];
-}
+$userName = Session::getDisplayName() ?? 'Profil';
 ?>
+<header class="topbar">
+    <div class="topbar-inner container">
+        <a href="<?= $isLoggedIn ? '/dashboard' : '/' ?>" class="brand">
+            <span class="brand-mark"><?= Icon::svg('bike') ?></span>
+            <span class="brand-name">GYP-Radeln</span>
+        </a>
 
-<nav class="site-nav">
-    <a href="/" class="nav-brand">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-            <path d="M5 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm14 6a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7-8h3l2 4h-4l-1-4zm-2 0L8 8H5V6h4l1-2zm3 4l2 4H9l-1-4h5z"/>
-        </svg>
-        GYP-Radeln
-    </a>
-
-    <button class="nav-toggle" id="nav-toggle" aria-label="Navigation öffnen" aria-expanded="false" aria-controls="topnav">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-
-    <ul class="topnav" id="topnav" role="list">
-        <?php if ($isLoggedIn): ?>
-            <li class="account-dropdown">
-                <a href="#" class="dropdown-toggle"><?= htmlspecialchars($userName) ?></a>
-                <ul class="dropdown-menu">
-                    <?php foreach ($accountItems as $path => $label): ?>
-                        <li>
-                            <?php if ($path === '/logout'): ?>
-                                <form method="post" action="/logout" class="logout-form">
-                                    <button type="submit"><?= htmlspecialchars($label) ?></button>
-                                </form>
-                            <?php else: ?>
-                                <a href="<?= $path ?>"
-                                   class="<?= $currentPath === $path ? 'active' : '' ?>">
-                                    <?= htmlspecialchars($label) ?>
-                                </a>
-                            <?php endif; ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </li>
-        <?php endif; ?>
-        <?php foreach ($navItems as $path => $label): ?>
-            <li>
-                <a href="<?= $path ?>"
-                   class="<?= $currentPath === $path ? 'active' : '' ?>">
-                    <?= htmlspecialchars($label) ?>
+        <nav class="topnav" aria-label="Hauptnavigation">
+            <?php foreach ($navItems as $path => [$label, $icon]): ?>
+                <a href="<?= $path ?>" class="topnav-link<?= $isActive($path) ? ' is-active' : '' ?>"
+                   <?= $isActive($path) ? 'aria-current="page"' : '' ?>>
+                    <?= Icon::svg($icon) ?>
+                    <span><?= $label ?></span>
                 </a>
-            </li>
-        <?php endforeach; ?>
-        <?php if (!$isLoggedIn): ?>
-            <?php foreach ($authItems as $path => $label): ?>
-                <li>
-                    <a href="<?= $path ?>"
-                       class="<?= $currentPath === $path ? 'active' : '' ?>">
-                        <?= htmlspecialchars($label) ?>
-                    </a>
-                </li>
             <?php endforeach; ?>
-        <?php endif; ?>
-    </ul>
-</nav>
+        </nav>
 
-<script>
-(function () {
-    var toggle = document.getElementById('nav-toggle');
-    var nav    = document.getElementById('topnav');
-    if (!toggle || !nav) return;
+        <div class="topbar-actions">
+            <?php if ($isLoggedIn): ?>
+                <div class="menu" data-menu>
+                    <button type="button" class="user-button" data-menu-toggle
+                            aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
+                        <?= View::avatar($userName, 'sm') ?>
+                        <span class="user-button-name"><?= htmlspecialchars($userName) ?></span>
+                        <?= Icon::svg('chevron-down', 'icon user-button-chevron') ?>
+                    </button>
+                    <div class="menu-panel" id="userMenu" role="menu">
+                        <div class="menu-header">
+                            <?= View::avatar($userName) ?>
+                            <div class="menu-header-text">
+                                <strong><?= htmlspecialchars($userName) ?></strong>
+                                <span>Angemeldet</span>
+                            </div>
+                        </div>
+                        <a href="/settings" class="menu-item<?= $isActive('/settings') ? ' is-active' : '' ?>" role="menuitem">
+                            <?= Icon::svg('settings') ?> Einstellungen
+                        </a>
+                        <div class="menu-separator" role="separator"></div>
+                        <form method="post" action="/logout">
+                            <button type="submit" class="menu-item menu-item-danger" role="menuitem">
+                                <?= Icon::svg('log-out') ?> Abmelden
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <?php else: ?>
+                <a href="/login" class="btn btn-ghost btn-sm<?= $isActive('/login') ? ' is-active' : '' ?>">Anmelden</a>
+                <a href="/register" class="btn btn-primary btn-sm">Registrieren</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</header>
 
-    function closeMenu() {
-        nav.classList.remove('nav-open');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.classList.remove('is-open');
-    }
-
-    toggle.addEventListener('click', function () {
-        var isOpen = nav.classList.toggle('nav-open');
-        this.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        this.classList.toggle('is-open', isOpen);
-    });
-
-    // Close when a navigation link is clicked (except dropdown toggle)
-    nav.querySelectorAll('a:not(.dropdown-toggle)').forEach(function (a) {
-        a.addEventListener('click', closeMenu);
-    });
-
-    // Close when clicking outside the nav
-    document.addEventListener('click', function (e) {
-        if (!nav.contains(e.target) && !toggle.contains(e.target)) {
-            closeMenu();
-        }
-    });
-})();
-</script>
+<?php if ($isLoggedIn): ?>
+    <nav class="tabbar" aria-label="Hauptnavigation (mobil)">
+        <?php foreach ($navItems + ['/settings' => ['Profil', 'user']] as $path => [$label, $icon]): ?>
+            <a href="<?= $path ?>" class="tabbar-link<?= $isActive($path) ? ' is-active' : '' ?>"
+               <?= $isActive($path) ? 'aria-current="page"' : '' ?>>
+                <span class="tabbar-icon"><?= Icon::svg($icon) ?></span>
+                <span class="tabbar-label"><?= $label ?></span>
+            </a>
+        <?php endforeach; ?>
+    </nav>
+<?php endif; ?>

@@ -12,15 +12,18 @@
  * Bei jeder Änderung an den Assets CACHE_VERSION erhöhen, damit alte
  * Caches verworfen werden.
  */
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v6';
 const CACHE_NAME = `gyp-radeln-${CACHE_VERSION}`;
 
 // App-Shell: wird bei der Installation vorab gecacht.
 const PRECACHE_URLS = [
   '/offline.html',
-  '/css/main.css',
+  '/css/app.css',
   '/favicon.svg',
   '/icon.svg',
+  '/favicon-32.png',
+  '/icon-192.png',
+  '/apple-touch-icon.png',
 ];
 
 self.addEventListener('install', (event) => {

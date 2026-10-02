@@ -9,9 +9,8 @@ Eine Web-App zum Tracken von Fahrradtouren und Teamvergleichen.
 ├── public/                    # Öffentlich zugängliche Dateien (Document Root)
 │   ├── index.php             # Einziger Einstiegspunkt
 │   ├── .htaccess             # URL Rewriting
-│   └── css/                  # Stylesheets
-│       ├── main.css
-│       └── components/
+│   ├── css/app.css           # Design-System (einziges Stylesheet)
+│   └── js/                   # app.js (UI-Verhalten), dashboard.js, Passwortstärke
 │
 ├── src/                      # PHP-Quellcode
 │   ├── Controllers/          # Request Handler
@@ -34,12 +33,15 @@ Eine Web-App zum Tracken von Fahrradtouren und Teamvergleichen.
 │       ├── Database.php
 │       ├── Session.php
 │       ├── Router.php
-│       └── View.php
+│       ├── View.php
+│       └── Icon.php
 │
 ├── templates/                # HTML-Templates
 │   ├── layout/
-│   │   ├── main.php
-│   │   └── nav.php
+│   │   ├── header.php
+│   │   ├── nav.php
+│   │   └── footer.php
+│   ├── partials/
 │   └── pages/
 │
 ├── config/

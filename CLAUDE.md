@@ -43,9 +43,11 @@ Request → Router → Controller → Repository → Database
 - `src/Repository/` - Database access layer (User, Team, Tour, RateLimit, PasswordReset repositories)
 - `src/Models/` - Data classes (User, Team, Tour)
 - `src/Core/` - Framework: Router, Database (singleton mysqli), Session, View
-- `templates/` - PHP templates with `layout/main.php` wrapper
-- `public/css/` - Stylesheets (Forest Trail theme)
-- `public/js/` - JavaScript: `zxcvbn.js` (self-hosted, password strength), `password-strength.js` (meter UI)
+- `templates/` - PHP templates; every page sets `$title` (and optionally `$layout` = `app`|`auth`|`landing`, `$scripts`, `$inlineScript`) and wraps its content in `require layout/header.php` … `require layout/footer.php`
+- `public/css/app.css` - The only stylesheet: token-based design system (light/dark via `prefers-color-scheme`). No per-page `<style>` blocks; reuse its components (`.card`, `.stat`, `.btn-*`, `.field`/`.input`, `.alert-*`, `.rank-row`, `.dialog`, `.empty`, …)
+- `public/js/` - `app.js` (shared UI behavior, see below), `dashboard.js` (tour dialog), `zxcvbn.js` (self-hosted, password strength), `password-strength.js` (meter UI)
+
+**UI helpers**: `View::asset()` (cache-busted URLs), `View::number()` (German number format), `View::avatar()` (initials avatar), `Icon::svg('name')` (inline Lucide icons). `app.js` provides declarative behaviors: `data-dialog-open="id"` / `data-dialog-close` for native `<dialog>`s, `form[data-confirm]` for confirmation dialogs (instead of `confirm()`), `data-count-to` count-up numbers, `data-inline-edit` name editing, `data-menu` dropdowns.
 
 **Session**: 30-minute inactivity timeout. Use `Session::requireLogin()` to guard protected routes. Use `Session::getDisplayName()` to get the user's full name.
 

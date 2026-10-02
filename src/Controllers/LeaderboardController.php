@@ -19,7 +19,7 @@ class LeaderboardController
 
     public function index(): void
     {
-        $page = (int)($_GET['page'] ?? 0);
+        $page = max(0, (int)($_GET['page'] ?? 0));
         $viewUsers = (($_GET['type'] ?? 'users') !== 'teams');
 
         View::render('pages/leaderboard', [
@@ -27,6 +27,7 @@ class LeaderboardController
             'users' => $viewUsers ? $this->userRepository->findByTeamWithDistance(null, $page) : [],
             'teams' => $this->teamRepository->findAllWithStats(),
             'currentType' => $viewUsers ? 'users' : 'teams',
+            'page' => $page,
         ]);
     }
 }

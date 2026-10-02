@@ -34,8 +34,7 @@ class Session
     public static function requireLogin(): void
     {
         if (!self::isLoggedIn()) {
-            $redirect = urlencode($_SERVER["REQUEST_URI"] ?? '/');
-            header("Location: /login?redirect=" . $redirect);
+            header("Location: /login");
             exit("Nicht eingeloggt.");
         }
     }

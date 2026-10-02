@@ -1,122 +1,64 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Anmelden - GYP-Radeln</title>
-    <?php require __DIR__ . '/../layout/pwa-head.php'; ?>
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/components/nav.css">
-    <style>
-        .auth-wrapper {
-            min-height: calc(100vh - 64px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-xl) var(--space-md);
-            background:
-                radial-gradient(ellipse at 30% 20%, rgba(82, 183, 136, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 80%, rgba(212, 165, 116, 0.06) 0%, transparent 50%);
-        }
+<?php
+use App\Core\Icon;
 
-        .auth-container {
-            animation: fadeInUp 0.5s ease;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .auth-logo {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto var(--space-lg);
-            background: linear-gradient(135deg, var(--forest-light), var(--mint-fresh));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 16px rgba(64, 145, 108, 0.25);
-        }
-
-        .auth-logo svg {
-            width: 32px;
-            height: 32px;
-            fill: white;
-        }
-    </style>
-</head>
-<body>
-    <?php require __DIR__ . '/../layout/nav.php'; ?>
-
-    <div class="auth-wrapper">
-    <div class="auth-container">
-        <div class="auth-logo">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm14 6a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7-8h3l2 4h-4l-1-4zm-2 0L8 8H5V6h4l1-2zm3 4l2 4H9l-1-4h5z"/>
-            </svg>
+$title = 'Anmelden';
+$layout = 'auth';
+require __DIR__ . '/../layout/header.php';
+?>
+<div class="auth">
+    <div class="card auth-card reveal">
+        <div class="auth-head">
+            <span class="brand-mark"><?= Icon::svg('bike') ?></span>
+            <h1>Willkommen zurück</h1>
+            <p>Melde dich an, um deine Touren einzutragen.</p>
         </div>
 
-        <h1>Willkommen zurück</h1>
-
-        <form name="loginForm" method="post" action="/login">
-            <div class="form-group">
-                <label for="email">E-Mail</label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value="<?= htmlspecialchars($email ?? '') ?>"
-                    autocomplete="username"
-                    placeholder="deine@email.de"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="password">Passwort</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    autocomplete="current-password"
-                    placeholder="Dein Passwort"
-                    required
-                >
-            </div>
+        <form name="loginForm" method="post" action="/login" class="form">
+            <?php if (($_GET['reset'] ?? '') === 'success'): ?>
+                <div class="alert alert-success" role="status">
+                    <?= Icon::svg('check-circle') ?>
+                    <span>Dein Passwort wurde geändert. Du kannst dich jetzt anmelden.</span>
+                </div>
+            <?php endif; ?>
 
             <?php if (!empty($error)): ?>
-                <p class="error"><?= htmlspecialchars($error) ?></p>
+                <div class="alert alert-error" role="alert">
+                    <?= Icon::svg('alert') ?>
+                    <span><?= htmlspecialchars($error) ?></span>
+                </div>
             <?php endif; ?>
 
-            <?php if (($_GET['reset'] ?? '') === 'success'): ?>
-                <p class="success">Dein Passwort wurde erfolgreich geändert. Du kannst dich jetzt anmelden.</p>
-            <?php endif; ?>
-
-            <p class="form-footer" style="margin-bottom: var(--space-md); margin-top: 0;">
-                <a href="/forgot-password">Passwort vergessen?</a>
-            </p>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Einloggen</button>
-                <a href="/" class="btn btn-secondary">Abbrechen</a>
+            <div class="field">
+                <label class="field-label" for="email">E-Mail</label>
+                <div class="input-wrap">
+                    <?= Icon::svg('mail') ?>
+                    <input class="input" type="email" id="email" name="email"
+                           value="<?= htmlspecialchars($email ?? '') ?>"
+                           autocomplete="username" placeholder="deine@email.de" required autofocus>
+                </div>
             </div>
 
-            <p class="form-footer">
-                Du hast noch keinen Account?
-                <a href="/register<?= isset($_GET['redirect']) ? '?redirect=' . urlencode($_GET['redirect']) : '' ?>">
-                    Registrieren
-                </a>
-            </p>
+            <div class="field">
+                <div class="field-row">
+                    <label class="field-label" for="password">Passwort</label>
+                    <a href="/forgot-password">Passwort vergessen?</a>
+                </div>
+                <div class="input-wrap">
+                    <?= Icon::svg('lock') ?>
+                    <input class="input" type="password" id="password" name="password"
+                           autocomplete="current-password" placeholder="Dein Passwort" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-block">
+                Anmelden <?= Icon::svg('arrow-right') ?>
+            </button>
         </form>
+
+        <p class="form-footer">
+            Noch keinen Account?
+            <a href="/register">Jetzt registrieren</a>
+        </p>
     </div>
-    </div>
-</body>
-</html>
+</div>
+<?php require __DIR__ . '/../layout/footer.php'; ?>

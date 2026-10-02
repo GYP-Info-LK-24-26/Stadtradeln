@@ -1,466 +1,136 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Einstellungen - GYP-Radeln</title>
-    <?php require __DIR__ . '/../layout/pwa-head.php'; ?>
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/components/nav.css">
-    <style>
-        .settings-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+<?php
+use App\Core\Icon;
+use App\Core\View;
 
-        .settings-header {
-            text-align: center;
-            margin-bottom: var(--space-xl);
-        }
+$title = 'Einstellungen';
+$scripts = ['zxcvbn.js', 'password-strength.js'];
 
-        .account-card {
-            display: flex;
-            align-items: center;
-            gap: var(--space-lg);
-            padding: var(--space-xl);
-            background: var(--color-bg-card);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--space-xl);
-        }
+// Rückmeldungen dem passenden Bereich zuordnen
+$nameSuccess = $success && str_contains($success, 'Name');
+$nameError = $error && str_contains($error, 'Name');
+$emailSuccess = $success && str_contains($success, 'E-Mail');
+$emailError = $error && (str_contains($error, 'E-Mail') || str_contains($error, 'Bestätigung'));
+$passwordSuccess = $success && str_contains($success, 'Passwort');
+$passwordError = $error && (str_contains($error, 'Aktuelles') || str_contains($error, 'Neue') || str_contains($error, 'alle Felder'));
 
-        .account-avatar {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--forest-light), var(--mint-fresh));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
+$inlineScript = "initPasswordStrength('new_password');";
 
-        .account-avatar svg {
-            width: 40px;
-            height: 40px;
-            fill: white;
-        }
-
-        .account-details {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .account-name {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: light-dark(var(--forest-deep), var(--mint-soft));
-            margin-bottom: var(--space-xs);
-        }
-
-        .account-name-wrapper {
-            display: inline;
-            position: relative;
-        }
-
-        .account-name-text {
-            display: inline;
-        }
-
-        .account-name-wrapper.editing .account-name-text {
-            visibility: hidden;
-        }
-
-        .account-name-wrapper.editing .edit-name-btn {
-            visibility: hidden;
-        }
-
-        .edit-name-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: var(--space-xs);
-            border-radius: var(--radius-sm);
-            opacity: 0.4;
-            transition: opacity 0.2s;
-            vertical-align: middle;
-            margin-left: var(--space-xs);
-        }
-
-        .edit-name-btn:hover {
-            opacity: 1;
-        }
-
-        .edit-name-btn svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
-            display: block;
-        }
-
-        .account-name-input {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            font-family: inherit;
-            font-size: inherit;
-            font-weight: inherit;
-            color: inherit;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--forest-light);
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            display: none;
-        }
-
-        .account-name-wrapper.editing .account-name-input {
-            display: block;
-        }
-
-        .account-name-input:focus {
-            outline: none;
-            border-bottom-color: var(--mint-fresh);
-        }
-
-        .account-email {
-            color: var(--color-text-muted);
-            font-size: 0.95rem;
-        }
-
-        .settings-section {
-            margin-bottom: var(--space-lg);
-        }
-
-        .settings-section h2 {
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--color-text-muted);
-            margin-bottom: var(--space-md);
-            padding-bottom: var(--space-sm);
-            border-bottom: 1px solid var(--color-border);
-        }
-
-        .setting-item {
-            background: var(--color-bg-card);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--space-sm);
-            overflow: hidden;
-        }
-
-        .setting-item summary {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--space-md) var(--space-lg);
-            cursor: pointer;
-            list-style: none;
-        }
-
-        .setting-item summary::-webkit-details-marker {
-            display: none;
-        }
-
-        .setting-item summary::marker {
-            display: none;
-        }
-
-        .setting-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .setting-label {
-            font-size: 0.85rem;
-            color: var(--color-text-muted);
-            margin-bottom: 2px;
-        }
-
-        .setting-value {
-            font-weight: 500;
-            color: var(--color-text);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .setting-value.empty {
-            color: var(--color-text-muted);
-            font-style: italic;
-        }
-
-        .setting-value.masked {
-            letter-spacing: 0.1em;
-        }
-
-        .edit-btn {
-            display: flex;
-            align-items: center;
-            gap: var(--space-xs);
-            padding: var(--space-xs) var(--space-sm);
-            font-size: 0.85rem;
-            color: light-dark(var(--forest-medium), var(--mint-fresh));
-            background: transparent;
-            border: 1px solid currentColor;
-            border-radius: var(--radius-sm);
-            transition: all 0.2s ease;
-        }
-
-        .edit-btn:hover {
-            background: light-dark(var(--forest-light), var(--mint-fresh));
-            color: #ffffff;
-        }
-
-        .edit-btn svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
-        }
-
-        .setting-item[open] .edit-btn {
-            display: none;
-        }
-
-        .setting-form {
-            padding: 0 var(--space-lg) var(--space-lg);
-            border-top: 1px solid var(--color-border);
-            background: light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.02));
-        }
-
-        .setting-form .form-group {
-            margin-top: var(--space-md);
-        }
-
-        .setting-form .form-group:first-child {
-            margin-top: var(--space-lg);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: var(--space-sm);
-            margin-top: var(--space-md);
-        }
-
-        .form-actions .btn {
-            flex: 1;
-        }
-
-        .btn-cancel {
-            background: transparent;
-            border: 1px solid var(--color-border);
-            color: var(--color-text-muted);
-        }
-
-        .btn-cancel:hover {
-            background: var(--color-bg-card);
-            border-color: var(--color-text-muted);
-        }
-
-        .setting-form .success {
-            margin-top: var(--space-md);
-            margin-bottom: 0;
-        }
-
-        .setting-form .error {
-            margin-top: var(--space-md);
-            margin-bottom: 0;
-        }
-    </style>
-</head>
-<body>
-    <?php require __DIR__ . '/../layout/nav.php'; ?>
-
-    <div class="page-content">
-        <div class="settings-container">
-            <div class="settings-header">
-                <h1>Einstellungen</h1>
-            </div>
-
-            <div class="account-card">
-                <div class="account-avatar">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                </div>
-                <div class="account-details">
-                    <div class="account-name">
-                        <form id="nameForm" method="post" action="/settings/name" class="account-name-wrapper">
-                            <span class="account-name-text"><?= htmlspecialchars($name) ?></span>
-                            <input type="text" name="name" id="nameInput" class="account-name-input" value="<?= htmlspecialchars($name) ?>" maxlength="<?= \App\Models\User::NAME_MAX_LENGTH ?>" required>
-                            <button type="button" class="edit-name-btn" onclick="editName()" title="Name bearbeiten">
-                                <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                            </button>
-                        </form>
-                    </div>
-                    <div class="account-email"><?= htmlspecialchars($email) ?></div>
-                    <?php if ($success && strpos($success, 'Name') !== false): ?>
-                        <p class="success" style="margin-top: var(--space-sm); margin-bottom: 0;"><?= htmlspecialchars($success) ?></p>
-                    <?php endif; ?>
-                    <?php if ($error && strpos($error, 'Name') !== false): ?>
-                        <p class="error" style="margin-top: var(--space-sm); margin-bottom: 0;"><?= htmlspecialchars($error) ?></p>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h2>Sicherheit</h2>
-
-                <details class="setting-item" <?= ($success && strpos($success, 'E-Mail') !== false) || ($error && (strpos($error, 'E-Mail') !== false || strpos($error, 'Bestätigung') !== false)) ? 'open' : '' ?>>
-                    <summary>
-                        <div class="setting-info">
-                            <div class="setting-label">E-Mail-Adresse</div>
-                            <div class="setting-value"><?= htmlspecialchars($email) ?></div>
-                        </div>
-                        <span class="edit-btn">
-                            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                            Bearbeiten
-                        </span>
-                    </summary>
-                    <div class="setting-form">
-                        <?php if ($success && strpos($success, 'E-Mail') !== false): ?>
-                            <p class="success"><?= htmlspecialchars($success) ?></p>
-                        <?php endif; ?>
-                        <?php if ($error && (strpos($error, 'E-Mail') !== false || strpos($error, 'Bestätigung') !== false)): ?>
-                            <p class="error"><?= htmlspecialchars($error) ?></p>
-                        <?php endif; ?>
-                        <form method="post" action="/settings/email">
-                            <div class="form-group">
-                                <label for="email">Neue E-Mail-Adresse</label>
-                                <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="email_password">Passwort zur Bestätigung</label>
-                                <input type="password" id="email_password" name="password" autocomplete="current-password" required>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Speichern</button>
-                            </div>
-                        </form>
-                    </div>
-                </details>
-
-                <details class="setting-item" <?= ($success && strpos($success, 'Passwort') !== false) || ($error && (strpos($error, 'Aktuelles') !== false || strpos($error, 'Neue') !== false || strpos($error, 'alle Felder') !== false)) ? 'open' : '' ?>>
-                    <summary>
-                        <div class="setting-info">
-                            <div class="setting-label">Passwort</div>
-                            <div class="setting-value masked">••••••••</div>
-                        </div>
-                        <span class="edit-btn">
-                            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                            Bearbeiten
-                        </span>
-                    </summary>
-                    <div class="setting-form">
-                        <?php if ($success && strpos($success, 'Passwort') !== false): ?>
-                            <p class="success"><?= htmlspecialchars($success) ?></p>
-                        <?php endif; ?>
-                        <?php if ($error && (strpos($error, 'Aktuelles') !== false || strpos($error, 'Neue') !== false || strpos($error, 'alle Felder') !== false)): ?>
-                            <p class="error"><?= htmlspecialchars($error) ?></p>
-                        <?php endif; ?>
-                        <form method="post" action="/settings">
-                            <div class="form-group">
-                                <label for="current_password">Aktuelles Passwort</label>
-                                <input type="password" id="current_password" name="current_password" autocomplete="current-password" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="new_password">Neues Passwort</label>
-                                <input type="password" id="new_password" name="new_password" autocomplete="new-password" placeholder="Mindestens mäßige Stärke" required>
-                                <div class="pw-strength" id="pw-strength-new_password" aria-live="polite">
-                                    <div class="pw-strength-bar">
-                                        <div class="pw-strength-seg"></div>
-                                        <div class="pw-strength-seg"></div>
-                                        <div class="pw-strength-seg"></div>
-                                        <div class="pw-strength-seg"></div>
-                                    </div>
-                                    <span class="pw-strength-label"></span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="confirm_password">Neues Passwort bestätigen</label>
-                                <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Speichern</button>
-                            </div>
-                        </form>
-                    </div>
-                </details>
-            </div>
+require __DIR__ . '/../layout/header.php';
+?>
+<div class="container container-narrow page">
+    <header class="page-header">
+        <div class="page-header-text reveal">
+            <h1>Einstellungen</h1>
+            <p class="lead">Verwalte dein Profil und deine Zugangsdaten.</p>
         </div>
+    </header>
+
+    <div class="stack-lg">
+        <section class="card profile-card reveal" style="--i: 1" aria-label="Profil">
+            <?= View::avatar($name, 'xl') ?>
+            <div class="profile-text">
+                <div class="profile-name">
+                    <form method="post" action="/settings/name" class="inline-edit" data-inline-edit>
+                        <span class="inline-edit-text"><?= htmlspecialchars($name) ?></span>
+                        <input type="text" name="name" class="inline-edit-input" value="<?= htmlspecialchars($name) ?>"
+                               maxlength="<?= \App\Models\User::NAME_MAX_LENGTH ?>" aria-label="Name" required>
+                        <button type="button" class="inline-edit-btn" title="Name bearbeiten" aria-label="Name bearbeiten">
+                            <?= Icon::svg('pencil') ?>
+                        </button>
+                    </form>
+                </div>
+                <div class="profile-email"><?= htmlspecialchars($email) ?></div>
+            </div>
+        </section>
+
+        <?php if ($nameSuccess): ?>
+            <div class="alert alert-success" role="status"><?= Icon::svg('check-circle') ?><span><?= htmlspecialchars($success) ?></span></div>
+        <?php elseif ($nameError): ?>
+            <div class="alert alert-error" role="alert"><?= Icon::svg('alert') ?><span><?= htmlspecialchars($error) ?></span></div>
+        <?php endif; ?>
+
+        <section class="reveal" style="--i: 2">
+            <div class="section-title mt-0"><h2>Zugangsdaten</h2></div>
+            <div class="card card-flush">
+                <details class="setting" <?= $emailSuccess || $emailError ? 'open' : '' ?>>
+                    <summary>
+                        <span class="setting-icon"><?= Icon::svg('mail') ?></span>
+                        <span class="setting-info">
+                            <span class="setting-label">E-Mail-Adresse</span>
+                            <span class="setting-value"><?= htmlspecialchars($email) ?></span>
+                        </span>
+                        <?= Icon::svg('chevron-down', 'icon setting-chevron') ?>
+                    </summary>
+                    <div class="setting-body">
+                        <form method="post" action="/settings/email" class="form">
+                            <?php if ($emailSuccess): ?>
+                                <div class="alert alert-success" role="status"><?= Icon::svg('check-circle') ?><span><?= htmlspecialchars($success) ?></span></div>
+                            <?php elseif ($emailError): ?>
+                                <div class="alert alert-error" role="alert"><?= Icon::svg('alert') ?><span><?= htmlspecialchars($error) ?></span></div>
+                            <?php endif; ?>
+                            <div class="field">
+                                <label class="field-label" for="email">Neue E-Mail-Adresse</label>
+                                <input class="input" type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" autocomplete="email" required>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="email_password">Passwort zur Bestätigung</label>
+                                <input class="input" type="password" id="email_password" name="password" autocomplete="current-password" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">E-Mail speichern</button>
+                            </div>
+                        </form>
+                    </div>
+                </details>
+
+                <details class="setting" id="passwordSetting" <?= $passwordSuccess || $passwordError ? 'open' : '' ?>>
+                    <summary>
+                        <span class="setting-icon"><?= Icon::svg('lock') ?></span>
+                        <span class="setting-info">
+                            <span class="setting-label">Passwort</span>
+                            <span class="setting-value is-masked">••••••••</span>
+                        </span>
+                        <?= Icon::svg('chevron-down', 'icon setting-chevron') ?>
+                    </summary>
+                    <div class="setting-body">
+                        <form method="post" action="/settings" class="form">
+                            <?php if ($passwordSuccess): ?>
+                                <div class="alert alert-success" role="status"><?= Icon::svg('check-circle') ?><span><?= htmlspecialchars($success) ?></span></div>
+                            <?php elseif ($passwordError): ?>
+                                <div class="alert alert-error" role="alert"><?= Icon::svg('alert') ?><span><?= htmlspecialchars($error) ?></span></div>
+                            <?php endif; ?>
+                            <div class="field">
+                                <label class="field-label" for="current_password">Aktuelles Passwort</label>
+                                <input class="input" type="password" id="current_password" name="current_password" autocomplete="current-password" required>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="new_password">Neues Passwort</label>
+                                <input class="input" type="password" id="new_password" name="new_password" autocomplete="new-password" placeholder="Mindestens mäßige Stärke" required>
+                                <?php $meterId = 'new_password'; require __DIR__ . '/../partials/password-meter.php'; ?>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="confirm_password">Neues Passwort bestätigen</label>
+                                <input class="input" type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Passwort ändern</button>
+                            </div>
+                        </form>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="reveal" style="--i: 3">
+            <div class="section-title mt-0"><h2>Sitzung</h2></div>
+            <form method="post" action="/logout" class="card card-row">
+                <div>
+                    <strong>Abmelden</strong>
+                    <p>Beendet deine Sitzung auf diesem Gerät.</p>
+                </div>
+                <button type="submit" class="btn btn-secondary"><?= Icon::svg('log-out') ?> Abmelden</button>
+            </form>
+        </section>
     </div>
-
-    <script src="/js/zxcvbn.js"></script>
-    <script src="/js/password-strength.js"></script>
-    <script>
-        // Meter erst initialisieren wenn das Passwort-Akkordeon geöffnet wird,
-        // damit zxcvbn nicht läuft bevor der Nutzer die Sektion öffnet.
-        document.querySelectorAll('.setting-item').forEach(function (details) {
-            details.addEventListener('toggle', function () {
-                if (this.open && document.getElementById('new_password') &&
-                    !this._pwStrengthInit) {
-                    this._pwStrengthInit = true;
-                    initPasswordStrength('new_password');
-                }
-            });
-        });
-    </script>
-    <script>
-    function editName() {
-        const wrapper = document.getElementById('nameForm');
-        const input = document.getElementById('nameInput');
-        const textSpan = wrapper.querySelector('.account-name-text');
-
-        wrapper.classList.add('editing');
-        input.focus();
-        input.select();
-
-        function handleBlur() {
-            submitOrCancel();
-        }
-
-        function handleKeydown(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                input.removeEventListener('blur', handleBlur);
-                submitOrCancel();
-            } else if (e.key === 'Escape') {
-                input.removeEventListener('blur', handleBlur);
-                cancelEdit();
-            }
-        }
-
-        input.addEventListener('blur', handleBlur, { once: true });
-        input.addEventListener('keydown', handleKeydown);
-    }
-
-    function submitOrCancel() {
-        const wrapper = document.getElementById('nameForm');
-        const input = document.getElementById('nameInput');
-        const textSpan = wrapper.querySelector('.account-name-text');
-        const originalName = textSpan.textContent.trim();
-        const newName = input.value.trim();
-
-        if (newName && newName !== originalName) {
-            wrapper.submit();
-        } else {
-            cancelEdit();
-        }
-    }
-
-    function cancelEdit() {
-        const wrapper = document.getElementById('nameForm');
-        const input = document.getElementById('nameInput');
-        const textSpan = wrapper.querySelector('.account-name-text');
-
-        input.value = textSpan.textContent.trim();
-        wrapper.classList.remove('editing');
-    }
-    </script>
-</body>
-</html>
+</div>
+<?php require __DIR__ . '/../layout/footer.php'; ?>

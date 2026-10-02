@@ -70,7 +70,7 @@ class AuthController
             } else {
                 Session::login($user->id, $user->name, $user->teamId);
                 $this->userRepository->updateLastLogin($user->id);
-                header("Location: " . ($_GET['redirect'] ?? '/dashboard'));
+                header("Location: /dashboard");
                 exit;
             }
         }
@@ -129,7 +129,7 @@ class AuthController
                 $userId = $this->userRepository->create($user);
                 Session::login($userId, $user->name, null);
                 $this->userRepository->updateLastLogin($userId);
-                header("Location: " . ($_GET['redirect'] ?? '/dashboard'));
+                header("Location: /dashboard");
                 exit;
             } catch (\Exception $e) {
                 $error = 'Interner Fehler';

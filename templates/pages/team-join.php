@@ -1,214 +1,126 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Team beitreten - GYP-Radeln</title>
-    <?php require __DIR__ . '/../layout/pwa-head.php'; ?>
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/components/nav.css">
-    <link rel="stylesheet" href="/css/components/list.css">
-    <link rel="stylesheet" href="/css/components/popup.css">
-    <style>
-        .team-join-header {
-            text-align: center;
-            margin-bottom: var(--space-xl);
-        }
+<?php
+use App\Core\Icon;
+use App\Core\View;
 
-        .team-join-header h1 {
-            margin-bottom: var(--space-sm);
-        }
-
-        .team-join-header p {
-            color: var(--color-text-muted);
-        }
-
-        .team-actions {
-            display: flex;
-            gap: var(--space-md);
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: var(--space-xl);
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 200px;
-            max-width: 400px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: var(--space-sm) var(--space-md);
-            border: 2px solid var(--color-border);
-            border-radius: var(--radius-md);
-            font-family: var(--font-body);
-            font-size: 1rem;
-            background: var(--color-bg-card);
-            color: var(--color-text);
-            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--mint-fresh);
-            box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.2);
-        }
-
-        .team-list-info {
-            text-align: center;
-            color: var(--color-text-muted);
-            font-size: 0.9rem;
-            margin-bottom: var(--space-md);
-        }
-
-        /* Override stat-list for team selection */
-        .team-selector .stat-list > li {
-            cursor: pointer;
-        }
-
-        .team-selector .stat-list > li:hover {
-            border-color: var(--mint-fresh);
-            background: light-dark(var(--cream-mid), var(--night-forest));
-        }
-
-        .empty-teams {
-            text-align: center;
-            padding: var(--space-2xl);
-            color: var(--color-text-muted);
-        }
-    </style>
-</head>
-<body>
-    <?php require __DIR__ . '/../layout/nav.php'; ?>
-
-    <div class="page-content">
-        <div class="team-join-header">
-            <h1>Team beitreten</h1>
-            <p>Wähle ein bestehendes Team aus oder erstelle dein eigenes</p>
+$title = 'Team finden';
+require __DIR__ . '/../layout/header.php';
+?>
+<div class="container page">
+    <header class="page-header">
+        <div class="page-header-text reveal">
+            <h1>Team finden</h1>
+            <p class="lead">Tritt einem bestehenden Team bei oder gründe dein eigenes.</p>
         </div>
-
-        <div class="team-actions">
-            <button class="btn btn-primary" onclick="openCreatePopup()">
-                + Neues Team erstellen
+        <div class="page-actions reveal" style="--i: 1">
+            <button type="button" class="btn btn-primary" data-dialog-open="createDialog">
+                <?= Icon::svg('plus') ?> Neues Team
             </button>
+        </div>
+    </header>
 
-            <div class="search-box">
-                <label for="teamSearch" class="sr-only">Team suchen</label>
-                <input
-                    type="text"
-                    id="teamSearch"
-                    placeholder="Team suchen..."
-                    oninput="filterTeams()"
-                >
+    <?php if (!empty($error) && !$showCreate): ?>
+        <div class="alert alert-error mb-24" role="alert">
+            <?= Icon::svg('alert') ?>
+            <span><?= htmlspecialchars($error) ?></span>
+        </div>
+    <?php endif; ?>
+
+    <?php if (empty($teams)): ?>
+        <div class="card empty reveal" style="--i: 2">
+            <span class="empty-icon"><?= Icon::svg('users') ?></span>
+            <h2>Noch keine Teams</h2>
+            <p>Sei die erste Person und gründe ein Team!</p>
+            <button type="button" class="btn btn-primary" data-dialog-open="createDialog">
+                <?= Icon::svg('plus') ?> Team gründen
+            </button>
+        </div>
+    <?php else: ?>
+        <div class="toolbar reveal" style="--i: 2">
+            <div class="input-wrap">
+                <?= Icon::svg('search') ?>
+                <input class="input" type="search" id="teamSearch" placeholder="Team suchen …"
+                       aria-label="Team suchen" autocomplete="off">
             </div>
         </div>
 
-        <?php if (!empty($error) && !$showCreate): ?>
-            <p class="error" style="text-align: center;"><?= htmlspecialchars($error) ?></p>
+        <div class="team-grid" id="teamList">
+            <?php foreach ($teams as $i => $team): ?>
+                <form method="post" action="/team/join" data-team="<?= htmlspecialchars($team->name) ?>"
+                      data-confirm="Du wirst Mitglied im Team „<?= htmlspecialchars($team->name) ?>“."
+                      data-confirm-title="Team beitreten?" data-confirm-ok="Beitreten">
+                    <input type="hidden" name="team_name" value="<?= htmlspecialchars($team->name) ?>">
+                    <button type="submit" class="team-card" style="--i: <?= min($i, 12) ?>">
+                        <?= View::avatar($team->name) ?>
+                        <span class="team-card-text">
+                            <span class="team-card-name"><?= htmlspecialchars($team->name) ?></span>
+                            <span class="team-card-meta">
+                                <span><?= Icon::svg('users') ?> <?= $team->memberCount ?></span>
+                                <span><?= Icon::svg('route') ?> <?= View::number($team->totalDistance) ?> km</span>
+                            </span>
+                        </span>
+                        <span class="team-card-go"><?= Icon::svg('arrow-right') ?></span>
+                    </button>
+                </form>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="card empty" id="noResults" hidden>
+            <span class="empty-icon"><?= Icon::svg('search') ?></span>
+            <h2>Kein Team gefunden</h2>
+            <p>Kein Team passt zu deiner Suche. Wie wär's mit einem eigenen?</p>
+            <button type="button" class="btn btn-primary" data-dialog-open="createDialog">
+                <?= Icon::svg('plus') ?> Neues Team
+            </button>
+        </div>
+    <?php endif; ?>
+</div>
+
+<dialog class="dialog" id="createDialog" aria-labelledby="createDialogTitle" <?= $showCreate ? 'data-open-on-load' : '' ?>>
+    <div class="dialog-header">
+        <div>
+            <h2 class="dialog-title" id="createDialogTitle">Neues Team gründen</h2>
+            <p class="dialog-subtitle">Du wirst automatisch Teamleiter.</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-icon dialog-close" data-dialog-close aria-label="Schließen">
+            <?= Icon::svg('x') ?>
+        </button>
+    </div>
+    <form method="post" action="/team/join" class="dialog-body form">
+        <input type="hidden" name="type" value="create">
+
+        <?php if (!empty($error) && $showCreate): ?>
+            <div class="alert alert-error" role="alert">
+                <?= Icon::svg('alert') ?>
+                <span><?= htmlspecialchars($error) ?></span>
+            </div>
         <?php endif; ?>
 
-        <p class="team-list-info">Klicke auf ein Team, um beizutreten</p>
-
-        <div class="team-selector">
-            <form method="post" action="/team/join" id="joinForm">
-                <input type="hidden" name="team_name" id="selectedTeam">
-
-                <?php if (empty($teams)): ?>
-                    <div class="empty-teams">
-                        <p>Noch keine Teams vorhanden. Sei der Erste und erstelle ein Team!</p>
-                    </div>
-                <?php else: ?>
-                    <ul class="stat-list click-list" id="teamList">
-                        <?php foreach ($teams as $team): ?>
-                            <li data-team="<?= htmlspecialchars($team->name) ?>">
-                                <span class="name"><?= htmlspecialchars($team->name) ?></span>
-                                <span class="big"><?= $team->memberCount ?></span>
-                                <span class="small"><?= number_format($team->totalDistance, 1) ?> km</span>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </form>
-        </div>
-
-        <!-- Create Team Popup -->
-        <div class="popup-overlay" id="createPopup" <?= $showCreate ? 'style="display:block"' : '' ?>>
-            <div class="popup">
-                <span class="close" onclick="closeCreatePopup()">&times;</span>
-
-                <h3>Neues Team erstellen</h3>
-
-                <?php if (!empty($error) && $showCreate): ?>
-                    <p class="error"><?= htmlspecialchars($error) ?></p>
-                <?php endif; ?>
-
-                <form method="post" action="/team/join">
-                    <input type="hidden" name="type" value="create">
-
-                    <div class="form-group">
-                        <label for="team_name">Teamname</label>
-                        <input
-                            type="text"
-                            id="team_name"
-                            name="team_name"
-                            placeholder="z.B. Die Radler"
-                            value="<?= htmlspecialchars($teamName ?? '') ?>"
-                            required
-                        >
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Team erstellen</button>
-                </form>
+        <div class="field">
+            <label class="field-label" for="team_name">Teamname</label>
+            <div class="input-wrap">
+                <?= Icon::svg('users') ?>
+                <input class="input" type="text" id="team_name" name="team_name" placeholder="z. B. Die Radler"
+                       value="<?= htmlspecialchars($teamName ?? '') ?>" required>
             </div>
         </div>
-    </div>
 
-    <script>
-        function openCreatePopup() {
-            document.getElementById('createPopup').style.display = 'block';
-        }
-
-        function closeCreatePopup() {
-            document.getElementById('createPopup').style.display = 'none';
-        }
-
-        function filterTeams() {
-            const term = document.getElementById('teamSearch').value.toLowerCase();
-            const items = document.querySelectorAll('#teamList li');
-
-            items.forEach(item => {
-                const teamName = item.dataset.team.toLowerCase();
-                item.style.display = teamName.includes(term) ? '' : 'none';
-            });
-        }
-
-        // Click to select team
-        document.getElementById('teamList')?.addEventListener('click', function(e) {
-            const li = e.target.closest('li');
-            if (li) {
-                const teamName = li.dataset.team;
-                if (confirm(`Möchtest du dem Team "${teamName}" beitreten?`)) {
-                    document.getElementById('selectedTeam').value = teamName;
-                    document.getElementById('joinForm').submit();
-                }
-            }
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Team gründen</button>
+    </form>
+</dialog>
+<?php
+$inlineScript = <<<'JS'
+var search = document.getElementById('teamSearch');
+if (search) {
+    search.addEventListener('input', function () {
+        var term = this.value.trim().toLowerCase();
+        var visible = 0;
+        document.querySelectorAll('#teamList [data-team]').forEach(function (item) {
+            var match = item.dataset.team.toLowerCase().includes(term);
+            item.hidden = !match;
+            if (match) visible++;
         });
-
-        // Close popup when clicking outside
-        document.getElementById('createPopup').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeCreatePopup();
-            }
-        });
-
-        // Close popup with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeCreatePopup();
-            }
-        });
-    </script>
-</body>
-</html>
+        document.getElementById('noResults').hidden = visible > 0;
+    });
+}
+JS;
+require __DIR__ . '/../layout/footer.php';
