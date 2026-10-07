@@ -74,7 +74,10 @@ require __DIR__ . '/../layout/header.php';
                             </div>
                             <div class="field">
                                 <label class="field-label" for="email_password">Passwort zur Bestätigung</label>
-                                <input class="input" type="password" id="email_password" name="password" autocomplete="current-password" required>
+                                <div class="input-wrap">
+                                    <input class="input" type="password" id="email_password" name="password" autocomplete="current-password" required>
+                                    <?php require __DIR__ . '/../partials/password-toggle.php'; ?>
+                                </div>
                             </div>
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">E-Mail speichern</button>
@@ -101,16 +104,25 @@ require __DIR__ . '/../layout/header.php';
                             <?php endif; ?>
                             <div class="field">
                                 <label class="field-label" for="current_password">Aktuelles Passwort</label>
-                                <input class="input" type="password" id="current_password" name="current_password" autocomplete="current-password" required>
+                                <div class="input-wrap">
+                                    <input class="input" type="password" id="current_password" name="current_password" autocomplete="current-password" required>
+                                    <?php require __DIR__ . '/../partials/password-toggle.php'; ?>
+                                </div>
                             </div>
                             <div class="field">
                                 <label class="field-label" for="new_password">Neues Passwort</label>
-                                <input class="input" type="password" id="new_password" name="new_password" autocomplete="new-password" placeholder="Mindestens mäßige Stärke" required>
+                                <div class="input-wrap">
+                                    <input class="input" type="password" id="new_password" name="new_password" autocomplete="new-password" placeholder="Mindestens mäßige Stärke" required>
+                                    <?php require __DIR__ . '/../partials/password-toggle.php'; ?>
+                                </div>
                                 <?php $meterId = 'new_password'; require __DIR__ . '/../partials/password-meter.php'; ?>
                             </div>
                             <div class="field">
                                 <label class="field-label" for="confirm_password">Neues Passwort bestätigen</label>
-                                <input class="input" type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+                                <div class="input-wrap">
+                                    <input class="input" type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+                                    <?php require __DIR__ . '/../partials/password-toggle.php'; ?>
+                                </div>
                             </div>
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">Passwort ändern</button>

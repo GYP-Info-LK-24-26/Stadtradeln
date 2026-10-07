@@ -6,6 +6,7 @@
  *  - form[data-confirm]       Bestätigungsdialog vor dem Absenden
  *  - [data-count-to]          zählt Zahlen beim Laden hoch
  *  - [data-inline-edit]       Inline-Bearbeitung eines Namens (Formular)
+ *  - [data-password-toggle]   zeigt das Passwortfeld davor vorübergehend im Klartext
  */
 (function () {
     'use strict';
@@ -213,5 +214,24 @@
                 input.addEventListener('blur', commit);
             }
         });
+    });
+
+    /* ---------- Passwort anzeigen ---------- */
+
+    function setPasswordVisible(button, visible) {
+        var input = button.parentElement.querySelector('input');
+        input.type = visible ? 'text' : 'password';
+        button.setAttribute('aria-pressed', visible ? 'true' : 'false');
+        button.setAttribute('aria-label', visible ? 'Passwort verbergen' : 'Passwort anzeigen');
+    }
+
+    document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            setPasswordVisible(button, button.getAttribute('aria-pressed') !== 'true');
+        });
+        // Vor dem Absenden wieder maskieren, damit Passwortmanager das Feld erkennen
+        // und das Passwort nach Zurück-Navigation nicht sichtbar bleibt
+        var form = button.closest('form');
+        if (form) form.addEventListener('submit', function () { setPasswordVisible(button, false); });
     });
 }());

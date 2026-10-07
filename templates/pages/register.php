@@ -49,6 +49,7 @@ require __DIR__ . '/../layout/header.php';
                     <?= Icon::svg('lock') ?>
                     <input class="input" type="password" id="password" name="password"
                            autocomplete="new-password" placeholder="Mindestens mäßige Stärke" required>
+                    <?php require __DIR__ . '/../partials/password-toggle.php'; ?>
                 </div>
                 <?php $meterId = 'password'; require __DIR__ . '/../partials/password-meter.php'; ?>
             </div>
@@ -59,6 +60,7 @@ require __DIR__ . '/../layout/header.php';
                     <?= Icon::svg('lock') ?>
                     <input class="input" type="password" id="confirm_password" name="confirm_password"
                            autocomplete="new-password" placeholder="Passwort wiederholen" required>
+                    <?php require __DIR__ . '/../partials/password-toggle.php'; ?>
                 </div>
             </div>
 

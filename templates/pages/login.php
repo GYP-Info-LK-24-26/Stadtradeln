@@ -47,6 +47,7 @@ require __DIR__ . '/../layout/header.php';
                     <?= Icon::svg('lock') ?>
                     <input class="input" type="password" id="password" name="password"
                            autocomplete="current-password" placeholder="Dein Passwort" required>
+                    <?php require __DIR__ . '/../partials/password-toggle.php'; ?>
                 </div>
             </div>
 
