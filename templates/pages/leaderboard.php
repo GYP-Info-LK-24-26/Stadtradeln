@@ -12,6 +12,11 @@ $offset = $page * 20;
 $highlightId = $viewUsers ? Session::getUserId() : Session::getTeamId();
 $maxDistance = max(array_merge([0.0], array_map(fn($e) => $e->totalDistance, $entries)));
 
+// Zusatzzeile unter dem Namen: Team der Person bzw. Mitgliederzahl des Teams
+$meta = fn($e) => $viewUsers
+    ? $e->teamName
+    : $e->memberCount . ' ' . ($e->memberCount === 1 ? 'Mitglied' : 'Mitglieder');
+
 // Podest nur auf der ersten Seite und bei mindestens drei Einträgen
 $podium = ($page === 0 && count($entries) >= 3) ? array_slice($entries, 0, 3) : [];
 $rest = array_slice($entries, count($podium), null, true);
@@ -45,7 +50,7 @@ require __DIR__ . '/../layout/header.php';
     <?php else: ?>
         <?php if ($podium): ?>
             <section class="podium" aria-label="Top 3">
-                <?php foreach ($podium as $index => $entry): $place = $index + 1; ?>
+                <?php foreach ($podium as $index => $entry): $place = $index + 1; $metaText = $meta($entry); ?>
                     <div class="podium-place place-<?= $place ?><?= $entry->id === $highlightId ? ' is-me' : '' ?>">
                         <?php if ($place === 1): ?>
                             <span class="podium-crown"><?= Icon::svg('crown') ?></span>
@@ -56,8 +61,10 @@ require __DIR__ . '/../layout/header.php';
                         </span>
                         <span class="podium-name" title="<?= htmlspecialchars($entry->name) ?>"><?= htmlspecialchars($entry->name) ?></span>
                         <span class="podium-value"><?= View::number($entry->totalDistance) ?> <small>km</small></span>
-                        <?php if (!$viewUsers): ?>
-                            <span class="rank-meta"><?= $entry->memberCount ?> <?= $entry->memberCount === 1 ? 'Mitglied' : 'Mitglieder' ?></span>
+                        <?php if ($metaText !== null): ?>
+                            <span class="rank-meta" title="<?= htmlspecialchars($metaText) ?>"><?= htmlspecialchars($metaText) ?></span>
+                        <?php else: ?>
+                            <span class="rank-meta" aria-hidden="true">&nbsp;</span><?php /* gleiche Kartenhöhe ohne Team */ ?>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
@@ -71,6 +78,7 @@ require __DIR__ . '/../layout/header.php';
                         <?php
                             $percent = $maxDistance > 0 ? round($entry->totalDistance / $maxDistance * 100, 1) : 0;
                             $isMe = $entry->id === $highlightId;
+                            $metaText = $meta($entry);
                         ?>
                         <li class="rank-row<?= $isMe ? ' is-me' : '' ?>">
                             <span class="rank-pos"><?= $offset + $index + 1 ?></span>
@@ -81,8 +89,8 @@ require __DIR__ . '/../layout/header.php';
                                     <?php if ($isMe): ?>
                                         <span class="badge badge-primary"><?= $viewUsers ? 'Du' : 'Dein Team' ?></span>
                                     <?php endif; ?>
-                                    <?php if (!$viewUsers): ?>
-                                        <span class="rank-meta"><?= $entry->memberCount ?> <?= $entry->memberCount === 1 ? 'Mitglied' : 'Mitglieder' ?></span>
+                                    <?php if ($metaText !== null): ?>
+                                        <span class="rank-meta" title="<?= htmlspecialchars($metaText) ?>"><?= htmlspecialchars($metaText) ?></span>
                                     <?php endif; ?>
                                 </div>
                                 <div class="bar"><span style="--p: <?= $percent ?>%; --i: <?= $index ?>"></span></div>

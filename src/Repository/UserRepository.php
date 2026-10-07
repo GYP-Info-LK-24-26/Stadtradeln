@@ -148,15 +148,17 @@ class UserRepository
     {
         $conn = Database::getConnection();
 
-        $sql = "SELECT users.id, users.name, COALESCE(SUM(tours.distance), 0) AS totalDistance
+        $sql = "SELECT users.id, users.name, users.teamID, teams.teamName,
+                       COALESCE(SUM(tours.distance), 0) AS totalDistance
                 FROM users
+                LEFT JOIN teams ON teams.teamID = users.teamID
                 LEFT JOIN tours ON users.id = tours.userID AND tours.date BETWEEN ? AND ? ";
 
         if ($teamId !== null) {
-            $sql .= "WHERE teamID = ? ";
+            $sql .= "WHERE users.teamID = ? ";
         }
 
-        $sql .= "GROUP BY users.id, users.name ORDER BY totalDistance DESC ";
+        $sql .= "GROUP BY users.id, users.name, users.teamID, teams.teamName ORDER BY totalDistance DESC ";
 
         if ($teamId === null) {
             $sql .= "LIMIT 20 OFFSET ?";
@@ -178,7 +180,6 @@ class UserRepository
 
         $users = [];
         while ($row = $result->fetch_assoc()) {
-            $row['teamID'] = $teamId;
             $users[] = User::fromArray($row);
         }
 

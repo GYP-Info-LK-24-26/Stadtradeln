@@ -9,6 +9,7 @@ class User
 
     public ?string $email = null;
     public ?string $password = null;
+    public ?string $teamName = null;
 
     public function __construct(
         public int $id = 0,
@@ -28,6 +29,7 @@ class User
 
         $user->email = $data['email'] ?? null;
         $user->password = $data['passHash'] ?? null;
+        $user->teamName = $data['teamName'] ?? null;
 
         return $user;
     }

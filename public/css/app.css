@@ -984,7 +984,15 @@ img, svg { display: block; }
     white-space: nowrap;
 }
 
-.rank-meta { font-size: 0.8rem; color: var(--text-subtle); font-weight: 500; }
+.rank-meta {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-subtle);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .rank-value {
     font-weight: 700;

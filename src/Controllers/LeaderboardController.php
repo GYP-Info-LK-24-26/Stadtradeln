@@ -25,7 +25,7 @@ class LeaderboardController
         View::render('pages/leaderboard', [
             'viewUsers' => $viewUsers,
             'users' => $viewUsers ? $this->userRepository->findByTeamWithDistance(null, $page) : [],
-            'teams' => $this->teamRepository->findAllWithStats(),
+            'teams' => $viewUsers ? [] : $this->teamRepository->findAllWithStats(),
             'currentType' => $viewUsers ? 'users' : 'teams',
             'page' => $page,
         ]);
