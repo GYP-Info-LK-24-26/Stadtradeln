@@ -59,6 +59,9 @@ $userName = Session::getDisplayName() ?? 'Profil';
                         <a href="/settings" class="menu-item<?= $isActive('/settings') ? ' is-active' : '' ?>" role="menuitem">
                             <?= Icon::svg('settings') ?> Einstellungen
                         </a>
+                        <a href="/faq" class="menu-item<?= $isActive('/faq') ? ' is-active' : '' ?>" role="menuitem">
+                            <?= Icon::svg('info') ?> FAQ
+                        </a>
                         <div class="menu-separator" role="separator"></div>
                         <form method="post" action="/logout">
                             <button type="submit" class="menu-item menu-item-danger" role="menuitem">

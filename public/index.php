@@ -57,6 +57,10 @@ $router
 
     ->get('/leaderboard', [LeaderboardController::class, 'index'])
 
+    ->get('/faq', function () {
+        View::render('pages/faq');
+    })
+
     ->get('/settings', [SettingsController::class, 'index'])
     ->post('/settings', [SettingsController::class, 'updatePassword'])
     ->post('/settings/name', [SettingsController::class, 'updateName'])
