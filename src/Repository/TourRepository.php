@@ -72,20 +72,26 @@ class TourRepository
         return $stmt->execute();
     }
 
-    public function getDailyTotalByUser(int $userId, string $date, ?int $excludeTourId = null): float
+    /**
+     * Kilometer und Anzahl der Touren eines Nutzers an einem Tag, optional ohne
+     * eine Tour (die gerade bearbeitet wird).
+     *
+     * @return array{total: float, count: int}
+     */
+    public function getDailyStatsByUser(int $userId, string $date, ?int $excludeTourId = null): array
     {
         $conn = Database::getConnection();
 
         if ($excludeTourId !== null) {
             $stmt = $conn->prepare(
-                "SELECT COALESCE(SUM(distance), 0) AS total
+                "SELECT COALESCE(SUM(distance), 0) AS total, COUNT(*) AS count
                  FROM tours
                  WHERE userID = ? AND date = ? AND tourID != ?"
             );
             $stmt->bind_param("isi", $userId, $date, $excludeTourId);
         } else {
             $stmt = $conn->prepare(
-                "SELECT COALESCE(SUM(distance), 0) AS total
+                "SELECT COALESCE(SUM(distance), 0) AS total, COUNT(*) AS count
                  FROM tours
                  WHERE userID = ? AND date = ?"
             );
@@ -94,7 +100,7 @@ class TourRepository
 
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
-        return (float) $row['total'];
+        return ['total' => (float) $row['total'], 'count' => (int) $row['count']];
     }
 
     public function getStatsForTeam(int $teamId): array

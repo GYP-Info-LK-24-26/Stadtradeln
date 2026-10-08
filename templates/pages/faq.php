@@ -53,7 +53,7 @@ require __DIR__ . '/../layout/header.php';
                 <?= \App\Core\Icon::svg('chevron-down', 'icon setting-chevron') ?>
             </summary>
             <div class="setting-body">
-                <p>Öffne den Bereich „Team“ und wähle „Team beitreten“. Dort kannst du ein bestehendes Team auswählen oder ein neues Team gründen.</p>
+                <p>Öffne den Bereich „Team“ und wähle „Team finden oder gründen“. Dort kannst du ein bestehendes Team auswählen oder ein neues Team gründen.</p>
             </div>
         </details>
         <details class="setting">
@@ -76,7 +76,7 @@ require __DIR__ . '/../layout/header.php';
         </details>
         <details class="setting">
             <summary>
-                <span class="setting-info"><span class="setting-value">Wer darft teilnehmen?</span></span>
+                <span class="setting-info"><span class="setting-value">Wer darf teilnehmen?</span></span>
                 <?= \App\Core\Icon::svg('chevron-down', 'icon setting-chevron') ?>
             </summary>
             <div class="setting-body">

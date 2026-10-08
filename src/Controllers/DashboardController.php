@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Event;
+use App\Core\Request;
 use App\Core\Session;
 use App\Core\View;
 use App\Repository\TourRepository;
@@ -103,6 +104,7 @@ class DashboardController
     }
 
     private const MAX_DISTANCE_PER_DAY = 300.0;
+    public const MAX_TOURS_PER_DAY = 10;
 
     private function validateTourInput(float $distance, string $date, ?int $excludeTourId = null): ?string
     {
@@ -115,7 +117,8 @@ class DashboardController
         $today = new \DateTimeImmutable('today');
         $tourDate = \DateTimeImmutable::createFromFormat('Y-m-d', $date);
 
-        if ($tourDate === false) {
+        // Rückumwandlung prüfen: PHP macht aus "2026-09-40" sonst stillschweigend den 10.10.
+        if ($tourDate === false || $tourDate->format('Y-m-d') !== $date) {
             return 'Das Datum ist ungültig.';
         }
 
@@ -129,9 +132,16 @@ class DashboardController
             return 'Touren in der Zukunft können nicht eingetragen werden.';
         }
 
-        // Tagessumme darf 300 km nicht überschreiten
         $userId = Session::getUserId();
-        $existingTotal = $this->tourRepository->getDailyTotalByUser($userId, $date, $excludeTourId);
+        $daily = $this->tourRepository->getDailyStatsByUser($userId, $date, $excludeTourId);
+
+        // Höchstens 10 Touren pro Tag (die bearbeitete Tour zählt nicht doppelt)
+        if ($daily['count'] >= self::MAX_TOURS_PER_DAY) {
+            return 'Du kannst höchstens ' . self::MAX_TOURS_PER_DAY . ' Touren pro Tag eintragen.';
+        }
+
+        // Tagessumme darf 300 km nicht überschreiten
+        $existingTotal = $daily['total'];
         if ($existingTotal + $distance > self::MAX_DISTANCE_PER_DAY) {
             $remaining = self::MAX_DISTANCE_PER_DAY - $existingTotal;
             return sprintf(
@@ -149,8 +159,8 @@ class DashboardController
     {
         Session::requireLogin();
 
-        $distance = (float)str_replace(',', '.', trim($_POST['distance'] ?? ''));
-        $date = trim($_POST['date'] ?? '');
+        $distance = (float)str_replace(',', '.', trim(Request::post('distance')));
+        $date = trim(Request::post('date'));
 
         if ($distance > 0 && $date !== '') {
             $error = $this->validateTourInput($distance, $date);
@@ -171,9 +181,9 @@ class DashboardController
     {
         Session::requireLogin();
 
-        $tourId = (int)($_POST['tour_id'] ?? 0);
-        $distance = (float)str_replace(',', '.', trim($_POST['distance'] ?? ''));
-        $date = trim($_POST['date'] ?? '');
+        $tourId = (int)Request::post('tour_id');
+        $distance = (float)str_replace(',', '.', trim(Request::post('distance')));
+        $date = trim(Request::post('date'));
 
         if ($tourId > 0 && $distance > 0 && $date !== '') {
             $tour = $this->tourRepository->findById($tourId);
@@ -197,7 +207,7 @@ class DashboardController
     {
         Session::requireLogin();
 
-        $tourId = (int)($_POST['tour_id'] ?? 0);
+        $tourId = (int)Request::post('tour_id');
         if ($tourId > 0) {
             $tour = $this->tourRepository->findById($tourId);
             if ($tour && $tour->userId === Session::getUserId()) {

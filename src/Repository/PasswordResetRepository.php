@@ -16,8 +16,9 @@ class PasswordResetRepository
             "INSERT INTO password_resets (userID, token, expiresAt) VALUES (?, ?, ?)"
         );
 
+        $tokenHash = self::hash($token);
         $expiresAtStr = $expiresAt->format('Y-m-d H:i:s');
-        $stmt->bind_param("iss", $userId, $token, $expiresAtStr);
+        $stmt->bind_param("iss", $userId, $tokenHash, $expiresAtStr);
 
         return $stmt->execute();
     }
@@ -28,7 +29,8 @@ class PasswordResetRepository
         $stmt = $conn->prepare(
             "SELECT id, userID, token, expiresAt FROM password_resets WHERE token = ?"
         );
-        $stmt->bind_param("s", $token);
+        $tokenHash = self::hash($token);
+        $stmt->bind_param("s", $tokenHash);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -78,5 +80,11 @@ class PasswordResetRepository
     public static function generateToken(): string
     {
         return bin2hex(random_bytes(32));
+    }
+
+    /** In der Datenbank steht nur der SHA-256-Hash des Tokens. */
+    private static function hash(string $token): string
+    {
+        return hash('sha256', $token);
     }
 }

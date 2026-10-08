@@ -1,4 +1,5 @@
 <?php
+use App\Core\Csrf;
 use App\Core\Icon;
 use App\Core\View;
 
@@ -48,6 +49,7 @@ require __DIR__ . '/../layout/header.php';
                 <form method="post" action="/team/join" data-team="<?= htmlspecialchars($team->name) ?>"
                       data-confirm="Du wirst Mitglied im Team „<?= htmlspecialchars($team->name) ?>“."
                       data-confirm-title="Team beitreten?" data-confirm-ok="Beitreten">
+                    <?= Csrf::field() ?>
                     <input type="hidden" name="team_name" value="<?= htmlspecialchars($team->name) ?>">
                     <button type="submit" class="team-card" style="--i: <?= min($i, 12) ?>">
                         <?= View::avatar($team->name) ?>
@@ -86,6 +88,7 @@ require __DIR__ . '/../layout/header.php';
         </button>
     </div>
     <form method="post" action="/team/join" class="dialog-body form">
+        <?= Csrf::field() ?>
         <input type="hidden" name="type" value="create">
 
         <?php if (!empty($error) && $showCreate): ?>
@@ -100,7 +103,8 @@ require __DIR__ . '/../layout/header.php';
             <div class="input-wrap">
                 <?= Icon::svg('users') ?>
                 <input class="input" type="text" id="team_name" name="team_name" placeholder="z. B. Die Radler"
-                       value="<?= htmlspecialchars($teamName ?? '') ?>" required>
+                       value="<?= htmlspecialchars($teamName ?? '') ?>"
+                       maxlength="<?= \App\Models\Team::NAME_MAX_LENGTH ?>" required>
             </div>
         </div>
 

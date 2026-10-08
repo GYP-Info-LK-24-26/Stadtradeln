@@ -1,4 +1,5 @@
 <?php
+use App\Core\Csrf;
 use App\Core\Icon;
 use App\Core\View;
 
@@ -25,9 +26,11 @@ require __DIR__ . '/../layout/header.php';
                     <h1>
                         <?php if ($isLeader): ?>
                             <form method="post" action="/team/name" class="inline-edit" data-inline-edit>
+                                <?= Csrf::field() ?>
                                 <span class="inline-edit-text"><?= htmlspecialchars($team->name) ?></span>
                                 <input type="text" name="team_name" class="inline-edit-input"
-                                       value="<?= htmlspecialchars($team->name) ?>" aria-label="Teamname" required>
+                                       value="<?= htmlspecialchars($team->name) ?>"
+                                       maxlength="<?= \App\Models\Team::NAME_MAX_LENGTH ?>" aria-label="Teamname" required>
                                 <button type="button" class="inline-edit-btn" title="Teamname bearbeiten" aria-label="Teamname bearbeiten">
                                     <?= Icon::svg('pencil') ?>
                                 </button>
@@ -99,6 +102,7 @@ require __DIR__ . '/../layout/header.php';
                                 <form method="post" action="/team/leader"
                                       data-confirm="<?= htmlspecialchars($member->name) ?> übernimmt die Teamleitung. Du verlierst damit deine Teamleiter-Rechte."
                                       data-confirm-title="Teamleitung übergeben?" data-confirm-ok="Übergeben">
+                                    <?= Csrf::field() ?>
                                     <input type="hidden" name="new_leader" value="<?= (int)$member->id ?>">
                                     <button type="submit" class="btn btn-ghost btn-icon btn-sm"
                                             title="Zum Teamleiter machen" aria-label="<?= htmlspecialchars($member->name) ?> zum Teamleiter machen">
@@ -120,6 +124,7 @@ require __DIR__ . '/../layout/header.php';
             <form method="post" action="/team/leave"
                   data-confirm="Du kannst danach einem anderen Team beitreten oder ein neues gründen."
                   data-confirm-title="Team wirklich verlassen?" data-confirm-ok="Verlassen" data-confirm-variant="danger">
+                <?= Csrf::field() ?>
                 <button type="submit" class="btn btn-danger-soft"><?= Icon::svg('log-out') ?> Team verlassen</button>
             </form>
         </div>

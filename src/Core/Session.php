@@ -2,9 +2,14 @@
 
 namespace App\Core;
 
+use App\Repository\UserRepository;
+
 class Session
 {
     private const MAX_INACTIVE_TIME = 1800; // 30 minutes
+
+    /** Ob Name und Team in diesem Request schon aus der Datenbank geladen wurden. */
+    private static bool $refreshed = false;
 
     public static function start(): void
     {
@@ -27,7 +32,34 @@ class Session
             return RememberMe::restore();
         }
 
+        if (!self::refresh()) {
+            self::logout();
+            return false;
+        }
+
         $_SESSION["last_activity"] = time();
+        return true;
+    }
+
+    /**
+     * Name und Team einmal pro Request aus der Datenbank übernehmen, damit
+     * Änderungen von anderen Geräten (z. B. Team verlassen) sofort gelten.
+     * Gibt false zurück, wenn der Account nicht mehr existiert.
+     */
+    private static function refresh(): bool
+    {
+        if (self::$refreshed) {
+            return true;
+        }
+
+        $user = (new UserRepository())->findById((int) $_SESSION["id"]);
+        if ($user === null) {
+            return false;
+        }
+
+        $_SESSION["name"] = $user->name;
+        $_SESSION["teamID"] = $user->teamId;
+        self::$refreshed = true;
         return true;
     }
 
@@ -50,6 +82,7 @@ class Session
         $_SESSION["name"] = $name;
         $_SESSION["teamID"] = $teamId;
         $_SESSION["last_activity"] = time();
+        self::$refreshed = true;
     }
 
     public static function logout(): void

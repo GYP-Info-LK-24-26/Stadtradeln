@@ -4,6 +4,9 @@ namespace App\Models;
 
 class Team
 {
+    /** Maximale Länge des Teamnamens (Zeichen). */
+    public const NAME_MAX_LENGTH = 50;
+
     public function __construct(
         public int $id = 0,
         public string $name = '',

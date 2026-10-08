@@ -1,17 +1,19 @@
 <?php
+use App\Core\Csrf;
 use App\Core\Icon;
 use App\Core\View;
 
 $title = 'Einstellungen';
 $scripts = ['zxcvbn.js', 'password-strength.js'];
 
-// Rückmeldungen dem passenden Bereich zuordnen
-$nameSuccess = $success && str_contains($success, 'Name');
-$nameError = $error && str_contains($error, 'Name');
-$emailSuccess = $success && str_contains($success, 'E-Mail');
-$emailError = $error && (str_contains($error, 'E-Mail') || str_contains($error, 'Bestätigung'));
-$passwordSuccess = $success && str_contains($success, 'Passwort');
-$passwordError = $error && (str_contains($error, 'Aktuelles') || str_contains($error, 'Neue') || str_contains($error, 'alle Felder'));
+// Rückmeldungen dem Bereich zuordnen, den der Controller angibt ($section)
+$section = $section ?? null;
+$nameSuccess = $section === 'name' && $success;
+$nameError = $section === 'name' && $error;
+$emailSuccess = $section === 'email' && $success;
+$emailError = $section === 'email' && $error;
+$passwordSuccess = $section === 'password' && $success;
+$passwordError = $section === 'password' && $error;
 
 $inlineScript = "initPasswordStrength('new_password');";
 
@@ -31,6 +33,7 @@ require __DIR__ . '/../layout/header.php';
             <div class="profile-text">
                 <div class="profile-name">
                     <form method="post" action="/settings/name" class="inline-edit" data-inline-edit>
+                        <?= Csrf::field() ?>
                         <span class="inline-edit-text"><?= htmlspecialchars($name) ?></span>
                         <input type="text" name="name" class="inline-edit-input" value="<?= htmlspecialchars($name) ?>"
                                maxlength="<?= \App\Models\User::NAME_MAX_LENGTH ?>" aria-label="Name" required>
@@ -63,6 +66,7 @@ require __DIR__ . '/../layout/header.php';
                     </summary>
                     <div class="setting-body">
                         <form method="post" action="/settings/email" class="form">
+                            <?= Csrf::field() ?>
                             <?php if ($emailSuccess): ?>
                                 <div class="alert alert-success" role="status"><?= Icon::svg('check-circle') ?><span><?= htmlspecialchars($success) ?></span></div>
                             <?php elseif ($emailError): ?>
@@ -97,6 +101,7 @@ require __DIR__ . '/../layout/header.php';
                     </summary>
                     <div class="setting-body">
                         <form method="post" action="/settings" class="form">
+                            <?= Csrf::field() ?>
                             <?php if ($passwordSuccess): ?>
                                 <div class="alert alert-success" role="status"><?= Icon::svg('check-circle') ?><span><?= htmlspecialchars($success) ?></span></div>
                             <?php elseif ($passwordError): ?>
@@ -136,6 +141,7 @@ require __DIR__ . '/../layout/header.php';
         <section class="reveal" style="--i: 3">
             <div class="section-title mt-0"><h2>Sitzung</h2></div>
             <form method="post" action="/logout" class="card card-row">
+                <?= Csrf::field() ?>
                 <div>
                     <strong>Abmelden</strong>
                     <p>Beendet deine Sitzung auf diesem Gerät.</p>

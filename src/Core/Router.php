@@ -28,6 +28,13 @@ class Router
             $path = rtrim($path, '/');
         }
 
+        // Zustandsändernde Anfragen nur mit gültigem CSRF-Token aus dem eigenen Formular
+        if ($method === 'POST' && !Csrf::isValid(Request::post(Csrf::FIELD))) {
+            http_response_code(403);
+            View::render('pages/csrf-error', ['back' => $this->refererPath()]);
+            return;
+        }
+
         $handler = $this->routes[$method][$path] ?? null;
 
         if ($handler === null) {
@@ -43,5 +50,21 @@ class Router
         } else {
             $handler();
         }
+    }
+
+    /** Pfad der vorherigen Seite, falls sie zu dieser Website gehört; sonst die Startseite. */
+    private function refererPath(): string
+    {
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $host = preg_quote($_SERVER['HTTP_HOST'] ?? '', '#');
+
+        // \S: Browser entfernen Tabs/Zeilenumbrüche aus URLs ("/\t/evil.example" → "//evil.example")
+        if (!preg_match('#^https?://' . $host . '(/\S*)$#', $referer, $m)) {
+            return '/';
+        }
+
+        // "//evil.example" und "/\evil.example" (Browser lesen "\" wie "/") wären
+        // protokollrelative Links auf eine fremde Domain
+        return '/' . ltrim($m[1], '/\\');
     }
 }

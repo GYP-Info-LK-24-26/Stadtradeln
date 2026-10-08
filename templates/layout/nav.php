@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Csrf;
 use App\Core\Icon;
 use App\Core\Session;
 use App\Core\View;
@@ -64,6 +65,7 @@ $userName = Session::getDisplayName() ?? 'Profil';
                         </a>
                         <div class="menu-separator" role="separator"></div>
                         <form method="post" action="/logout">
+                            <?= Csrf::field() ?>
                             <button type="submit" class="menu-item menu-item-danger" role="menuitem">
                                 <?= Icon::svg('log-out') ?> Abmelden
                             </button>

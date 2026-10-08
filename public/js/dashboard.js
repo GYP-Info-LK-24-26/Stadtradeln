@@ -14,6 +14,8 @@
     var submit = document.getElementById('formSubmit');
     var cancelEdit = document.getElementById('formCancelEdit');
     var errorBox = document.getElementById('dayDialogError');
+    var limitNote = document.getElementById('dayLimitNote');
+    var currentDate = null;
 
     var kmFormat = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     var dateFormat = new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -49,6 +51,12 @@
         document.getElementById('formDistanceLabel').textContent = editing ? 'Distanz bearbeiten' : 'Neue Tour';
         cancelEdit.hidden = !editing;
         form.action = editing ? '/dashboard/tour/update' : '/dashboard/tour';
+
+        // Tageslimit erreicht: nur noch Bearbeiten, kein Hinzufügen
+        var full = !editing && (data.toursByDate[currentDate] || []).length >= data.maxToursPerDay;
+        limitNote.hidden = !full;
+        distance.disabled = full;
+        submit.disabled = full;
     }
 
     function resetForm() {
@@ -76,6 +84,7 @@
 
     function openDay(date, error) {
         if (!date) return;
+        currentDate = date;
         document.getElementById('formDate').value = date;
         document.getElementById('dayDialogTitle').textContent = dateFormat.format(parseDate(date));
         errorBox.hidden = !error;
@@ -84,7 +93,7 @@
         resetForm();
         App.openDialog(dialog);
         // Auf Touch-Geräten nicht automatisch die Tastatur öffnen
-        if (window.matchMedia('(hover: hover)').matches) distance.focus();
+        if (window.matchMedia('(hover: hover)').matches && !distance.disabled) distance.focus();
     }
 
     document.querySelectorAll('[data-open-day]').forEach(function (el) {

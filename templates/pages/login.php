@@ -1,4 +1,5 @@
 <?php
+use App\Core\Csrf;
 use App\Core\Icon;
 
 $title = 'Anmelden';
@@ -14,6 +15,7 @@ require __DIR__ . '/../layout/header.php';
         </div>
 
         <form name="loginForm" method="post" action="/login" class="form">
+            <?= Csrf::field() ?>
             <?php if (($_GET['reset'] ?? '') === 'success'): ?>
                 <div class="alert alert-success" role="status">
                     <?= Icon::svg('check-circle') ?>

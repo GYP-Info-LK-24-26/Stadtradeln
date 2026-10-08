@@ -1,4 +1,5 @@
 <?php
+use App\Core\Csrf;
 use App\Core\Icon;
 
 $title = 'Registrieren';
@@ -15,6 +16,7 @@ require __DIR__ . '/../layout/header.php';
         </div>
 
         <form name="registerForm" method="post" action="/register" class="form">
+            <?= Csrf::field() ?>
             <?php if (!empty($error)): ?>
                 <div class="alert alert-error" role="alert">
                     <?= Icon::svg('alert') ?>

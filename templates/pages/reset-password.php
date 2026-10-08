@@ -1,4 +1,5 @@
 <?php
+use App\Core\Csrf;
 use App\Core\Icon;
 
 $title = 'Neues Passwort';
@@ -19,6 +20,7 @@ require __DIR__ . '/../layout/header.php';
 
         <?php if ($valid): ?>
             <form method="post" action="/reset-password" class="form">
+                <?= Csrf::field() ?>
                 <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
 
                 <?php if (!empty($error)): ?>

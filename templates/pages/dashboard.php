@@ -1,4 +1,6 @@
 <?php
+use App\Controllers\DashboardController;
+use App\Core\Csrf;
 use App\Core\Event;
 use App\Core\Icon;
 use App\Core\Session;
@@ -190,7 +192,13 @@ require __DIR__ . '/../layout/header.php';
 
         <ul class="tour-list" id="dayTourList"></ul>
 
+        <div class="alert alert-info" id="dayLimitNote" role="status" hidden>
+            <?= Icon::svg('info') ?>
+            <span>Du hast an diesem Tag schon <?= DashboardController::MAX_TOURS_PER_DAY ?> Touren eingetragen – mehr geht nicht. Bestehende Touren kannst du weiterhin bearbeiten.</span>
+        </div>
+
         <form method="post" id="tourForm" action="/dashboard/tour" class="form">
+            <?= Csrf::field() ?>
             <input type="hidden" name="tour_id" id="formTourId" value="">
             <input type="hidden" name="date" id="formDate" value="">
 
@@ -216,6 +224,7 @@ require __DIR__ . '/../layout/header.php';
 <form id="deleteForm" method="post" action="/dashboard/tour/delete" hidden
       data-confirm="Diese Tour wird dauerhaft gelöscht." data-confirm-title="Tour löschen?"
       data-confirm-ok="Löschen" data-confirm-variant="danger">
+    <?= Csrf::field() ?>
     <input type="hidden" id="deleteTourId" name="tour_id">
 </form>
 
@@ -232,6 +241,7 @@ require __DIR__ . '/../layout/header.php';
 
 <script type="application/json" id="dashboardData"><?= json_encode([
     'toursByDate' => $toursByDate,
+    'maxToursPerDay' => DashboardController::MAX_TOURS_PER_DAY,
     'error' => $tourError ?: null,
     'reopenDate' => $tourPopupDate ?: null,
 ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?></script>

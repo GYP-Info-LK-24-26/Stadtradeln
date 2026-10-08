@@ -45,7 +45,7 @@ CREATE TABLE tours (
     CONSTRAINT fk_tour_user FOREIGN KEY (userID) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Password reset tokens
+-- Password reset tokens (token = SHA-256-Hash des Tokens aus dem E-Mail-Link)
 CREATE TABLE password_resets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     userID INT NOT NULL,

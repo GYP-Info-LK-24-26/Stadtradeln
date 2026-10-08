@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
 use App\Core\View;
 use App\Repository\TeamRepository;
 use App\Repository\UserRepository;
@@ -19,8 +20,8 @@ class LeaderboardController
 
     public function index(): void
     {
-        $page = max(0, (int)($_GET['page'] ?? 0));
-        $viewUsers = (($_GET['type'] ?? 'users') !== 'teams');
+        $page = max(0, (int)Request::get('page'));
+        $viewUsers = Request::get('type') !== 'teams';
 
         View::render('pages/leaderboard', [
             'viewUsers' => $viewUsers,

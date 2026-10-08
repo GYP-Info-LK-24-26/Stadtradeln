@@ -4,7 +4,7 @@ use App\Core\Session;
 use App\Core\View;
 
 $title = 'Rangliste';
-Session::start(); // öffentliche Route: Sitzung für die Hervorhebung des eigenen Eintrags laden
+Session::isLoggedIn(); // öffentliche Route: Sitzung (mit aktuellem Team) für die Hervorhebung des eigenen Eintrags laden
 
 $entries = $viewUsers ? $users : $teams;
 $page = $viewUsers ? ($page ?? 0) : 0;

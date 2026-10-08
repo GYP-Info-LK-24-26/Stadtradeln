@@ -2,8 +2,10 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
 use App\Core\Session;
 use App\Core\View;
+use App\Models\Team;
 use App\Repository\TeamRepository;
 use App\Repository\TourRepository;
 use App\Repository\UserRepository;
@@ -56,7 +58,7 @@ class TeamController
     {
         Session::requireLogin();
 
-        $showCreate = ($_GET['type'] ?? '') === 'create' || ($_POST['type'] ?? '') === 'create';
+        $showCreate = Request::get('type') === 'create';
         $teams = $this->teamRepository->findAllWithStats();
 
         View::render('pages/team-join', [
@@ -71,8 +73,8 @@ class TeamController
         Session::requireLogin();
 
         $error = '';
-        $teamName = trim($_POST['team_name'] ?? '');
-        $isCreate = ($_POST['type'] ?? '') === 'create';
+        $teamName = trim(Request::post('team_name'));
+        $isCreate = Request::post('type') === 'create';
         $userId = Session::getUserId();
 
         if (Session::getTeamId() !== null) {
@@ -85,6 +87,8 @@ class TeamController
             if ($isCreate) {
                 if ($existingId !== null) {
                     $error = 'Es gibt bereits ein Team mit diesem Namen';
+                } elseif (mb_strlen($teamName) > Team::NAME_MAX_LENGTH) {
+                    $error = 'Der Teamname darf höchstens ' . Team::NAME_MAX_LENGTH . ' Zeichen lang sein';
                 } else {
                     try {
                         $teamId = $this->teamRepository->create($teamName, $userId);
@@ -157,7 +161,7 @@ class TeamController
 
         $userId = Session::getUserId();
         $teamId = Session::getTeamId();
-        $newName = trim($_POST['team_name'] ?? '');
+        $newName = trim(Request::post('team_name'));
 
         if ($teamId === null) {
             header("Location: /team");
@@ -172,7 +176,8 @@ class TeamController
             exit;
         }
 
-        if (!empty($newName) && $newName !== $team->name && $this->teamRepository->getIdByName($newName) === null) {
+        if (!empty($newName) && mb_strlen($newName) <= Team::NAME_MAX_LENGTH
+            && $newName !== $team->name && $this->teamRepository->getIdByName($newName) === null) {
             $this->teamRepository->updateName($teamId, $newName);
         }
 
@@ -186,7 +191,7 @@ class TeamController
 
         $userId = Session::getUserId();
         $teamId = Session::getTeamId();
-        $newLeaderId = (int)($_POST['new_leader'] ?? 0);
+        $newLeaderId = (int)Request::post('new_leader');
 
         if ($teamId === null) {
             header("Location: /team");

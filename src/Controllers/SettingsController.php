@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\RememberMe;
+use App\Core\Request;
 use App\Core\Session;
 use App\Core\View;
 use App\Models\User;
@@ -14,8 +15,9 @@ class SettingsController
     private UserRepository $userRepository;
     private RateLimitRepository $rateLimitRepository;
 
-    private const EMAIL_MAX_ATTEMPTS = 5;
-    private const EMAIL_WINDOW_MINUTES = 60;
+    // Falsche Eingaben des aktuellen Passworts, pro Account (E-Mail- und Passwortänderung gemeinsam)
+    private const PASSWORD_MAX_ATTEMPTS = 5;
+    private const PASSWORD_WINDOW_MINUTES = 15;
 
     public function __construct()
     {
@@ -27,15 +29,8 @@ class SettingsController
     {
         Session::requireLogin();
 
-        $userId = Session::getUserId();
-        $user = $this->userRepository->findById($userId);
-
-        View::render('pages/settings', [
-            'email' => $user->email,
-            'name' => $user->name,
-            'error' => null,
-            'success' => null
-        ]);
+        $user = $this->userRepository->findById(Session::getUserId());
+        $this->render($user);
     }
 
     public function updatePassword(): void
@@ -43,9 +38,9 @@ class SettingsController
         Session::requireLogin();
 
         $userId = Session::getUserId();
-        $currentPassword = $_POST['current_password'] ?? '';
-        $newPassword = $_POST['new_password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
+        $currentPassword = Request::post('current_password');
+        $newPassword = Request::post('new_password');
+        $confirmPassword = Request::post('confirm_password');
 
         $user = $this->userRepository->findById($userId);
         $error = null;
@@ -53,13 +48,13 @@ class SettingsController
 
         if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
             $error = 'Bitte alle Felder ausfüllen.';
-        } elseif (!password_verify($currentPassword, $user->password)) {
-            $error = 'Aktuelles Passwort ist falsch.';
         } elseif ($newPassword !== $confirmPassword) {
             $error = 'Neue Passwörter stimmen nicht überein.';
-        } elseif (strlen($newPassword) < 6) {
-            $error = 'Neues Passwort muss mindestens 6 Zeichen lang sein.';
         } else {
+            $error = $this->checkPassword($user, $currentPassword, 'Aktuelles Passwort ist falsch.');
+        }
+
+        if ($error === null) {
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $this->userRepository->updatePassword($userId, $hashedPassword);
             // Andere Geräte abmelden, dieses Gerät bleibt ggf. angemeldet
@@ -71,12 +66,7 @@ class SettingsController
             $success = 'Passwort erfolgreich geändert.';
         }
 
-        View::render('pages/settings', [
-            'email' => $user->email,
-            'name' => $user->name,
-            'error' => $error,
-            'success' => $success
-        ]);
+        $this->render($user, 'password', $error, $success);
     }
 
     public function updateName(): void
@@ -84,7 +74,7 @@ class SettingsController
         Session::requireLogin();
 
         $userId = Session::getUserId();
-        $name = trim($_POST['name'] ?? '');
+        $name = trim(Request::post('name'));
 
         $user = $this->userRepository->findById($userId);
         $error = null;
@@ -97,15 +87,11 @@ class SettingsController
         } else {
             $this->userRepository->updateName($userId, $name);
             Session::setName($name);
+            $user->name = $name;
             $success = 'Name erfolgreich geändert.';
         }
 
-        View::render('pages/settings', [
-            'email' => $user->email,
-            'name' => $error ? $user->name : $name,
-            'error' => $error,
-            'success' => $success
-        ]);
+        $this->render($user, 'name', $error, $success);
     }
 
     public function updateEmail(): void
@@ -113,29 +99,12 @@ class SettingsController
         Session::requireLogin();
 
         $userId = Session::getUserId();
-        $newEmail = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $newEmail = trim(Request::post('email'));
+        $password = Request::post('password');
 
         $user = $this->userRepository->findById($userId);
         $error = null;
         $success = null;
-        $clientIp = RateLimitRepository::getClientIp();
-
-        if ($this->rateLimitRepository->isRateLimited(
-            $clientIp, 'email_change',
-            self::EMAIL_MAX_ATTEMPTS, self::EMAIL_WINDOW_MINUTES
-        )) {
-            $error = 'Zu viele Versuche. Bitte versuche es später erneut.';
-            View::render('pages/settings', [
-                'email' => $user->email,
-                'name' => $user->name,
-                'error' => $error,
-                'success' => null
-            ]);
-            return;
-        }
-
-        $this->rateLimitRepository->record($clientIp, 'email_change');
 
         if (empty($newEmail)) {
             $error = 'E-Mail-Adresse darf nicht leer sein.';
@@ -143,21 +112,57 @@ class SettingsController
             $error = 'Bitte eine gültige E-Mail-Adresse eingeben.';
         } elseif (empty($password)) {
             $error = 'Bitte Passwort zur Bestätigung eingeben.';
-        } elseif (!password_verify($password, $user->password)) {
-            $error = 'Passwort zur Bestätigung ist falsch.';
-        } elseif ($newEmail !== $user->email && $this->userRepository->emailExists($newEmail)) {
-            $error = 'Diese E-Mail-Adresse ist bereits registriert.';
         } else {
+            $error = $this->checkPassword($user, $password, 'Passwort zur Bestätigung ist falsch.');
+            // Erst nach dem Passwort prüfen, damit niemand ohne Passwort fremde Adressen abfragen kann
+            if ($error === null && $newEmail !== $user->email && $this->userRepository->emailExists($newEmail)) {
+                $error = 'Diese E-Mail-Adresse ist bereits registriert.';
+            }
+        }
+
+        if ($error === null) {
             $this->userRepository->updateEmail($userId, $newEmail);
             $user->email = $newEmail;
             $success = 'E-Mail-Adresse erfolgreich geändert.';
         }
 
+        $this->render($user, 'email', $error, $success);
+    }
+
+    /**
+     * Prüft das aktuelle Passwort mit Limit pro Account, damit es sich über eine offene
+     * Sitzung (z. B. an einem Schulrechner) nicht durchprobieren lässt.
+     * Gibt die Fehlermeldung zurück oder null, wenn das Passwort stimmt.
+     */
+    private function checkPassword(User $user, string $password, string $wrongMessage): ?string
+    {
+        $key = RateLimitRepository::userKey($user->id);
+
+        if ($this->rateLimitRepository->isRateLimited(
+            $key, 'password_check',
+            self::PASSWORD_MAX_ATTEMPTS, self::PASSWORD_WINDOW_MINUTES
+        )) {
+            return 'Zu viele falsche Passwort-Eingaben. Bitte versuche es in '
+                . self::PASSWORD_WINDOW_MINUTES . ' Minuten erneut.';
+        }
+
+        if (!password_verify($password, $user->password)) {
+            $this->rateLimitRepository->record($key, 'password_check');
+            return $wrongMessage;
+        }
+
+        return null;
+    }
+
+    /** $section ('name' | 'email' | 'password') bestimmt, wo die Meldung erscheint. */
+    private function render(User $user, ?string $section = null, ?string $error = null, ?string $success = null): void
+    {
         View::render('pages/settings', [
             'email' => $user->email,
             'name' => $user->name,
+            'section' => $section,
             'error' => $error,
-            'success' => $success
+            'success' => $success,
         ]);
     }
 }
