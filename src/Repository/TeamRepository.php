@@ -121,7 +121,7 @@ class TeamRepository
              LEFT JOIN tours ON users.id = tours.userID AND tours.date BETWEEN ? AND ?
              INNER JOIN teams ON users.teamID = teams.teamID
              GROUP BY teams.teamID, teams.teamName
-             ORDER BY totalDistance DESC"
+             ORDER BY totalDistance DESC, teams.teamID ASC"
         );
         $start = Event::start()->format('Y-m-d');
         $end = Event::end()->format('Y-m-d');

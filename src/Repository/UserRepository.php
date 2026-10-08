@@ -158,7 +158,9 @@ class UserRepository
             $sql .= "WHERE users.teamID = ? ";
         }
 
-        $sql .= "GROUP BY users.id, users.name, users.teamID, teams.teamName ORDER BY totalDistance DESC ";
+        // users.id als eindeutiger Tiebreaker: feste Reihenfolge, damit bei gleicher
+        // Distanz niemand zwischen den Seiten (LIMIT/OFFSET) springt oder fehlt
+        $sql .= "GROUP BY users.id, users.name, users.teamID, teams.teamName ORDER BY totalDistance DESC, users.id ASC ";
 
         if ($teamId === null) {
             $sql .= "LIMIT 20 OFFSET ?";
