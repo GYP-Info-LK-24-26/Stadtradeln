@@ -6,8 +6,13 @@ use App\Core\Database;
 
 class RateLimitRepository
 {
+    // Längstes Zeitfenster aller Rate Limits; ältere Einträge werden nie mehr gelesen
+    private const RETENTION_MINUTES = 60;
+
     public function record(string $ipAddress, string $action): bool
     {
+        $this->deleteOld();
+
         $conn = Database::getConnection();
         $stmt = $conn->prepare("INSERT INTO rate_limits (ipAddress, action) VALUES (?, ?)");
         $stmt->bind_param("ss", $ipAddress, $action);
@@ -30,12 +35,21 @@ class RateLimitRepository
         return $count >= $maxAttempts;
     }
 
+    private function deleteOld(): void
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare(
+            "DELETE FROM rate_limits WHERE createdAt < DATE_SUB(NOW(), INTERVAL ? MINUTE)"
+        );
+        $retention = self::RETENTION_MINUTES;
+        $stmt->bind_param("i", $retention);
+        $stmt->execute();
+    }
+
+    // Bewusst nur REMOTE_ADDR: X-Forwarded-For kann jeder Client frei setzen
+    // und damit die Rate Limits umgehen.
     public static function getClientIp(): string
     {
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return trim(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
-        }
-
         return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
     }
 }

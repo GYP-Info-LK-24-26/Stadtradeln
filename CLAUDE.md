@@ -70,7 +70,7 @@ Routes are defined in `public/index.php`. Main routes:
 
 ## Security
 
-**Rate Limiting**: `RateLimitRepository` tracks attempts by IP in the `rate_limits` table. Protected endpoints:
+**Rate Limiting**: `RateLimitRepository` tracks attempts by IP (`REMOTE_ADDR` only — never trust `X-Forwarded-For`) in the `rate_limits` table. `record()` deletes rows older than `RETENTION_MINUTES` (60, the longest window); raise it when adding a longer window. Protected endpoints:
 - `POST /login` — 10 failed attempts per IP per 15 minutes (`login_failed`)
 - `POST /register` — 5 attempts per IP per 60 minutes (`register`)
 - `POST /forgot-password` — 5 attempts per IP per 60 minutes (`password_reset`)
