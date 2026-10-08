@@ -70,6 +70,11 @@ class AuthController
             $error = 'Zu viele fehlgeschlagene Versuche. Bitte versuche es später erneut.';
         } elseif (empty($email)) {
             $error = 'Du musst eine E-Mail eingeben';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            // Nur ASCII-Adressen (wie bei der Registrierung): Die Datenbank-Collation setzt
+            // "léa@…" und "lea@…" gleich, emailKey() aber nicht – sonst ließe sich die
+            // Sperre pro Account mit Schreibvarianten umgehen.
+            $error = 'Bitte gib eine gültige E-Mail-Adresse ein';
         } elseif (empty($password)) {
             $error = 'Du musst ein Passwort eingeben';
         } elseif ($this->rateLimitRepository->isRateLimited(
@@ -86,7 +91,7 @@ class AuthController
                 $this->rateLimitRepository->record(RateLimitRepository::emailKey($email), 'login_failed');
                 $error = 'E-Mail oder Passwort ist falsch';
             } else {
-                Session::login($user->id, $user->name, $user->teamId);
+                Session::login($user->id, $user->name, $user->teamId, $user->password);
                 if ($remember) {
                     RememberMe::issue($user->id);
                 }
@@ -157,7 +162,9 @@ class AuthController
 
             try {
                 $userId = $this->userRepository->create($user);
-                Session::login($userId, $user->name, null);
+                // $user->password ist hier noch das Klartext-Passwort; den gespeicherten Hash laden
+                $created = $this->userRepository->findById($userId);
+                Session::login($userId, $created->name, null, $created->password);
                 if ($data['remember']) {
                     RememberMe::issue($userId);
                 }
