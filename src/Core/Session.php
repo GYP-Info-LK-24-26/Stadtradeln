@@ -18,13 +18,13 @@ class Session
         self::start();
 
         if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-            return false;
+            return RememberMe::restore();
         }
 
         if (isset($_SESSION["last_activity"]) &&
             $_SESSION["last_activity"] + self::MAX_INACTIVE_TIME < time()) {
             self::logout();
-            return false;
+            return RememberMe::restore();
         }
 
         $_SESSION["last_activity"] = time();
@@ -42,6 +42,9 @@ class Session
     public static function login(int $userId, string $name, ?int $teamId): void
     {
         self::start();
+        if (!headers_sent()) {
+            session_regenerate_id(true);
+        }
         $_SESSION["loggedin"] = true;
         $_SESSION["id"] = $userId;
         $_SESSION["name"] = $name;

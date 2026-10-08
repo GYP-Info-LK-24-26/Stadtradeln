@@ -64,6 +64,8 @@ require __DIR__ . '/../layout/header.php';
                 </div>
             </div>
 
+            <?php $remember = !empty($data['remember']); require __DIR__ . '/../partials/remember-toggle.php'; ?>
+
             <button type="submit" class="btn btn-primary btn-lg btn-block">
                 Registrieren <?= Icon::svg('arrow-right') ?>
             </button>

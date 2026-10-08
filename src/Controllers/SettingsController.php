@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\RememberMe;
 use App\Core\Session;
 use App\Core\View;
 use App\Models\User;
@@ -61,6 +62,12 @@ class SettingsController
         } else {
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $this->userRepository->updatePassword($userId, $hashedPassword);
+            // Andere Geräte abmelden, dieses Gerät bleibt ggf. angemeldet
+            $rememberThisDevice = RememberMe::hasCookie();
+            RememberMe::forgetAll($userId);
+            if ($rememberThisDevice) {
+                RememberMe::issue($userId);
+            }
             $success = 'Passwort erfolgreich geändert.';
         }
 

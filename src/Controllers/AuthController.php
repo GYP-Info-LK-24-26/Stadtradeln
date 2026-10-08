@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\RememberMe;
 use App\Core\Session;
 use App\Core\View;
 use App\Models\User;
@@ -49,6 +50,7 @@ class AuthController
     {
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
+        $remember = !empty($_POST['remember']);
         $error = '';
         $clientIp = RateLimitRepository::getClientIp();
 
@@ -69,13 +71,16 @@ class AuthController
                 $error = 'E-Mail oder Passwort ist falsch';
             } else {
                 Session::login($user->id, $user->name, $user->teamId);
+                if ($remember) {
+                    RememberMe::issue($user->id);
+                }
                 $this->userRepository->updateLastLogin($user->id);
                 header("Location: /dashboard");
                 exit;
             }
         }
 
-        View::render('pages/login', ['error' => $error, 'email' => $email]);
+        View::render('pages/login', ['error' => $error, 'email' => $email, 'remember' => $remember]);
     }
 
     public function showRegister(): void
@@ -128,6 +133,9 @@ class AuthController
             try {
                 $userId = $this->userRepository->create($user);
                 Session::login($userId, $user->name, null);
+                if (!empty($data['remember'])) {
+                    RememberMe::issue($userId);
+                }
                 $this->userRepository->updateLastLogin($userId);
                 header("Location: /dashboard");
                 exit;
@@ -141,6 +149,7 @@ class AuthController
 
     public function logout(): void
     {
+        RememberMe::forget();
         Session::logout();
         header("Location: /");
         exit;
@@ -228,6 +237,7 @@ class AuthController
         $reset = $this->passwordResetRepository->findByToken($token);
         $this->userRepository->updatePassword($reset['userID'], password_hash($password, PASSWORD_DEFAULT));
         $this->passwordResetRepository->deleteByUserId($reset['userID']);
+        RememberMe::forgetAll($reset['userID']);
 
         header("Location: /login?reset=success");
         exit;

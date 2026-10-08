@@ -58,6 +58,21 @@ CREATE TABLE password_resets (
     CONSTRAINT fk_reset_user FOREIGN KEY (userID) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- "Angemeldet bleiben": nur der SHA-256-Hash des Tokens wird gespeichert
+CREATE TABLE remember_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userID INT NOT NULL,
+    selector CHAR(24) NOT NULL,
+    tokenHash CHAR(64) NOT NULL,
+    expiresAt DATETIME NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uk_selector (selector),
+    INDEX idx_user (userID),
+    INDEX idx_expires (expiresAt),
+    CONSTRAINT fk_remember_user FOREIGN KEY (userID) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Rate limiting for password resets
 CREATE TABLE rate_limits (
     id INT AUTO_INCREMENT PRIMARY KEY,
