@@ -1,11 +1,11 @@
 <?php
 use App\Controllers\DashboardController;
+use App\Controllers\LeaderboardController;
 use App\Core\Csrf;
 use App\Core\Event;
 use App\Core\Icon;
 use App\Core\Session;
 use App\Core\View;
-use App\Repository\UserRepository;
 
 $title = 'Dashboard';
 $scripts = ['dashboard.js'];
@@ -47,9 +47,8 @@ if (Event::isUpcoming()) {
     $daysValue = Event::isOver() ? 0 : (int)$today->diff(Event::end())->days + 1;
 }
 
-// Link auf die Ranglisten-Seite, auf der die Person steht (#me springt zur eigenen Zeile)
-$rankPage = intdiv($rank['position'] - 1, UserRepository::LEADERBOARD_PAGE_SIZE);
-$rankUrl = '/leaderboard?type=users' . ($rankPage > 0 ? '&page=' . $rankPage : '') . '#me';
+// Die Rangliste ermittelt die Seite erst beim Öffnen (page=@me); #me springt zur eigenen Zeile
+$rankUrl = '/leaderboard?type=users&page=' . LeaderboardController::PAGE_ME . '#me';
 
 $weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
