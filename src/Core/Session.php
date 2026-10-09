@@ -32,9 +32,12 @@ class Session
             return RememberMe::restore();
         }
 
+        // Account gelöscht oder Passwort geändert: Sitzung beenden. Dieses Gerät
+        // kommt ggf. per „Angemeldet bleiben“ wieder rein (andere Geräte nicht,
+        // deren Tokens wurden mit der Passwortänderung gelöscht).
         if (!self::refresh()) {
             self::logout();
-            return false;
+            return RememberMe::restore();
         }
 
         $_SESSION["last_activity"] = time();
@@ -44,7 +47,8 @@ class Session
     /**
      * Name und Team einmal pro Request aus der Datenbank übernehmen, damit
      * Änderungen von anderen Geräten (z. B. Team verlassen) sofort gelten.
-     * Gibt false zurück, wenn der Account nicht mehr existiert.
+     * Gibt false zurück, wenn der Account nicht mehr existiert oder das Passwort
+     * seit dem Login geändert wurde (meldet andere Sitzungen ab).
      */
     private static function refresh(): bool
     {
@@ -53,7 +57,7 @@ class Session
         }
 
         $user = (new UserRepository())->findById((int) $_SESSION["id"]);
-        if ($user === null) {
+        if ($user === null || !hash_equals($_SESSION["pass"] ?? '', self::passFingerprint($user->password))) {
             return false;
         }
 
@@ -71,7 +75,8 @@ class Session
         }
     }
 
-    public static function login(int $userId, string $name, ?int $teamId): void
+    /** $passHash: aktueller Passwort-Hash aus der Datenbank (für refresh()). */
+    public static function login(int $userId, string $name, ?int $teamId, string $passHash): void
     {
         self::start();
         if (!headers_sent()) {
@@ -81,8 +86,24 @@ class Session
         $_SESSION["id"] = $userId;
         $_SESSION["name"] = $name;
         $_SESSION["teamID"] = $teamId;
+        $_SESSION["pass"] = self::passFingerprint($passHash);
         $_SESSION["last_activity"] = time();
         self::$refreshed = true;
+    }
+
+    /** Nach eigener Passwortänderung: diese Sitzung bleibt gültig. */
+    public static function setPassHash(string $passHash): void
+    {
+        $_SESSION["pass"] = self::passFingerprint($passHash);
+    }
+
+    /**
+     * Nur ein Fingerabdruck des Hashes kommt in die Sitzung, damit Sitzungsdateien
+     * keinen offline angreifbaren bcrypt-Hash enthalten.
+     */
+    private static function passFingerprint(string $passHash): string
+    {
+        return hash('sha256', $passHash);
     }
 
     public static function logout(): void

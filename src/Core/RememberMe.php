@@ -65,7 +65,7 @@ class RememberMe
             return false;
         }
 
-        Session::login($user->id, $user->name, $user->teamId);
+        Session::login($user->id, $user->name, $user->teamId, $user->password);
         self::issue($user->id);
         return true;
     }
