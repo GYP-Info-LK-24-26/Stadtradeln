@@ -7,14 +7,17 @@ use App\Core\Request;
 use App\Core\Session;
 use App\Core\View;
 use App\Repository\TourRepository;
+use App\Repository\UserRepository;
 
 class DashboardController
 {
     private TourRepository $tourRepository;
+    private UserRepository $userRepository;
 
     public function __construct()
     {
         $this->tourRepository = new TourRepository();
+        $this->userRepository = new UserRepository();
     }
 
     public function index(): void
@@ -33,6 +36,7 @@ class DashboardController
             'teamId' => Session::getTeamId(),
             'totalDistance' => array_sum(array_map(fn($t) => $t->distance, $tours)),
             'calendar' => $this->buildCalendar($tours),
+            'rank' => $this->userRepository->findLeaderboardPosition(Session::getUserId()),
         ]);
     }
 

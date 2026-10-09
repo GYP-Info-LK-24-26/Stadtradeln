@@ -2,13 +2,15 @@
 use App\Core\Icon;
 use App\Core\Session;
 use App\Core\View;
+use App\Repository\UserRepository;
 
 $title = 'Rangliste';
 Session::isLoggedIn(); // öffentliche Route: Sitzung (mit aktuellem Team) für die Hervorhebung des eigenen Eintrags laden
 
 $entries = $viewUsers ? $users : $teams;
 $page = $viewUsers ? ($page ?? 0) : 0;
-$offset = $page * 20;
+$pageSize = UserRepository::LEADERBOARD_PAGE_SIZE;
+$offset = $page * $pageSize;
 $highlightId = $viewUsers ? Session::getUserId() : Session::getTeamId();
 $maxDistance = max(array_merge([0.0], array_map(fn($e) => $e->totalDistance, $entries)));
 
@@ -51,7 +53,7 @@ require __DIR__ . '/../layout/header.php';
         <?php if ($podium): ?>
             <section class="podium" aria-label="Top 3">
                 <?php foreach ($podium as $index => $entry): $place = $index + 1; $metaText = $meta($entry); ?>
-                    <div class="podium-place place-<?= $place ?><?= $entry->id === $highlightId ? ' is-me' : '' ?>">
+                    <div class="podium-place place-<?= $place ?><?= $entry->id === $highlightId ? ' is-me' : '' ?>"<?= $entry->id === $highlightId ? ' id="me"' : '' ?>>
                         <?php if ($place === 1): ?>
                             <span class="podium-crown"><?= Icon::svg('crown') ?></span>
                         <?php endif; ?>
@@ -80,7 +82,7 @@ require __DIR__ . '/../layout/header.php';
                             $isMe = $entry->id === $highlightId;
                             $metaText = $meta($entry);
                         ?>
-                        <li class="rank-row<?= $isMe ? ' is-me' : '' ?>">
+                        <li class="rank-row<?= $isMe ? ' is-me' : '' ?>"<?= $isMe ? ' id="me"' : '' ?>>
                             <span class="rank-pos"><?= $offset + $index + 1 ?></span>
                             <?= View::avatar($entry->name) ?>
                             <div class="rank-main">
@@ -102,14 +104,14 @@ require __DIR__ . '/../layout/header.php';
             </div>
         <?php endif; ?>
 
-        <?php if ($viewUsers && ($page > 0 || count($users) === 20)): ?>
+        <?php if ($viewUsers && ($page > 0 || count($users) === $pageSize)): ?>
             <nav class="pagination" aria-label="Seiten">
                 <?php if ($page > 0): ?>
                     <a class="btn btn-secondary" href="/leaderboard?type=users&page=<?= $page - 1 ?>"><?= Icon::svg('chevron-left') ?> Zurück</a>
                 <?php else: ?>
                     <span></span>
                 <?php endif; ?>
-                <?php if (count($users) === 20): ?>
+                <?php if (count($users) === $pageSize): ?>
                     <a class="btn btn-secondary" href="/leaderboard?type=users&page=<?= $page + 1 ?>">Weiter <?= Icon::svg('chevron-right') ?></a>
                 <?php endif; ?>
             </nav>

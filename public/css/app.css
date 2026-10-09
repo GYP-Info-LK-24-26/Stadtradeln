@@ -933,6 +933,73 @@ svg {
     pointer-events: none;
 }
 
+/* Dashboard: fünf Kacheln in einer Reihe, darunter Kilometer-Kachel volle Breite + 2×2 */
+.stat-grid-dashboard {
+    grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 960px) {
+    .stat-grid-dashboard {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stat-grid-dashboard>.stat-hero {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Verlinkte Kachel (Platzierung → Rangliste), Hover wie .team-card */
+.stat-link {
+    color: inherit;
+    font-weight: inherit;
+    transition: transform 0.2s var(--ease-out), box-shadow 0.2s, border-color 0.2s;
+}
+
+.stat-link:hover {
+    color: inherit;
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+    box-shadow: var(--shadow-md);
+}
+
+.stat-link:active {
+    transform: scale(0.98);
+}
+
+.stat-link:focus-visible {
+    border-radius: var(--radius-lg);
+}
+
+.stat-go {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--text-subtle);
+    transition: background-color 0.2s, color 0.2s, transform 0.25s var(--ease-out);
+}
+
+.stat-go .icon {
+    width: 15px;
+    height: 15px;
+}
+
+.stat-link:hover .stat-go {
+    background: var(--primary);
+    color: var(--on-primary);
+    transform: translateX(2px);
+}
+
+/* Ziel des Links vom Dashboard: nicht unter der fixierten Navigation verschwinden */
+#me {
+    scroll-margin-top: 96px;
+}
+
 /* Formulare */
 .form {
     display: grid;
@@ -2971,6 +3038,13 @@ button.cal-day:focus-visible .cal-day-add {
 
     .stat {
         padding: 14px;
+    }
+
+    .stat-go {
+        top: 14px;
+        right: 14px;
+        width: 24px;
+        height: 24px;
     }
 
     .stat-icon {

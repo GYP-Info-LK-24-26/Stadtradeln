@@ -60,6 +60,8 @@ Request → Router → Controller → Repository → Database
 
 **Event period**: `App\Core\Event` defines the campaign period (10.10.–31.10. of the current year). Tours can only be saved for event days up to today, with at most 10 tours and 300 km per user per day (`DashboardController::MAX_TOURS_PER_DAY` / `MAX_DISTANCE_PER_DAY`); all km totals (dashboard, team, leaderboard) only count tours within the period.
 
+**Dashboard rank**: The „Platzierung“ tile shows the position in the people leaderboard (`UserRepository::findLeaderboardPosition()`, same ordering as `findByTeamWithDistance()`: km descending, ties by `users.id`) and links to the leaderboard page containing the user (`LEADERBOARD_PAGE_SIZE`), jumping to the own row via the `#me` anchor.
+
 **Database**: All queries must use prepared statements via `Database::getConnection()` (mysqli).
 
 ## Routes
