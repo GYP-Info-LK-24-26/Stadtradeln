@@ -92,4 +92,5 @@ Routes are defined in `public/index.php`. Main routes:
 - HTML escaping: use `htmlspecialchars()`
 - Request parameters: read via `Request::post()` / `Request::get()` (always strings, arrays become `''`), never `$_POST`/`$_GET` directly
 - Absolute URLs (e.g. in emails): use `AuthController::APP_URL`, never `HTTP_HOST`
+- Emails with a link (verification, password reset): use `AuthController::sendLinkMail()` — sends multipart/alternative (plain text + HTML with the link as a button, inline styles only), so the link is clickable in every mail client
 - Password hashing: use PHP's `password_hash()`
