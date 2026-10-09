@@ -12,7 +12,7 @@ require __DIR__ . '/../layout/header.php';
         <div class="auth-head">
             <span class="brand-mark"><?= Icon::svg('bike') ?></span>
             <h1>Account erstellen</h1>
-            <p>In einer Minute startklar – dann zählt jeder Kilometer.</p>
+            <p>In einer Minute startklar – dann zählt jeder Kilometer. Zum Schluss bestätigst du noch deine E-Mail-Adresse.</p>
         </div>
 
         <form name="registerForm" method="post" action="/register" class="form">
@@ -65,8 +65,6 @@ require __DIR__ . '/../layout/header.php';
                     <?php require __DIR__ . '/../partials/password-toggle.php'; ?>
                 </div>
             </div>
-
-            <?php $remember = !empty($data['remember']); require __DIR__ . '/../partials/remember-toggle.php'; ?>
 
             <button type="submit" class="btn btn-primary btn-lg btn-block">
                 Registrieren <?= Icon::svg('arrow-right') ?>

@@ -58,6 +58,22 @@ CREATE TABLE password_resets (
     CONSTRAINT fk_reset_user FOREIGN KEY (userID) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Registrierungen, deren E-Mail-Adresse noch nicht bestätigt ist
+-- (token = SHA-256-Hash des Tokens aus dem Bestätigungslink)
+CREATE TABLE pending_registrations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    passHash VARCHAR(255) NOT NULL,
+    token CHAR(64) NOT NULL,
+    expiresAt DATETIME NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uk_email (email),
+    UNIQUE KEY uk_token (token),
+    INDEX idx_expires (expiresAt)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- "Angemeldet bleiben": nur der SHA-256-Hash des Tokens wird gespeichert
 CREATE TABLE remember_tokens (
     id INT AUTO_INCREMENT PRIMARY KEY,

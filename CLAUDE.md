@@ -40,7 +40,7 @@ Request → Router → Controller → Repository → Database
 
 **Key Directories**:
 - `src/Controllers/` - Request handlers (Auth, Dashboard, Team, Leaderboard, Settings, Home)
-- `src/Repository/` - Database access layer (User, Team, Tour, RateLimit, PasswordReset, RememberToken repositories)
+- `src/Repository/` - Database access layer (User, Team, Tour, RateLimit, PasswordReset, PendingRegistration, RememberToken repositories)
 - `src/Models/` - Data classes (User, Team, Tour)
 - `src/Core/` - Framework: Router, Database (singleton mysqli), Session, View, Request, Csrf
 - `templates/` - PHP templates; every page sets `$title` (and optionally `$layout` = `app`|`auth`|`landing`, `$scripts`, `$inlineScript`) and wraps its content in `require layout/header.php` … `require layout/footer.php`
@@ -51,6 +51,8 @@ Request → Router → Controller → Repository → Database
 **UI helpers**: `View::asset()` (cache-busted URLs), `View::number()` (German number format), `View::avatar()` (initials avatar), `Icon::svg('name')` (inline Lucide icons). `app.js` provides declarative behaviors: `data-dialog-open="id"` / `data-dialog-close` for native `<dialog>`s, `form[data-confirm]` for confirmation dialogs (instead of `confirm()`), `data-count-to` count-up numbers, `data-inline-edit` name editing, `data-menu` dropdowns, `data-password-toggle` show-password button (render via `partials/password-toggle.php` inside `.input-wrap`, right after the password input). Staggered entrance animations use the `.reveal` class with `style="--i: n"`. Keep the `<script>0</script>` after the stylesheet in `layout/header.php`: it makes Firefox wait for `app.css` before the first paint.
 
 **Session**: 30-minute inactivity timeout. Use `Session::requireLogin()` to guard protected routes. `Session::isLoggedIn()` reloads name and team from the database once per request, so changes made on other devices apply immediately. „Angemeldet bleiben“ (`App\Core\RememberMe`): selector/validator cookie `remember` (30 days, HttpOnly, SameSite=Lax); the `remember_tokens` table stores only the SHA-256 hash of the validator. `Session::isLoggedIn()` restores an expired/missing session from the cookie and rotates the token. Logout deletes the device's token; password change/reset deletes all tokens of the user. The session stores a SHA-256 fingerprint of `passHash` (`Session::login()` takes the hash); `refresh()` ends every session whose fingerprint no longer matches, so a password change/reset logs out all other devices — after changing the password in-app, call `Session::setPassHash()` to keep the current session. Use `Session::getDisplayName()` to get the user's full name.
+
+**Registration / email verification**: `POST /register` does not create the account. It stores name, email and password hash in `pending_registrations` (only the SHA-256 hash of the token, valid 24 h; a new registration for the same address replaces the old one) and mails a link to `/verify-email?token=…`. `GET /verify-email` only shows a confirmation page („Angemeldet bleiben“ is chosen there); `POST /verify-email` creates the user, deletes the pending row and logs in — POST so that mail scanners prefetching the link don't consume it. Login with the password of an unconfirmed registration shows a „noch nicht aktiviert“ hint. The verification email deliberately omits the entered name (unverified address → no user-controlled text in mails to strangers).
 
 **User Model**: Users are identified by email (login) with a single `name` attribute for display. Use `$user->name` or `$user->getDisplayName()` to get the name.
 
@@ -63,6 +65,7 @@ Request → Router → Controller → Repository → Database
 Routes are defined in `public/index.php`. Main routes:
 - `/` - Home
 - `/login`, `/register`, `/logout` - Authentication
+- `/verify-email` - Confirm the email address from the registration email (creates the account)
 - `/dashboard` - User dashboard with tour management
 - `/team`, `/team/join` - Team operations
 - `/leaderboard` - Rankings
@@ -74,7 +77,7 @@ Routes are defined in `public/index.php`. Main routes:
 
 **Rate Limiting**: `RateLimitRepository` tracks attempts per key in the `rate_limits` table: IP (`getClientIp()`, `REMOTE_ADDR` only — never trust `X-Forwarded-For`) or account (`userKey()`, `emailKey()`). Per-IP limits are deliberately generous because the whole school shares one public IP; per-account limits protect individual passwords. `record()` deletes rows older than `RETENTION_MINUTES` (60, the longest window); raise it when adding a longer window. Protected endpoints:
 - `POST /login` — 100 failed attempts per IP and 10 per account (`emailKey()`) per 15 minutes (`login_failed`)
-- `POST /register` — 100 attempts per IP per 60 minutes (`register`)
+- `POST /register` — 100 attempts per IP per 60 minutes (`register`); plus at most 5 verification emails per address (`emailKey()`) per 60 minutes (`verify_email`)
 - `POST /forgot-password` — 50 attempts per IP per 60 minutes (`password_reset`); plus a 10-minute cooldown per account between reset emails
 - `POST /settings`, `POST /settings/email` — 5 wrong current-password entries per **account** per 15 minutes, shared by both forms (`password_check`, key `RateLimitRepository::userKey()`)
 

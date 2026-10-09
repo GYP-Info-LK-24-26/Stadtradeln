@@ -37,6 +37,8 @@ $router
     ->post('/login', [AuthController::class, 'login'])
     ->get('/register', [AuthController::class, 'showRegister'])
     ->post('/register', [AuthController::class, 'register'])
+    ->get('/verify-email', [AuthController::class, 'showVerifyEmail'])
+    ->post('/verify-email', [AuthController::class, 'verifyEmail'])
     ->post('/logout', [AuthController::class, 'logout'])
     ->get('/forgot-password', [AuthController::class, 'showForgotPassword'])
     ->post('/forgot-password', [AuthController::class, 'forgotPassword'])

@@ -43,13 +43,12 @@ class UserRepository
         return $stmt->num_rows > 0;
     }
 
-    public function create(User $user): int
+    /** $passHash: bereits gehashtes Passwort (password_hash()), z. B. aus pending_registrations */
+    public function create(string $name, string $email, string $passHash): int
     {
         $conn = Database::getConnection();
         $stmt = $conn->prepare("INSERT INTO users (passHash, name, email) VALUES (?, ?, ?)");
-
-        $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
-        $stmt->bind_param("sss", $hashedPassword, $user->name, $user->email);
+        $stmt->bind_param("sss", $passHash, $name, $email);
 
         if (!$stmt->execute()) {
             throw new \RuntimeException("Benutzer konnte nicht erstellt werden");

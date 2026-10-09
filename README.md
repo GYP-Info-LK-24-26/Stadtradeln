@@ -71,7 +71,8 @@ Eine Web-App zum Tracken von Fahrradtouren und Teamvergleichen.
 |---------|------|--------------|
 | GET | `/` | Startseite |
 | GET/POST | `/login` | Login |
-| GET/POST | `/register` | Registrierung |
+| GET/POST | `/register` | Registrierung (sendet Bestätigungslink per E-Mail) |
+| GET/POST | `/verify-email` | E-Mail bestätigen und Account anlegen |
 | POST | `/logout` | Abmelden |
 | GET | `/dashboard` | Benutzer-Dashboard |
 | POST | `/dashboard/tour` | Tour hinzufügen |
