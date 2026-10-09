@@ -60,6 +60,8 @@ Request → Router → Controller → Repository → Database
 
 **Event period**: `App\Core\Event` defines the campaign period (10.10.–31.10. of the current year). Tours can only be saved for event days up to today, with at most 10 tours and 300 km per user per day (`DashboardController::MAX_TOURS_PER_DAY` / `MAX_DISTANCE_PER_DAY`); all km totals (dashboard, team, leaderboard) only count tours within the period.
 
+**Dashboard rank**: The „Platzierung“ tile shows the position in the people leaderboard (`UserRepository::findLeaderboardPosition()`, same ordering as `findByTeamWithDistance()`: km descending, ties by `users.id`) and links to `/leaderboard?type=users&page=@me#me`: `LeaderboardController` resolves `page=@me` at request time to the page currently containing the logged-in user (`LEADERBOARD_PAGE_SIZE`; page 0 when logged out), so the link never goes stale; the `#me` anchor jumps to the own row.
+
 **Database**: All queries must use prepared statements via `Database::getConnection()` (mysqli).
 
 ## Routes
@@ -92,4 +94,5 @@ Routes are defined in `public/index.php`. Main routes:
 - HTML escaping: use `htmlspecialchars()`
 - Request parameters: read via `Request::post()` / `Request::get()` (always strings, arrays become `''`), never `$_POST`/`$_GET` directly
 - Absolute URLs (e.g. in emails): use `AuthController::APP_URL`, never `HTTP_HOST`
+- Emails with a link (verification, password reset): use `AuthController::sendLinkMail()` — sends multipart/alternative (plain text + HTML with the link as a button, inline styles only), so the link is clickable in every mail client
 - Password hashing: use PHP's `password_hash()`

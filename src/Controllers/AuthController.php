@@ -376,17 +376,16 @@ class AuthController
 
     private function sendResetEmail(string $email, string $name, string $token): bool
     {
-        $resetUrl = self::APP_URL . '/reset-password?token=' . $token;
-
-        $message = "Hallo {$name},\n\n"
-            . "du hast angefordert, dein Passwort zurückzusetzen.\n\n"
-            . "Klicke auf folgenden Link, um ein neues Passwort zu setzen:\n"
-            . "{$resetUrl}\n\n"
-            . "Der Link ist " . self::RESET_EXPIRY_HOURS . " Stunde gültig.\n\n"
-            . "Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren.\n\n"
-            . "Viele Grüße\nDein GYP-Radeln-Team";
-
-        return $this->sendMail($email, 'Passwort zurücksetzen - GYP-Radeln', $message);
+        return $this->sendLinkMail(
+            $email,
+            'Passwort zurücksetzen - GYP-Radeln',
+            "Hallo {$name},",
+            'du hast angefordert, dein Passwort zurückzusetzen. Über folgenden Link kannst du ein neues Passwort setzen:',
+            'Neues Passwort setzen',
+            self::APP_URL . '/reset-password?token=' . $token,
+            'Der Link ist ' . self::RESET_EXPIRY_HOURS . ' Stunde gültig. '
+                . 'Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren.'
+        );
     }
 
     /**
@@ -395,27 +394,64 @@ class AuthController
      */
     private function sendVerificationEmail(string $email, string $token): bool
     {
-        $verifyUrl = self::APP_URL . '/verify-email?token=' . $token;
-
-        $message = "Hallo,\n\n"
-            . "schön, dass du bei GYP-Radeln mitmachst!\n\n"
-            . "Klicke auf folgenden Link, um deine E-Mail-Adresse zu bestätigen und deinen Account zu aktivieren:\n"
-            . "{$verifyUrl}\n\n"
-            . "Der Link ist " . self::VERIFY_EXPIRY_HOURS . " Stunden gültig.\n\n"
-            . "Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren – dann wird kein Account angelegt.\n\n"
-            . "Viele Grüße\nDein GYP-Radeln-Team";
-
-        return $this->sendMail($email, 'E-Mail-Adresse bestätigen - GYP-Radeln', $message);
+        return $this->sendLinkMail(
+            $email,
+            'E-Mail-Adresse bestätigen - GYP-Radeln',
+            'Hallo,',
+            'schön, dass du bei GYP-Radeln mitmachst! Über folgenden Link bestätigst du deine E-Mail-Adresse und aktivierst deinen Account:',
+            'Account aktivieren',
+            self::APP_URL . '/verify-email?token=' . $token,
+            'Der Link ist ' . self::VERIFY_EXPIRY_HOURS . ' Stunden gültig. '
+                . 'Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren – dann wird kein Account angelegt.'
+        );
     }
 
-    private function sendMail(string $email, string $subject, string $message): bool
-    {
+    /**
+     * E-Mail mit einem Link als Button. Verschickt Text- und HTML-Fassung
+     * (multipart/alternative): In der HTML-Fassung ist der Link in jedem Mailprogramm
+     * klickbar, die Textfassung bleibt für Programme ohne HTML.
+     */
+    private function sendLinkMail(
+        string $email, string $subject, string $greeting, string $intro,
+        string $buttonLabel, string $url, string $note
+    ): bool {
+        $text = "{$greeting}\n\n{$intro}\n{$url}\n\n{$note}\n\nViele Grüße\nDein GYP-Radeln-Team";
+
+        $e = fn(string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+        // Mailprogramme ignorieren <style>-Blöcke oft, daher Inline-Styles und Tabellenlayout
+        $html = '<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1"><title>' . $e($subject) . '</title></head>'
+            . '<body style="margin:0;padding:24px 16px;background:#F4F6F5;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#1A2B22;">'
+            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">'
+            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#FFFFFF;border-radius:12px;">'
+            . '<tr><td style="padding:32px 28px;">'
+            . '<p style="margin:0 0 16px;">' . $e($greeting) . '</p>'
+            . '<p style="margin:0 0 24px;">' . $e($intro) . '</p>'
+            . '<p style="margin:0 0 24px;"><a href="' . $e($url) . '" style="display:inline-block;padding:12px 24px;'
+            . 'background:#237049;color:#FFFFFF;text-decoration:none;border-radius:8px;font-weight:bold;">' . $e($buttonLabel) . '</a></p>'
+            . '<p style="margin:0 0 24px;font-size:13px;color:#5B6B62;">Falls der Button nicht funktioniert, öffne diesen Link:<br>'
+            . '<a href="' . $e($url) . '" style="color:#237049;word-break:break-all;">' . $e($url) . '</a></p>'
+            . '<p style="margin:0 0 16px;">' . $e($note) . '</p>'
+            . '<p style="margin:0;">Viele Grüße<br>Dein GYP-Radeln-Team</p>'
+            . '</td></tr></table></td></tr></table></body></html>';
+
+        // Base64: keine Probleme mit Umlauten und Zeilenlängen (der Link ist über 100 Zeichen lang)
+        $boundary = 'gyp-' . bin2hex(random_bytes(12));
+        $body = '';
+        foreach (['text/plain' => $text, 'text/html' => $html] as $type => $content) {
+            $body .= "--{$boundary}\r\n"
+                . "Content-Type: {$type}; charset=UTF-8\r\n"
+                . "Content-Transfer-Encoding: base64\r\n\r\n"
+                . chunk_split(base64_encode($content));
+        }
+        $body .= "--{$boundary}--\r\n";
+
         // Betreff mit Umlauten nach RFC 2047 kodieren
-        return mail($email, mb_encode_mimeheader($subject, 'UTF-8'), $message, [
+        return mail($email, mb_encode_mimeheader($subject, 'UTF-8'), $body, [
             'From' => self::MAIL_FROM_NAME . ' <' . self::MAIL_FROM_EMAIL . '>',
             'Reply-To' => self::MAIL_FROM_EMAIL,
             'MIME-Version' => '1.0',
-            'Content-Type' => 'text/plain; charset=UTF-8'
+            'Content-Type' => 'multipart/alternative; boundary="' . $boundary . '"'
         ]);
     }
 }

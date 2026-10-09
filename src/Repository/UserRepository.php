@@ -8,6 +8,9 @@ use App\Models\User;
 
 class UserRepository
 {
+    /** Personen pro Seite der Rangliste */
+    public const LEADERBOARD_PAGE_SIZE = 20;
+
     public function findByEmail(string $email): ?User
     {
         $conn = Database::getConnection();
@@ -143,6 +146,43 @@ class UserRepository
         return $stmt->execute();
     }
 
+    /**
+     * Platz in der Personen-Rangliste und Anzahl aller Personen. Gleiche Sortierung wie
+     * findByTeamWithDistance() (Kilometer absteigend, bei Gleichstand users.id), damit der
+     * Platz zur Position in der Rangliste passt. Beide Summen bleiben DECIMAL, also exakt
+     * vergleichbar. Ohne Fensterfunktionen, weil MySQL 5.7 unterstützt wird.
+     *
+     * @return array{position: int, total: int}
+     */
+    public function findLeaderboardPosition(int $userId): array
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare(
+            "SELECT COUNT(*) + 1
+             FROM (SELECT users.id, COALESCE(SUM(tours.distance), 0) AS totalDistance
+                   FROM users
+                   LEFT JOIN tours ON users.id = tours.userID AND tours.date BETWEEN ? AND ?
+                   GROUP BY users.id) AS others,
+                  (SELECT COALESCE(SUM(distance), 0) AS totalDistance
+                   FROM tours
+                   WHERE userID = ? AND date BETWEEN ? AND ?) AS me
+             WHERE others.totalDistance > me.totalDistance
+                OR (others.totalDistance = me.totalDistance AND others.id < ?)"
+        );
+
+        $start = Event::start()->format('Y-m-d');
+        $end = Event::end()->format('Y-m-d');
+        $stmt->bind_param("ssissi", $start, $end, $userId, $start, $end, $userId);
+        $stmt->execute();
+        $stmt->bind_result($position);
+        $stmt->fetch();
+        $stmt->close();
+
+        $total = (int)$conn->query("SELECT COUNT(*) FROM users")->fetch_row()[0];
+
+        return ['position' => (int)$position, 'total' => $total];
+    }
+
     public function findByTeamWithDistance(?int $teamId, int $page = 0): array
     {
         $conn = Database::getConnection();
@@ -162,7 +202,7 @@ class UserRepository
         $sql .= "GROUP BY users.id, users.name, users.teamID, teams.teamName ORDER BY totalDistance DESC, users.id ASC ";
 
         if ($teamId === null) {
-            $sql .= "LIMIT 20 OFFSET ?";
+            $sql .= "LIMIT " . self::LEADERBOARD_PAGE_SIZE . " OFFSET ?";
         }
 
         $stmt = $conn->prepare($sql);
@@ -172,7 +212,7 @@ class UserRepository
         if ($teamId !== null) {
             $stmt->bind_param("ssi", $start, $end, $teamId);
         } else {
-            $offset = $page * 20;
+            $offset = $page * self::LEADERBOARD_PAGE_SIZE;
             $stmt->bind_param("ssi", $start, $end, $offset);
         }
 

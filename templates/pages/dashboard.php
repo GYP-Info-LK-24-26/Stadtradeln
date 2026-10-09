@@ -1,5 +1,6 @@
 <?php
 use App\Controllers\DashboardController;
+use App\Controllers\LeaderboardController;
 use App\Core\Csrf;
 use App\Core\Event;
 use App\Core\Icon;
@@ -46,6 +47,9 @@ if (Event::isUpcoming()) {
     $daysValue = Event::isOver() ? 0 : (int)$today->diff(Event::end())->days + 1;
 }
 
+// Die Rangliste ermittelt die Seite erst beim Öffnen (page=@me); #me springt zur eigenen Zeile
+$rankUrl = '/leaderboard?type=users&page=' . LeaderboardController::PAGE_ME . '#me';
+
 $weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
 require __DIR__ . '/../layout/header.php';
@@ -86,7 +90,7 @@ require __DIR__ . '/../layout/header.php';
             </div>
         <?php endif; ?>
 
-        <section class="stat-grid" aria-label="Deine Statistik">
+        <section class="stat-grid stat-grid-dashboard" aria-label="Deine Statistik">
             <div class="stat stat-hero reveal" style="--i: 1">
                 <span class="stat-icon"><?= Icon::svg('route') ?></span>
                 <span class="stat-label">Kilometer gesamt</span>
@@ -115,6 +119,15 @@ require __DIR__ . '/../layout/header.php';
                     <span data-count-to="<?= $daysValue ?>"><?= $daysValue ?></span><span class="stat-unit"><?= $daysValue === 1 ? 'Tag' : 'Tage' ?></span>
                 </span>
             </div>
+            <a class="stat stat-link reveal" style="--i: 5" href="<?= htmlspecialchars($rankUrl) ?>"
+               aria-label="Platz <?= $rank['position'] ?> von <?= $rank['total'] ?> – zur Rangliste">
+                <span class="stat-icon stat-icon-accent"><?= Icon::svg('trophy') ?></span>
+                <span class="stat-go" aria-hidden="true"><?= Icon::svg('chevron-right') ?></span>
+                <span class="stat-label">Platzierung</span>
+                <span class="stat-value">
+                    <span><?= $rank['position'] ?>.</span><span class="stat-unit">von <?= $rank['total'] ?></span>
+                </span>
+            </a>
         </section>
 
         <section class="card card-calendar reveal" style="--i: 3" aria-labelledby="calendarTitle">
