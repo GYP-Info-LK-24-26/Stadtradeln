@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\EmailBlacklist;
 use App\Core\RememberMe;
 use App\Core\Request;
 use App\Core\Session;
@@ -157,6 +158,8 @@ class AuthController
             $error = 'Du musst eine E-Mail eingeben';
         } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $error = 'Bitte gib eine gültige E-Mail-Adresse ein';
+        } elseif (EmailBlacklist::isBlocked($data['email'])) {
+            $error = EmailBlacklist::ERROR;
         } elseif (empty($data['password'])) {
             $error = 'Du musst ein Passwort eingeben';
         } elseif ($data['password'] !== $data['confirm_password']) {
@@ -227,6 +230,13 @@ class AuthController
 
         if ($pending === null) {
             $this->renderInvalidVerification('Dieser Link ist ungültig oder abgelaufen.');
+            return;
+        }
+
+        // Die Sperrliste kann sich seit der Registrierung geändert haben
+        if (EmailBlacklist::isBlocked($pending['email'])) {
+            $this->pendingRegistrationRepository->deleteByEmail($pending['email']);
+            $this->renderInvalidVerification(EmailBlacklist::ERROR);
             return;
         }
 

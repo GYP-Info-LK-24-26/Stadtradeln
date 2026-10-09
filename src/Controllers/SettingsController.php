@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\EmailBlacklist;
 use App\Core\RememberMe;
 use App\Core\Request;
 use App\Core\Session;
@@ -112,6 +113,8 @@ class SettingsController
             $error = 'E-Mail-Adresse darf nicht leer sein.';
         } elseif (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
             $error = 'Bitte eine gültige E-Mail-Adresse eingeben.';
+        } elseif ($newEmail !== $user->email && EmailBlacklist::isBlocked($newEmail)) {
+            $error = EmailBlacklist::ERROR;
         } elseif (empty($password)) {
             $error = 'Bitte Passwort zur Bestätigung eingeben.';
         } else {
