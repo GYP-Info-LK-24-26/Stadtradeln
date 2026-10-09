@@ -2,19 +2,23 @@
 
 /**
  * Gesperrte E-Mail-Adressen für Registrierung und E-Mail-Änderung (App\Core\EmailBlacklist).
- * Groß-/Kleinschreibung spielt keine Rolle.
  *
- * - Ohne "@" (Domain): sperrt die Domain samt Subdomains.
- *   'myspamdomain.de' sperrt a@myspamdomain.de und a@mail.myspamdomain.de,
- *   aber nicht a@notmyspamdomain.de.
- * - Mit "@": sperrt alle Adressen, die so enden.
- *   'spam@gmail.com' sperrt spam@gmail.com (und z. B. myspam@gmail.com),
- *   '@gmail.com' sperrt nur die Domain gmail.com selbst, ohne Subdomains.
+ * Jeder Eintrag ist ein regulärer Ausdruck (PCRE, mit Begrenzern), der gegen die
+ * kleingeschriebene Adresse geprüft wird. Passt einer, ist die Adresse gesperrt.
+ * Ungültige Ausdrücke werden übersprungen und ins Error-Log geschrieben.
  *
+ * Beispiele:
+ *   '/^spam@gmail\.com$/'             genau diese Adresse
+ *   '/^spam(\+.*)?@gmail\.com$/'      dazu Varianten wie spam+1@gmail.com
+ *   '/@myspamdomain\.de$/'            die Domain myspamdomain.de
+ *   '/[@.]myspamdomain\.de$/'         die Domain samt Subdomains (a@mail.myspamdomain.de)
+ *
+ * Punkte mit "\." maskieren und mit "$" am Ende verankern, sonst sperrt
+ * '/@spam.de/' auch a@spam.de.example.org oder a@spamxde.org.
  * Bestehende Accounts bleiben unberührt.
  */
 
 return [
-    // 'spam@gmail.com',
-    // 'myspamdomain.de',
+    // '/^spam@gmail\.com$/',
+    // '/[@.]myspamdomain\.de$/',
 ];

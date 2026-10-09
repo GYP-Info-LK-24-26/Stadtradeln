@@ -2,7 +2,7 @@
 
 namespace App\Core;
 
-/** Gesperrte E-Mail-Adressen und Domains; die Liste steht in config/email-blacklist.php. */
+/** Gesperrte E-Mail-Adressen als reguläre Ausdrücke; die Liste steht in config/email-blacklist.php. */
 class EmailBlacklist
 {
     private const CONFIG_FILE = __DIR__ . '/../../config/email-blacklist.php';
@@ -13,20 +13,15 @@ class EmailBlacklist
     {
         $email = mb_strtolower(trim($email));
 
-        foreach (self::entries() as $entry) {
-            $entry = mb_strtolower(trim($entry));
+        foreach (self::patterns() as $pattern) {
+            // @: ein Tippfehler in der Liste soll keine PHP-Warnung auf der Seite erzeugen
+            $result = @preg_match($pattern, $email);
 
-            if ($entry === '') {
-                continue;
-            }
-
-            if (str_contains($entry, '@')) {
-                if (str_ends_with($email, $entry)) {
-                    return true;
-                }
-            } elseif (str_ends_with($email, '@' . $entry) || str_ends_with($email, '.' . $entry)) {
-                // Nur ganze Domain-Teile: "spam.de" sperrt nicht "nospam.de"
+            if ($result === 1) {
                 return true;
+            }
+            if ($result === false) {
+                error_log('Ungültiger Ausdruck in config/email-blacklist.php: ' . $pattern);
             }
         }
 
@@ -34,14 +29,14 @@ class EmailBlacklist
     }
 
     /** @return string[] */
-    private static function entries(): array
+    private static function patterns(): array
     {
         if (!is_file(self::CONFIG_FILE)) {
             return [];
         }
 
-        $entries = require self::CONFIG_FILE;
+        $patterns = require self::CONFIG_FILE;
 
-        return is_array($entries) ? array_filter($entries, 'is_string') : [];
+        return is_array($patterns) ? array_filter($patterns, 'is_string') : [];
     }
 }
