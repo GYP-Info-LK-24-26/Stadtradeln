@@ -11,15 +11,14 @@ $isActive = function (string $path) use ($currentPath): bool {
     return $currentPath === $path || str_starts_with($currentPath, $path . '/');
 };
 
+// Ohne Anmeldung keine Navigation: alle Bereiche (auch die Rangliste) erfordern Login
 $navItems = $isLoggedIn
     ? [
         '/dashboard' => ['Dashboard', 'dashboard'],
         '/leaderboard' => ['Rangliste', 'trophy'],
         '/team' => ['Team', 'users'],
     ]
-    : [
-        '/leaderboard' => ['Rangliste', 'trophy'],
-    ];
+    : [];
 
 $userName = Session::getDisplayName() ?? 'Profil';
 ?>

@@ -78,4 +78,4 @@ Eine Web-App zum Tracken von Fahrradtouren und Teamvergleichen.
 | POST | `/dashboard/tour` | Tour hinzufügen |
 | GET | `/team` | Team-Übersicht |
 | GET/POST | `/team/join` | Team erstellen/beitreten |
-| GET | `/leaderboard` | Rangliste |
+| GET | `/leaderboard` | Rangliste (nur mit Anmeldung) |
