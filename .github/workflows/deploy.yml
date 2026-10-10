@@ -13,10 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy via FTP
+      - name: Deploy via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: w020601f.kasserver.com
           username: w020601f
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps        # FTP über TLS (Port 21): Passwort und Dateien verschlüsselt
+          security: strict      # Zertifikat des Servers prüfen
           server-dir: ./stadtradeln.gymnasium-penzberg.de/
