@@ -24,6 +24,8 @@ class LeaderboardController
 
     public function index(): void
     {
+        Session::requireLogin();
+
         $viewUsers = Request::get('type') !== 'teams';
         $page = $viewUsers ? $this->resolvePage(Request::get('page')) : 0;
 
@@ -44,10 +46,6 @@ class LeaderboardController
     {
         if ($page !== self::PAGE_ME) {
             return max(0, (int)$page);
-        }
-
-        if (!Session::isLoggedIn()) {
-            return 0;
         }
 
         $position = $this->userRepository->findLeaderboardPosition(Session::getUserId())['position'];

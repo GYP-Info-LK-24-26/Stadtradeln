@@ -26,14 +26,18 @@ $previewLevels = [0, 2, 1, 0, 3, 4, 2, 1, 0, 2, 4, 3, 0, 1];
                     <a href="/dashboard" class="btn btn-primary btn-lg">
                         Zum Dashboard <?= Icon::svg('arrow-right') ?>
                     </a>
+                    <a href="/leaderboard" class="btn btn-secondary btn-lg">
+                        <?= Icon::svg('trophy') ?> Rangliste ansehen
+                    </a>
                 <?php else: ?>
                     <a href="/register" class="btn btn-primary btn-lg">
                         Jetzt mitmachen <?= Icon::svg('arrow-right') ?>
                     </a>
+                    <?php /* Rangliste nur mit Login */ ?>
+                    <a href="/login" class="btn btn-secondary btn-lg">
+                        <?= Icon::svg('log-in') ?> Anmelden
+                    </a>
                 <?php endif; ?>
-                <a href="/leaderboard" class="btn btn-secondary btn-lg">
-                    <?= Icon::svg('trophy') ?> Rangliste ansehen
-                </a>
             </div>
         </div>
 

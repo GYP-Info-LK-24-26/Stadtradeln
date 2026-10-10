@@ -5,7 +5,6 @@ use App\Core\View;
 use App\Repository\UserRepository;
 
 $title = 'Rangliste';
-Session::isLoggedIn(); // öffentliche Route: Sitzung (mit aktuellem Team) für die Hervorhebung des eigenen Eintrags laden
 
 $entries = $viewUsers ? $users : $teams;
 $page = $viewUsers ? ($page ?? 0) : 0;
