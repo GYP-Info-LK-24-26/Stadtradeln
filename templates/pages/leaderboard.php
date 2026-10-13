@@ -17,6 +17,23 @@ $maxDistance = max(array_merge([0.0], array_map(fn($e) => $e->totalDistance, $en
 $meta = fn($e) => $viewUsers
     ? $e->teamName
     : $e->memberCount . ' ' . ($e->memberCount === 1 ? 'Mitglied' : 'Mitglieder');
+$displayName = static function (string $name) use ($viewUsers): string {
+    if (!$viewUsers) {
+        return $name;
+    }
+
+    $parts = preg_split('/\s+/u', trim($name), -1, PREG_SPLIT_NO_EMPTY);
+    if ($parts === false || count($parts) < 2) {
+        return $name;
+    }
+
+    $surname = array_pop($parts);
+    if (preg_match('/^./u', $surname, $initial) !== 1) {
+        return $name;
+    }
+
+    return implode(' ', $parts) . ' ' . $initial[0] . '.';
+};
 
 // Podest nur auf der ersten Seite und bei mindestens drei Einträgen
 $podium = ($page === 0 && count($entries) >= 3) ? array_slice($entries, 0, 3) : [];
@@ -53,6 +70,7 @@ require __DIR__ . '/../layout/header.php';
             <section class="podium" aria-label="Top 3">
                 <?php foreach ($podium as $index => $entry): $place = $index + 1; $metaText = $meta($entry); ?>
                     <div class="podium-place place-<?= $place ?><?= $entry->id === $highlightId ? ' is-me' : '' ?>"<?= $entry->id === $highlightId ? ' id="me"' : '' ?>>
+                        <?php $name = $displayName($entry->name); ?>
                         <?php if ($place === 1): ?>
                             <span class="podium-crown"><?= Icon::svg('crown') ?></span>
                         <?php endif; ?>
@@ -60,7 +78,7 @@ require __DIR__ . '/../layout/header.php';
                             <?= View::avatar($entry->name, 'lg') ?>
                             <span class="podium-medal"><?= $place ?></span>
                         </span>
-                        <span class="podium-name" title="<?= htmlspecialchars($entry->name) ?>"><?= htmlspecialchars($entry->name) ?></span>
+                        <span class="podium-name" title="<?= htmlspecialchars($name) ?>"><?= htmlspecialchars($name) ?></span>
                         <span class="podium-value"><?= View::number($entry->totalDistance) ?> <small>km</small></span>
                         <?php if ($metaText !== null): ?>
                             <span class="rank-meta" title="<?= htmlspecialchars($metaText) ?>"><?= htmlspecialchars($metaText) ?></span>
@@ -80,13 +98,14 @@ require __DIR__ . '/../layout/header.php';
                             $percent = $maxDistance > 0 ? round($entry->totalDistance / $maxDistance * 100, 1) : 0;
                             $isMe = $entry->id === $highlightId;
                             $metaText = $meta($entry);
+                            $name = $displayName($entry->name);
                         ?>
                         <li class="rank-row<?= $isMe ? ' is-me' : '' ?>"<?= $isMe ? ' id="me"' : '' ?>>
                             <span class="rank-pos"><?= $offset + $index + 1 ?></span>
                             <?= View::avatar($entry->name) ?>
                             <div class="rank-main">
                                 <div class="rank-name">
-                                    <span><?= htmlspecialchars($entry->name) ?></span>
+                                    <span><?= htmlspecialchars($name) ?></span>
                                     <?php if ($isMe): ?>
                                         <span class="badge badge-primary"><?= $viewUsers ? 'Du' : 'Dein Team' ?></span>
                                     <?php endif; ?>
