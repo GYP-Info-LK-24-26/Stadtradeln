@@ -66,6 +66,12 @@ require __DIR__ . '/../layout/header.php';
                 </div>
             </div>
 
+            <p class="form-hint">
+                Mit der Registrierung werden dein Name, deine E-Mail-Adresse und deine Kilometer
+                gespeichert. Name, Team und Kilometer sehen alle Teilnehmenden in der Rangliste.
+                Mehr dazu in der <a href="/datenschutz">Datenschutzerklärung</a>.
+            </p>
+
             <button type="submit" class="btn btn-primary btn-lg btn-block">
                 Registrieren <?= Icon::svg('arrow-right') ?>
             </button>

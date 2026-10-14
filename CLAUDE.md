@@ -72,8 +72,9 @@ Routes are defined in `public/index.php`. Main routes:
 - `/verify-email` - Confirm the email address from the registration email (creates the account)
 - `/dashboard` - User dashboard with tour management
 - `/team`, `/team/join` - Team operations
-- `/leaderboard` - Rankings (login required, like every page except home, auth pages and `/faq`)
+- `/leaderboard` - Rankings (login required, like every page except home, auth pages, `/faq`, `/impressum` and `/datenschutz`)
 - `/settings` - User settings
+- `/impressum`, `/datenschutz` - Legal pages (public, linked in the global `.site-footer` in `layout/footer.php`). Keep `datenschutz.php` in sync when changing stored data, cookies or retention periods
 
 ## Security
 
