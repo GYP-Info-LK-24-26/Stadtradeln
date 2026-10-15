@@ -23,6 +23,14 @@ use App\Controllers\TeamController;
 use App\Controllers\LeaderboardController;
 use App\Controllers\SettingsController;
 
+$maintenanceMode = require __DIR__ . '/../config/maintenance.php';
+if ($maintenanceMode === true) {
+    http_response_code(503);
+    header('Retry-After: 3600');
+    require __DIR__ . '/../templates/pages/maintenance.php';
+    exit;
+}
+
 $router = new Router();
 
 $router
