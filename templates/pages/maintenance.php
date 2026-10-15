@@ -18,7 +18,7 @@
 </head>
 <body>
     <main>
-        <p>STADTRADELN</p>
+        <p>GYP-Radeln</p>
         <h1>Wir sind bald zurück.</h1>
         <div>Die Website wird gerade gewartet. Bitte versuche es später noch einmal.</div>
     </main>
