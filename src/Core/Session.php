@@ -23,21 +23,19 @@ class Session
         self::start();
 
         if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-            return RememberMe::restore();
+            return false;
         }
 
         if (isset($_SESSION["last_activity"]) &&
             $_SESSION["last_activity"] + self::MAX_INACTIVE_TIME < time()) {
             self::logout();
-            return RememberMe::restore();
+            return false;
         }
 
-        // Account gelöscht oder Passwort geändert: Sitzung beenden. Dieses Gerät
-        // kommt ggf. per „Angemeldet bleiben“ wieder rein (andere Geräte nicht,
-        // deren Tokens wurden mit der Passwortänderung gelöscht).
+        // Account gelöscht oder Passwort geändert: Sitzung beenden
         if (!self::refresh()) {
             self::logout();
-            return RememberMe::restore();
+            return false;
         }
 
         $_SESSION["last_activity"] = time();

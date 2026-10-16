@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Core\EmailBlacklist;
-use App\Core\RememberMe;
 use App\Core\Request;
 use App\Core\Session;
 use App\Core\View;
@@ -58,14 +57,9 @@ class SettingsController
         if ($error === null) {
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $this->userRepository->updatePassword($userId, $hashedPassword);
-            // Andere Geräte abmelden (Sitzungen über den Passwort-Fingerabdruck,
-            // „Angemeldet bleiben“ über die Tokens); dieses Gerät bleibt angemeldet
+            // Andere Geräte abmelden (über den Passwort-Fingerabdruck der Sitzungen);
+            // dieses Gerät bleibt angemeldet
             Session::setPassHash($hashedPassword);
-            $rememberThisDevice = RememberMe::hasCookie();
-            RememberMe::forgetAll($userId);
-            if ($rememberThisDevice) {
-                RememberMe::issue($userId);
-            }
             $success = 'Passwort erfolgreich geändert.';
         }
 

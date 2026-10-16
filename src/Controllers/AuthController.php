@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Core\EmailBlacklist;
-use App\Core\RememberMe;
 use App\Core\Request;
 use App\Core\Session;
 use App\Core\View;
@@ -69,7 +68,6 @@ class AuthController
     {
         $email = trim(Request::post('email'));
         $password = Request::post('password');
-        $remember = Request::post('remember') !== '';
         $error = '';
         $clientIp = RateLimitRepository::getClientIp();
 
@@ -105,16 +103,13 @@ class AuthController
                 $error = 'E-Mail oder Passwort ist falsch';
             } else {
                 Session::login($user->id, $user->name, $user->teamId, $user->password);
-                if ($remember) {
-                    RememberMe::issue($user->id);
-                }
                 $this->userRepository->updateLastLogin($user->id);
                 header("Location: /dashboard");
                 exit;
             }
         }
 
-        View::render('pages/login', ['error' => $error, 'email' => $email, 'remember' => $remember]);
+        View::render('pages/login', ['error' => $error, 'email' => $email]);
     }
 
     public function showRegister(): void
@@ -225,7 +220,6 @@ class AuthController
     public function verifyEmail(): void
     {
         $token = Request::post('token');
-        $remember = Request::post('remember') !== '';
         $pending = $token === '' ? null : $this->pendingRegistrationRepository->findValidByToken($token);
 
         if ($pending === null) {
@@ -259,9 +253,6 @@ class AuthController
         $this->pendingRegistrationRepository->deleteByEmail($pending['email']);
 
         Session::login($userId, $pending['name'], null, $pending['passHash']);
-        if ($remember) {
-            RememberMe::issue($userId);
-        }
         $this->userRepository->updateLastLogin($userId);
         header("Location: /dashboard");
         exit;
@@ -282,7 +273,6 @@ class AuthController
 
     public function logout(): void
     {
-        RememberMe::forget();
         Session::logout();
         header("Location: /");
         exit;
@@ -368,7 +358,6 @@ class AuthController
         $reset = $this->passwordResetRepository->findByToken($token);
         $this->userRepository->updatePassword($reset['userID'], password_hash($password, PASSWORD_DEFAULT));
         $this->passwordResetRepository->deleteByUserId($reset['userID']);
-        RememberMe::forgetAll($reset['userID']);
 
         header("Location: /login?reset=success");
         exit;

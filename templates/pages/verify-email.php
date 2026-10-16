@@ -25,8 +25,6 @@ require __DIR__ . '/../layout/header.php';
                 <?= Csrf::field() ?>
                 <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
 
-                <?php $remember = false; require __DIR__ . '/../partials/remember-toggle.php'; ?>
-
                 <button type="submit" class="btn btn-primary btn-lg btn-block">
                     Account aktivieren <?= Icon::svg('arrow-right') ?>
                 </button>

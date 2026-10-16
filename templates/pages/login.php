@@ -53,8 +53,6 @@ require __DIR__ . '/../layout/header.php';
                 </div>
             </div>
 
-            <?php require __DIR__ . '/../partials/remember-toggle.php'; ?>
-
             <button type="submit" class="btn btn-primary btn-lg btn-block">
                 Anmelden <?= Icon::svg('arrow-right') ?>
             </button>
