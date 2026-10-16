@@ -70,6 +70,12 @@ $router
     ->get('/faq', function () {
         View::render('pages/faq');
     })
+    ->get('/impressum', function () {
+        View::render('pages/impressum');
+    })
+    ->get('/datenschutz', function () {
+        View::render('pages/datenschutz');
+    })
 
     ->get('/settings', [SettingsController::class, 'index'])
     ->post('/settings', [SettingsController::class, 'updatePassword'])

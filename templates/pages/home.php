@@ -91,6 +91,10 @@ $previewLevels = [0, 2, 1, 0, 3, 4, 2, 1, 0, 2, 4, 3, 0, 1];
     <div class="container">
         <span>GYP-Radeln · Gymnasium Penzberg</span>
         <span>Mit jedem Kilometer für eine grünere Zukunft.</span>
+        <nav class="site-footer-links" aria-label="Rechtliches">
+            <a href="/impressum">Impressum</a>
+            <a href="/datenschutz">Datenschutz</a>
+        </nav>
     </div>
 </footer>
 <?php require __DIR__ . '/../layout/footer.php'; ?>

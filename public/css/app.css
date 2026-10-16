@@ -1928,6 +1928,90 @@ svg {
     color: var(--text);
 }
 
+/* Fließtext (Impressum, Datenschutzhinweise) */
+.prose {
+    color: var(--text-muted);
+    overflow-wrap: anywhere;
+}
+
+.prose > * + * {
+    margin-top: 12px;
+}
+
+.prose h2 {
+    margin-top: 40px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    font-size: 1.3rem;
+}
+
+.prose h3 {
+    margin-top: 28px;
+    font-size: 1.05rem;
+}
+
+.prose h4 {
+    margin-top: 20px;
+    font-size: 0.95rem;
+    font-style: italic;
+}
+
+.prose > :first-child {
+    margin-top: 0;
+}
+
+.prose h2 + *,
+.prose h3 + *,
+.prose h4 + * {
+    margin-top: 8px;
+}
+
+.prose strong {
+    color: var(--text);
+}
+
+.prose ul {
+    margin-bottom: 0;
+    padding-left: 22px;
+}
+
+.prose li + li {
+    margin-top: 4px;
+}
+
+.prose li::marker {
+    color: var(--primary);
+}
+
+.prose-table {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.prose th,
+.prose td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+}
+
+.prose th {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.prose tr:last-child td {
+    border-bottom: 0;
+}
+
 /* ---------- 6. Seiten ---------- */
 
 /* Auth-Seiten */
@@ -2160,6 +2244,19 @@ svg {
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
+}
+
+.site-footer-links {
+    display: flex;
+    gap: 16px;
+}
+
+.site-footer-links a {
+    color: inherit;
+}
+
+.site-footer-links a:hover {
+    color: var(--text);
 }
 
 @media (max-width: 860px) {
