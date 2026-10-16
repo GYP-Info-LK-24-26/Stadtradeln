@@ -79,13 +79,12 @@ require __DIR__ . '/../layout/header.php';
                     <?php
                         $isMe = $member->id === $userId;
                         $isMemberLeader = $member->id === $team->teamleiterId;
-                        // Namen anderer Mitglieder werden nicht angezeigt
-                        $name = $isMe ? $member->name : 'Anonym';
+                        $name = $member->getDisplayName();
                         $percent = $maxDistance > 0 ? round($member->totalDistance / $maxDistance * 100, 1) : 0;
                     ?>
                     <li class="rank-row<?= $isMe ? ' is-me' : '' ?>">
                         <span class="rank-pos"><?= $index + 1 ?></span>
-                        <?= $isMe ? View::avatar($member->name) : View::anonymousAvatar() ?>
+                        <?= View::avatar($name) ?>
                         <div class="rank-main">
                             <div class="rank-name">
                                 <span><?= htmlspecialchars($name) ?></span>

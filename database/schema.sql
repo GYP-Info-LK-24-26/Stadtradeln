@@ -20,7 +20,6 @@ CREATE TABLE teams (
 -- Users table
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     passHash VARCHAR(255) NOT NULL,
     teamID INT NULL,
@@ -62,7 +61,6 @@ CREATE TABLE password_resets (
 -- (token = SHA-256-Hash des Tokens aus dem Bestätigungslink)
 CREATE TABLE pending_registrations (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     passHash VARCHAR(255) NOT NULL,
     token CHAR(64) NOT NULL,

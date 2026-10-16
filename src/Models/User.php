@@ -2,18 +2,16 @@
 
 namespace App\Models;
 
+use App\Core\Pseudonym;
+
 class User
 {
-    /** Maximale Länge des Anzeigenamens (Zeichen). */
-    public const NAME_MAX_LENGTH = 50;
-
     public ?string $email = null;
     public ?string $password = null;
     public ?string $teamName = null;
 
     public function __construct(
         public int $id = 0,
-        public string $name = '',
         public ?int $teamId = null,
         public float $totalDistance = 0
     ) {}
@@ -22,7 +20,6 @@ class User
     {
         $user = new self(
             $data['id'] ?? 0,
-            $data['name'] ?? '',
             $data['teamID'] ?? null,
             (float) ($data['totalDistance'] ?? 0)
         );
@@ -32,5 +29,11 @@ class User
         $user->teamName = $data['teamName'] ?? null;
 
         return $user;
+    }
+
+    /** Anzeigename ist das Pseudonym; Klarnamen werden nicht gespeichert. */
+    public function getDisplayName(): string
+    {
+        return Pseudonym::forUser($this->id);
     }
 }

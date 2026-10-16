@@ -66,31 +66,6 @@ class SettingsController
         $this->render($user, 'password', $error, $success);
     }
 
-    public function updateName(): void
-    {
-        Session::requireLogin();
-
-        $userId = Session::getUserId();
-        $name = trim(Request::post('name'));
-
-        $user = $this->userRepository->findById($userId);
-        $error = null;
-        $success = null;
-
-        if (empty($name)) {
-            $error = 'Name darf nicht leer sein.';
-        } elseif (mb_strlen($name) > User::NAME_MAX_LENGTH) {
-            $error = 'Der Name darf höchstens ' . User::NAME_MAX_LENGTH . ' Zeichen lang sein.';
-        } else {
-            $this->userRepository->updateName($userId, $name);
-            Session::setName($name);
-            $user->name = $name;
-            $success = 'Name erfolgreich geändert.';
-        }
-
-        $this->render($user, 'name', $error, $success);
-    }
-
     public function updateEmail(): void
     {
         Session::requireLogin();
@@ -153,12 +128,12 @@ class SettingsController
         return null;
     }
 
-    /** $section ('name' | 'email' | 'password') bestimmt, wo die Meldung erscheint. */
+    /** $section ('email' | 'password') bestimmt, wo die Meldung erscheint. */
     private function render(User $user, ?string $section = null, ?string $error = null, ?string $success = null): void
     {
         View::render('pages/settings', [
             'email' => $user->email,
-            'name' => $user->name,
+            'name' => $user->getDisplayName(),
             'section' => $section,
             'error' => $error,
             'success' => $success,

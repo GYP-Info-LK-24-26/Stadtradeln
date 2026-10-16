@@ -8,7 +8,7 @@ class Session
 {
     private const MAX_INACTIVE_TIME = 1800; // 30 minutes
 
-    /** Ob Name und Team in diesem Request schon aus der Datenbank geladen wurden. */
+    /** Ob das Team in diesem Request schon aus der Datenbank geladen wurde. */
     private static bool $refreshed = false;
 
     public static function start(): void
@@ -43,7 +43,7 @@ class Session
     }
 
     /**
-     * Name und Team einmal pro Request aus der Datenbank übernehmen, damit
+     * Team einmal pro Request aus der Datenbank übernehmen, damit
      * Änderungen von anderen Geräten (z. B. Team verlassen) sofort gelten.
      * Gibt false zurück, wenn der Account nicht mehr existiert oder das Passwort
      * seit dem Login geändert wurde (meldet andere Sitzungen ab).
@@ -59,7 +59,6 @@ class Session
             return false;
         }
 
-        $_SESSION["name"] = $user->name;
         $_SESSION["teamID"] = $user->teamId;
         self::$refreshed = true;
         return true;
@@ -74,7 +73,7 @@ class Session
     }
 
     /** $passHash: aktueller Passwort-Hash aus der Datenbank (für refresh()). */
-    public static function login(int $userId, string $name, ?int $teamId, string $passHash): void
+    public static function login(int $userId, ?int $teamId, string $passHash): void
     {
         self::start();
         if (!headers_sent()) {
@@ -82,7 +81,6 @@ class Session
         }
         $_SESSION["loggedin"] = true;
         $_SESSION["id"] = $userId;
-        $_SESSION["name"] = $name;
         $_SESSION["teamID"] = $teamId;
         $_SESSION["pass"] = self::passFingerprint($passHash);
         $_SESSION["last_activity"] = time();
@@ -117,14 +115,12 @@ class Session
         return $_SESSION["id"] ?? null;
     }
 
+    /** Pseudonym der angemeldeten Person (es gibt keine Klarnamen). */
     public static function getDisplayName(): ?string
     {
-        return $_SESSION["name"] ?? null;
-    }
+        $userId = self::getUserId();
 
-    public static function setName(string $name): void
-    {
-        $_SESSION["name"] = $name;
+        return $userId === null ? null : Pseudonym::forUser($userId);
     }
 
     public static function getTeamId(): ?int

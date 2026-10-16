@@ -6,7 +6,6 @@ use App\Core\EmailBlacklist;
 use App\Core\Request;
 use App\Core\Session;
 use App\Core\View;
-use App\Models\User;
 use App\Repository\UserRepository;
 use App\Repository\PasswordResetRepository;
 use App\Repository\PendingRegistrationRepository;
@@ -102,7 +101,7 @@ class AuthController
                 $this->rateLimitRepository->record(RateLimitRepository::emailKey($email), 'login_failed');
                 $error = 'E-Mail oder Passwort ist falsch';
             } else {
-                Session::login($user->id, $user->name, $user->teamId, $user->password);
+                Session::login($user->id, $user->teamId, $user->password);
                 $this->userRepository->updateLastLogin($user->id);
                 header("Location: /dashboard");
                 exit;
@@ -126,7 +125,6 @@ class AuthController
     {
         // Passwörter bewusst nicht trimmen: Login vergleicht sie ebenfalls ungetrimmt
         $data = [
-            'name' => trim(Request::post('name')),
             'email' => trim(Request::post('email')),
             'password' => Request::post('password'),
             'confirm_password' => Request::post('confirm_password'),
@@ -145,11 +143,7 @@ class AuthController
 
         $this->rateLimitRepository->record($clientIp, 'register');
 
-        if (empty($data['name'])) {
-            $error = 'Du musst einen Namen eingeben';
-        } elseif (mb_strlen($data['name']) > User::NAME_MAX_LENGTH) {
-            $error = 'Der Name darf höchstens ' . User::NAME_MAX_LENGTH . ' Zeichen lang sein';
-        } elseif (empty($data['email'])) {
+        if (empty($data['email'])) {
             $error = 'Du musst eine E-Mail eingeben';
         } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $error = 'Bitte gib eine gültige E-Mail-Adresse ein';
@@ -177,7 +171,7 @@ class AuthController
                 $token = PendingRegistrationRepository::generateToken();
                 $expiresAt = new \DateTime('+' . self::VERIFY_EXPIRY_HOURS . ' hours');
                 $this->pendingRegistrationRepository->create(
-                    $data['name'], $data['email'],
+                    $data['email'],
                     password_hash($data['password'], PASSWORD_DEFAULT),
                     $token, $expiresAt
                 );
@@ -212,7 +206,6 @@ class AuthController
         View::render('pages/verify-email', [
             'valid' => true,
             'token' => $token,
-            'name' => $pending['name'],
             'email' => $pending['email'],
         ]);
     }
@@ -243,7 +236,7 @@ class AuthController
         }
 
         try {
-            $userId = $this->userRepository->create($pending['name'], $pending['email'], $pending['passHash']);
+            $userId = $this->userRepository->create($pending['email'], $pending['passHash']);
         } catch (\mysqli_sql_exception $e) {
             // Gleichzeitige zweite Anfrage (z. B. Doppelklick) scheitert am UNIQUE-Key der E-Mail
             $this->renderInvalidVerification($alreadyRegistered);
@@ -252,7 +245,7 @@ class AuthController
 
         $this->pendingRegistrationRepository->deleteByEmail($pending['email']);
 
-        Session::login($userId, $pending['name'], null, $pending['passHash']);
+        Session::login($userId, null, $pending['passHash']);
         $this->userRepository->updateLastLogin($userId);
         header("Location: /dashboard");
         exit;
@@ -313,7 +306,7 @@ class AuthController
                 $token = PasswordResetRepository::generateToken();
                 $expiresAt = new \DateTime('+' . self::RESET_EXPIRY_HOURS . ' hour');
                 $this->passwordResetRepository->create($user->id, $token, $expiresAt);
-                $this->sendResetEmail($user->email, $user->name, $token);
+                $this->sendResetEmail($user->email, $token);
             }
         }
 
@@ -363,12 +356,12 @@ class AuthController
         exit;
     }
 
-    private function sendResetEmail(string $email, string $name, string $token): bool
+    private function sendResetEmail(string $email, string $token): bool
     {
         return $this->sendLinkMail(
             $email,
             'Passwort zurücksetzen - GYP-Radeln',
-            "Hallo {$name},",
+            'Hallo,',
             'du hast angefordert, dein Passwort zurückzusetzen. Über folgenden Link kannst du ein neues Passwort setzen:',
             'Neues Passwort setzen',
             self::APP_URL . '/reset-password?token=' . $token,
@@ -377,10 +370,6 @@ class AuthController
         );
     }
 
-    /**
-     * Ohne den eingegebenen Namen: Die Adresse ist hier noch unbestätigt, sonst ließe sich
-     * über das Formular beliebiger Text an fremde Postfächer schicken.
-     */
     private function sendVerificationEmail(string $email, string $token): bool
     {
         return $this->sendLinkMail(

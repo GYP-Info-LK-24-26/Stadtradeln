@@ -51,16 +51,6 @@ class View
         );
     }
 
-    /** Neutraler Avatar ohne Initialen für Personen, deren Name verborgen bleibt. */
-    public static function anonymousAvatar(string $size = ''): string
-    {
-        return sprintf(
-            '<span class="avatar avatar-anonymous%s" aria-hidden="true">%s</span>',
-            $size !== '' ? ' avatar-' . $size : '',
-            Icon::svg('user')
-        );
-    }
-
     /** Deutsches Datum, z. B. "Donnerstag, 2. Oktober". */
     public static function longDate(\DateTimeInterface $date): string
     {

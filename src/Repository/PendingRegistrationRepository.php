@@ -12,21 +12,21 @@ use App\Core\Database;
 class PendingRegistrationRepository
 {
     /** Legt die Registrierung an; eine ältere für dieselbe Adresse wird ersetzt. */
-    public function create(string $name, string $email, string $passHash, string $token, \DateTime $expiresAt): bool
+    public function create(string $email, string $passHash, string $token, \DateTime $expiresAt): bool
     {
         $this->deleteExpired();
 
         // Upsert statt DELETE + INSERT: zwei gleichzeitige Anfragen scheitern nicht am UNIQUE-Key
         $conn = Database::getConnection();
         $stmt = $conn->prepare(
-            "INSERT INTO pending_registrations (name, email, passHash, token, expiresAt) VALUES (?, ?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE name = VALUES(name), passHash = VALUES(passHash),
+            "INSERT INTO pending_registrations (email, passHash, token, expiresAt) VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE passHash = VALUES(passHash),
                  token = VALUES(token), expiresAt = VALUES(expiresAt), createdAt = CURRENT_TIMESTAMP"
         );
 
         $tokenHash = self::hash($token);
         $expiresAtStr = $expiresAt->format('Y-m-d H:i:s');
-        $stmt->bind_param("sssss", $name, $email, $passHash, $tokenHash, $expiresAtStr);
+        $stmt->bind_param("ssss", $email, $passHash, $tokenHash, $expiresAtStr);
 
         return $stmt->execute();
     }
@@ -36,7 +36,7 @@ class PendingRegistrationRepository
     {
         $conn = Database::getConnection();
         $stmt = $conn->prepare(
-            "SELECT id, name, email, passHash FROM pending_registrations
+            "SELECT id, email, passHash FROM pending_registrations
              WHERE token = ? AND expiresAt > NOW()"
         );
         $tokenHash = self::hash($token);
@@ -52,7 +52,7 @@ class PendingRegistrationRepository
     {
         $conn = Database::getConnection();
         $stmt = $conn->prepare(
-            "SELECT id, name, email, passHash FROM pending_registrations
+            "SELECT id, email, passHash FROM pending_registrations
              WHERE email = ? AND expiresAt > NOW()"
         );
         $stmt->bind_param("s", $email);

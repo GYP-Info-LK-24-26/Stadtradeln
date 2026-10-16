@@ -25,17 +25,6 @@ require __DIR__ . '/../layout/header.php';
             <?php endif; ?>
 
             <div class="field">
-                <label class="field-label" for="name">Name</label>
-                <div class="input-wrap">
-                    <?= Icon::svg('user') ?>
-                    <input class="input" type="text" id="name" name="name"
-                           value="<?= htmlspecialchars($data['name'] ?? '') ?>"
-                           autocomplete="name" placeholder="Max Mustermann"
-                           maxlength="<?= \App\Models\User::NAME_MAX_LENGTH ?>" required>
-                </div>
-            </div>
-
-            <div class="field">
                 <label class="field-label" for="email">E-Mail</label>
                 <div class="input-wrap">
                     <?= Icon::svg('mail') ?>
@@ -78,5 +67,5 @@ require __DIR__ . '/../layout/header.php';
     </div>
 </div>
 <?php
-$inlineScript = "initPasswordStrength('password', ['name', 'email']);";
+$inlineScript = "initPasswordStrength('password', ['email']);";
 require __DIR__ . '/../layout/footer.php';

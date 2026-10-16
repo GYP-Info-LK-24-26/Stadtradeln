@@ -4,7 +4,7 @@ use App\Core\Icon;
 
 /**
  * Bestätigungslink aus der Registrierungs-E-Mail.
- * Variablen: $valid; bei gültigem Link $token, $name, $email; sonst $error
+ * Variablen: $valid; bei gültigem Link $token, $email; sonst $error
  */
 $title = 'Account aktivieren';
 $layout = 'auth';
@@ -16,7 +16,7 @@ require __DIR__ . '/../layout/header.php';
             <span class="brand-mark"><?= Icon::svg($valid ? 'check-circle' : 'mail') ?></span>
             <h1>Account aktivieren</h1>
             <p><?= $valid
-                ? 'Hallo ' . htmlspecialchars($name) . '! Bestätige deine E-Mail-Adresse <strong>' . htmlspecialchars($email) . '</strong>, um loszulegen.'
+                ? 'Bestätige deine E-Mail-Adresse <strong>' . htmlspecialchars($email) . '</strong>, um loszulegen.'
                 : 'Dieser Link funktioniert leider nicht.' ?></p>
         </div>
 

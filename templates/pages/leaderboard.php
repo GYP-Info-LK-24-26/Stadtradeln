@@ -17,30 +17,8 @@ $maxDistance = max(array_merge([0.0], array_map(fn($e) => $e->totalDistance, $en
 $meta = fn($e) => $viewUsers
     ? $e->teamName
     : $e->memberCount . ' ' . ($e->memberCount === 1 ? 'Mitglied' : 'Mitglieder');
-// Personen: nur der eigene Name wird angezeigt (Vorname + Initiale), alle anderen anonym
-$isAnonymous = fn($e) => $viewUsers && $e->id !== $highlightId;
-$avatar = fn($e, string $size = '') => $isAnonymous($e) ? View::anonymousAvatar($size) : View::avatar($e->name, $size);
-$displayName = static function ($entry) use ($viewUsers, $isAnonymous): string {
-    $name = $entry->name;
-    if ($isAnonymous($entry)) {
-        return 'Anonym';
-    }
-    if (!$viewUsers) {
-        return $name;
-    }
-
-    $parts = preg_split('/\s+/u', trim($name), -1, PREG_SPLIT_NO_EMPTY);
-    if ($parts === false || count($parts) < 2) {
-        return $name;
-    }
-
-    $surname = array_pop($parts);
-    if (preg_match('/^./u', $surname, $initial) !== 1) {
-        return $name;
-    }
-
-    return implode(' ', $parts) . ' ' . $initial[0] . '.';
-};
+// Personen erscheinen unter ihrem Pseudonym, Teams unter ihrem Namen
+$displayName = fn($e) => $viewUsers ? $e->getDisplayName() : $e->name;
 
 // Podest nur auf der ersten Seite und bei mindestens drei Einträgen
 $podium = ($page === 0 && count($entries) >= 3) ? array_slice($entries, 0, 3) : [];
@@ -82,7 +60,7 @@ require __DIR__ . '/../layout/header.php';
                             <span class="podium-crown"><?= Icon::svg('crown') ?></span>
                         <?php endif; ?>
                         <span class="podium-avatar">
-                            <?= $avatar($entry, 'lg') ?>
+                            <?= View::avatar($name, 'lg') ?>
                             <span class="podium-medal"><?= $place ?></span>
                         </span>
                         <span class="podium-name" title="<?= htmlspecialchars($name) ?>"><?= htmlspecialchars($name) ?></span>
@@ -109,7 +87,7 @@ require __DIR__ . '/../layout/header.php';
                         ?>
                         <li class="rank-row<?= $isMe ? ' is-me' : '' ?>"<?= $isMe ? ' id="me"' : '' ?>>
                             <span class="rank-pos"><?= $offset + $index + 1 ?></span>
-                            <?= $avatar($entry) ?>
+                            <?= View::avatar($name) ?>
                             <div class="rank-main">
                                 <div class="rank-name">
                                     <span><?= htmlspecialchars($name) ?></span>

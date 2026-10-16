@@ -8,8 +8,6 @@ $scripts = ['zxcvbn.js', 'password-strength.js'];
 
 // Rückmeldungen dem Bereich zuordnen, den der Controller angibt ($section)
 $section = $section ?? null;
-$nameSuccess = $section === 'name' && $success;
-$nameError = $section === 'name' && $error;
 $emailSuccess = $section === 'email' && $success;
 $emailError = $section === 'email' && $error;
 $passwordSuccess = $section === 'password' && $success;
@@ -31,26 +29,10 @@ require __DIR__ . '/../layout/header.php';
         <section class="card profile-card reveal" style="--i: 1" aria-label="Profil">
             <?= View::avatar($name, 'xl') ?>
             <div class="profile-text">
-                <div class="profile-name">
-                    <form method="post" action="/settings/name" class="inline-edit" data-inline-edit>
-                        <?= Csrf::field() ?>
-                        <span class="inline-edit-text"><?= htmlspecialchars($name) ?></span>
-                        <input type="text" name="name" class="inline-edit-input" value="<?= htmlspecialchars($name) ?>"
-                               maxlength="<?= \App\Models\User::NAME_MAX_LENGTH ?>" aria-label="Name" required>
-                        <button type="button" class="inline-edit-btn" title="Name bearbeiten" aria-label="Name bearbeiten">
-                            <?= Icon::svg('pencil') ?>
-                        </button>
-                    </form>
-                </div>
+                <div class="profile-name"><?= htmlspecialchars($name) ?></div>
                 <div class="profile-email"><?= htmlspecialchars($email) ?></div>
             </div>
         </section>
-
-        <?php if ($nameSuccess): ?>
-            <div class="alert alert-success" role="status"><?= Icon::svg('check-circle') ?><span><?= htmlspecialchars($success) ?></span></div>
-        <?php elseif ($nameError): ?>
-            <div class="alert alert-error" role="alert"><?= Icon::svg('alert') ?><span><?= htmlspecialchars($error) ?></span></div>
-        <?php endif; ?>
 
         <section class="reveal" style="--i: 2">
             <div class="section-title mt-0"><h2>Zugangsdaten</h2></div>
