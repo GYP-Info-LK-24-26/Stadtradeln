@@ -74,8 +74,6 @@ require __DIR__ . '/../layout/header.php';
         <p class="form-footer">
             Schon registriert?
             <a href="/login">Anmelden</a>
-            <br>
-            <a href="/datenschutz">Datenschutzhinweise</a> · <a href="/impressum">Impressum</a>
         </p>
     </div>
 </div>

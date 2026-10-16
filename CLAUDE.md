@@ -75,7 +75,7 @@ Routes are defined in `public/index.php`. Main routes:
 - `/dashboard` - User dashboard with tour management
 - `/team`, `/team/join` - Team operations
 - `/leaderboard` - Rankings (login required, like every page except home, auth pages, `/faq`, `/impressum` and `/datenschutz`)
-- `/impressum`, `/datenschutz` - Legal notice and privacy policy (static templates; linked from the home footer, the user menu and `/register`)
+- `/impressum`, `/datenschutz` - Legal notice and privacy policy (static templates; linked together with `/faq` from the site footer in `layout/footer.php`, which every page shows)
 - `/settings` - User settings
 
 ## Security

@@ -602,7 +602,8 @@ svg {
         padding: 3px 8px 3px 3px;
     }
 
-    .has-tabbar .main {
+    /* Platz für die fixierte Tabbar unter dem Seitenfuß */
+    .has-tabbar {
         padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
     }
 
@@ -1961,11 +1962,16 @@ svg {
 
 /* ---------- 6. Seiten ---------- */
 
-/* Auth-Seiten */
+/* Auth-Seiten: füllen den Platz zwischen Kopfzeile und Seitenfuß */
+.layout-auth .main {
+    display: flex;
+    flex-direction: column;
+}
+
 .auth {
+    flex: 1;
     display: grid;
     place-items: center;
-    min-height: calc(100dvh - var(--topbar-h));
     padding: 32px var(--gutter) 48px;
     background:
         radial-gradient(60% 50% at 15% 10%, color-mix(in srgb, var(--green-300) 22%, transparent), transparent 70%),

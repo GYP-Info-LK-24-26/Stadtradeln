@@ -62,12 +62,6 @@ $userName = Session::getDisplayName() ?? 'Profil';
                         <a href="/faq" class="menu-item<?= $isActive('/faq') ? ' is-active' : '' ?>" role="menuitem">
                             <?= Icon::svg('info') ?> FAQ
                         </a>
-                        <a href="/impressum" class="menu-item<?= $isActive('/impressum') ? ' is-active' : '' ?>" role="menuitem">
-                            <?= Icon::svg('info') ?> Impressum
-                        </a>
-                        <a href="/datenschutz" class="menu-item<?= $isActive('/datenschutz') ? ' is-active' : '' ?>" role="menuitem">
-                            <?= Icon::svg('lock') ?> Datenschutz
-                        </a>
                         <div class="menu-separator" role="separator"></div>
                         <form method="post" action="/logout">
                             <?= Csrf::field() ?>
