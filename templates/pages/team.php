@@ -79,14 +79,16 @@ require __DIR__ . '/../layout/header.php';
                     <?php
                         $isMe = $member->id === $userId;
                         $isMemberLeader = $member->id === $team->teamleiterId;
+                        // Namen anderer Mitglieder werden nicht angezeigt
+                        $name = $isMe ? $member->name : 'Anonym';
                         $percent = $maxDistance > 0 ? round($member->totalDistance / $maxDistance * 100, 1) : 0;
                     ?>
                     <li class="rank-row<?= $isMe ? ' is-me' : '' ?>">
                         <span class="rank-pos"><?= $index + 1 ?></span>
-                        <?= View::avatar($member->name) ?>
+                        <?= $isMe ? View::avatar($member->name) : View::anonymousAvatar() ?>
                         <div class="rank-main">
                             <div class="rank-name">
-                                <span><?= htmlspecialchars($member->name) ?></span>
+                                <span><?= htmlspecialchars($name) ?></span>
                                 <?php if ($isMe): ?>
                                     <span class="badge badge-primary">Du</span>
                                 <?php endif; ?>
@@ -96,21 +98,7 @@ require __DIR__ . '/../layout/header.php';
                             </div>
                             <div class="bar"><span style="--p: <?= $percent ?>%; --i: <?= $index ?>"></span></div>
                         </div>
-                        <div class="rank-side">
-                            <span class="rank-value"><?= View::number($member->totalDistance) ?> <small>km</small></span>
-                            <?php if ($isLeader && !$isMemberLeader): ?>
-                                <form method="post" action="/team/leader"
-                                      data-confirm="<?= htmlspecialchars($member->name) ?> übernimmt die Teamleitung. Du verlierst damit deine Teamleiter-Rechte."
-                                      data-confirm-title="Teamleitung übergeben?" data-confirm-ok="Übergeben">
-                                    <?= Csrf::field() ?>
-                                    <input type="hidden" name="new_leader" value="<?= (int)$member->id ?>">
-                                    <button type="submit" class="btn btn-ghost btn-icon btn-sm"
-                                            title="Zum Teamleiter machen" aria-label="<?= htmlspecialchars($member->name) ?> zum Teamleiter machen">
-                                        <?= Icon::svg('crown') ?>
-                                    </button>
-                                </form>
-                            <?php endif; ?>
-                        </div>
+                        <span class="rank-value"><?= View::number($member->totalDistance) ?> <small>km</small></span>
                     </li>
                 <?php endforeach; ?>
             </ol>

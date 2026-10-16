@@ -184,35 +184,4 @@ class TeamController
         header("Location: /team");
         exit;
     }
-
-    public function transferLeader(): void
-    {
-        Session::requireLogin();
-
-        $userId = Session::getUserId();
-        $teamId = Session::getTeamId();
-        $newLeaderId = (int)Request::post('new_leader');
-
-        if ($teamId === null) {
-            header("Location: /team");
-            exit;
-        }
-
-        $team = $this->teamRepository->findById($teamId);
-
-        // Only the current Teamleiter may hand over the role
-        if ($team === null || $team->teamleiterId !== $userId) {
-            header("Location: /team");
-            exit;
-        }
-
-        // The new leader must be another member of the same team
-        $newLeader = $this->userRepository->findById($newLeaderId);
-        if ($newLeader !== null && $newLeader->teamId === $teamId && $newLeaderId !== $userId) {
-            $this->teamRepository->updateLeader($teamId, $newLeaderId);
-        }
-
-        header("Location: /team");
-        exit;
-    }
 }

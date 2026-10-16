@@ -1374,6 +1374,17 @@ svg {
     }
 }
 
+/* Neutraler Avatar (Name verborgen) – nach dem Dark-Mode-Block, damit er dort gewinnt */
+.avatar.avatar-anonymous {
+    background: var(--surface-3);
+    color: var(--text-subtle);
+}
+
+.avatar-anonymous .icon {
+    width: 50%;
+    height: 50%;
+}
+
 /* Segmentierte Umschalter */
 .segmented {
     position: relative;
@@ -1507,12 +1518,6 @@ svg {
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--text-subtle);
-}
-
-.rank-side {
-    display: flex;
-    align-items: center;
-    gap: 12px;
 }
 
 .bar {

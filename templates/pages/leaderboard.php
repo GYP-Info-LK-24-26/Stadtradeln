@@ -17,7 +17,14 @@ $maxDistance = max(array_merge([0.0], array_map(fn($e) => $e->totalDistance, $en
 $meta = fn($e) => $viewUsers
     ? $e->teamName
     : $e->memberCount . ' ' . ($e->memberCount === 1 ? 'Mitglied' : 'Mitglieder');
-$displayName = static function (string $name) use ($viewUsers): string {
+// Personen: nur der eigene Name wird angezeigt (Vorname + Initiale), alle anderen anonym
+$isAnonymous = fn($e) => $viewUsers && $e->id !== $highlightId;
+$avatar = fn($e, string $size = '') => $isAnonymous($e) ? View::anonymousAvatar($size) : View::avatar($e->name, $size);
+$displayName = static function ($entry) use ($viewUsers, $isAnonymous): string {
+    $name = $entry->name;
+    if ($isAnonymous($entry)) {
+        return 'Anonym';
+    }
     if (!$viewUsers) {
         return $name;
     }
@@ -70,12 +77,12 @@ require __DIR__ . '/../layout/header.php';
             <section class="podium" aria-label="Top 3">
                 <?php foreach ($podium as $index => $entry): $place = $index + 1; $metaText = $meta($entry); ?>
                     <div class="podium-place place-<?= $place ?><?= $entry->id === $highlightId ? ' is-me' : '' ?>"<?= $entry->id === $highlightId ? ' id="me"' : '' ?>>
-                        <?php $name = $displayName($entry->name); ?>
+                        <?php $name = $displayName($entry); ?>
                         <?php if ($place === 1): ?>
                             <span class="podium-crown"><?= Icon::svg('crown') ?></span>
                         <?php endif; ?>
                         <span class="podium-avatar">
-                            <?= View::avatar($entry->name, 'lg') ?>
+                            <?= $avatar($entry, 'lg') ?>
                             <span class="podium-medal"><?= $place ?></span>
                         </span>
                         <span class="podium-name" title="<?= htmlspecialchars($name) ?>"><?= htmlspecialchars($name) ?></span>
@@ -98,11 +105,11 @@ require __DIR__ . '/../layout/header.php';
                             $percent = $maxDistance > 0 ? round($entry->totalDistance / $maxDistance * 100, 1) : 0;
                             $isMe = $entry->id === $highlightId;
                             $metaText = $meta($entry);
-                            $name = $displayName($entry->name);
+                            $name = $displayName($entry);
                         ?>
                         <li class="rank-row<?= $isMe ? ' is-me' : '' ?>"<?= $isMe ? ' id="me"' : '' ?>>
                             <span class="rank-pos"><?= $offset + $index + 1 ?></span>
-                            <?= View::avatar($entry->name) ?>
+                            <?= $avatar($entry) ?>
                             <div class="rank-main">
                                 <div class="rank-name">
                                     <span><?= htmlspecialchars($name) ?></span>
