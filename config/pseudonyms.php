@@ -3,6 +3,7 @@
 // Pseudonyme für Personen, deren Name verborgen bleibt (App\Core\Pseudonym).
 // Person mit users.id = n erhält Eintrag (n - 1) mod Anzahl; erst wenn alle
 // vergeben sind, wiederholen sie sich mit Nummer („Watzmann 2“).
+// Lücken in users.id aus config/pseudonym-gaps.php werden dabei übersprungen.
 // Reihenfolge ist bewusst gemischt. Nicht umsortieren oder Einträge löschen, sonst
 // ändern sich die Pseudonyme bestehender Accounts. Neue Namen nur ans Ende anhängen
 // (ändert nur die Pseudonyme von Accounts mit users.id > bisherige Anzahl).

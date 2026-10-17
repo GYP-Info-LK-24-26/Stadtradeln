@@ -20,6 +20,7 @@ For Apache, the vhost must set `DocumentRoot` to `public/` and `AllowOverride Al
 ## Setup
 
 1. Copy `config/database.example.php` to `config/database.php`
+   (optionally `config/pseudonym-gaps.example.php` to `config/pseudonym-gaps.php`, see „Pseudonyms“)
 2. Fill in MySQL credentials
 3. Run `database/schema.sql` to create tables
 
@@ -62,7 +63,7 @@ Request → Router → Controller → Repository → Database
 
 **Dashboard rank**: The „Platzierung“ tile shows the position in the people leaderboard (`UserRepository::findLeaderboardPosition()`, same ordering as `findByTeamWithDistance()`: km descending, ties by `users.id`) and links to `/leaderboard?type=users&page=@me#me`: `LeaderboardController` resolves `page=@me` at request time to the page currently containing the logged-in user (`LEADERBOARD_PAGE_SIZE`), so the link never goes stale; the `#me` anchor jumps to the own row.
 
-**Pseudonyms**: The app stores no real names (neither `users` nor `pending_registrations` has a name column). Every person, including the logged-in user, appears everywhere (nav, dashboard, settings, `/leaderboard`, `/team`) under a pseudonym from `App\Core\Pseudonym::forUser($id)`, with `View::avatar()` of the pseudonym. The pseudonym is a Bavarian mountain from `config/pseudonyms.php`, derived only from `users.id` (entry `(id - 1) mod count`, from the second round with a number, e.g. „Watzmann 2“), so every name is used once before any repeats. The list is shuffled on purpose: never reorder or remove entries (that changes existing pseudonyms), only append. It can't be changed. Team names stay visible. Because the team leader can't identify members, there is no leadership handover; the role only passes on automatically when the leader leaves the team.
+**Pseudonyms**: The app stores no real names (neither `users` nor `pending_registrations` has a name column). Every person, including the logged-in user, appears everywhere (nav, dashboard, settings, `/leaderboard`, `/team`) under a pseudonym from `App\Core\Pseudonym::forUser($id)`, with `View::avatar()` of the pseudonym. The pseudonym is a Bavarian mountain from `config/pseudonyms.php`, derived only from `users.id` (entry `(id - 1) mod count`, from the second round with a number, e.g. „Watzmann 2“), so every name is used once before any repeats. Gaps in `users.id` (ranges `[from, to]`, inclusive) listed in `config/pseudonym-gaps.php` (untracked, production data; template `config/pseudonym-gaps.example.php`, missing file = no gaps) are skipped, so the first id after a gap continues where the ids before it stopped. Adding a gap changes the pseudonyms of all accounts above it, so only list ranges without accounts. The list is shuffled on purpose: never reorder or remove entries (that changes existing pseudonyms), only append. It can't be changed. Team names stay visible. Because the team leader can't identify members, there is no leadership handover; the role only passes on automatically when the leader leaves the team.
 
 **Database**: All queries must use prepared statements via `Database::getConnection()` (mysqli).
 
