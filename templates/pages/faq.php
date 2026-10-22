@@ -89,7 +89,7 @@ require __DIR__ . '/../layout/header.php';
                 <?= \App\Core\Icon::svg('chevron-down', 'icon setting-chevron') ?>
             </summary>
             <div class="setting-body">
-                <p>Alle Schüler vom Gymnasium sind herzlich willkommen teilzunehmen und wir freuen uns über jeden Teilnehmer.</p>
+                <p>Alle Schüler, Eltern und Lehrer vom Gymnasium sind herzlich willkommen teilzunehmen und wir freuen uns über jeden Teilnehmer.</p>
             </div>
         </details>
         <details class="setting">
