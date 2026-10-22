@@ -22,13 +22,6 @@ require __DIR__ . '/../layout/header.php';
         <p>Vertretungsberechtigt</p>
         <p>OStD Dr. Matthias Langensteiner</p>
 
-        <h2>Umsetzung und Webdesign</h2>
-        <p>
-            FAHT MEDIA Werbeagentur<br>
-            Im Thal 15 • D-82377 Penzberg<br>
-            <a href="https://www.faht.media/" target="_blank" rel="noopener">www.faht.media</a>
-        </p>
-
         <h2>Nutzungsbedingungen</h2>
         <p>Texte, Bilder, Grafiken sowie die Gestaltung dieser Internetseiten können dem Urheberrecht unterliegen.</p>
         <p>Nicht urheberrechtlich geschützt sind nach § 5 des Urheberrechtsgesetzes (UrhG)</p>
