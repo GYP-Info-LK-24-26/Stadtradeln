@@ -22,16 +22,6 @@ require __DIR__ . '/../layout/header.php';
         <p>Vertretungsberechtigt</p>
         <p>OStD Dr. Matthias Langensteiner</p>
 
-        <h2>Verantwortlich für das Angebot im Sinne des § 18 Abs. 2 MStV</h2>
-        <p>OStR Philipp Streil</p>
-        <p>Karlstr.38-42, 82377 Penzberg</p>
-        <p>
-            Telefon: +49 8856 9271-0<br>
-            Telefax: +49 8856 9271-20<br>
-            E-Mail: <a href="mailto:sekretariat@gymnasium-penzberg.de">sekretariat@gymnasium-penzberg.de</a>
-        </p>
-        <p>Namentlich gekennzeichnete Internetseiten geben die Auffassungen und Erkenntnisse der genannten Personen wieder.</p>
-
         <h2>Umsetzung und Webdesign</h2>
         <p>
             FAHT MEDIA Werbeagentur<br>
