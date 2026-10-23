@@ -8,7 +8,7 @@ class Session
 {
     private const MAX_INACTIVE_TIME = 1800; // 30 minutes
 
-    /** Ob das Team in diesem Request schon aus der Datenbank geladen wurde. */
+    /** Ob Team und Namensstatus in diesem Request schon aus der Datenbank geladen wurden. */
     private static bool $refreshed = false;
 
     public static function start(): void
@@ -43,7 +43,7 @@ class Session
     }
 
     /**
-     * Team einmal pro Request aus der Datenbank übernehmen, damit
+     * Team und Namensstatus einmal pro Request aus der Datenbank übernehmen, damit
      * Änderungen von anderen Geräten (z. B. Team verlassen) sofort gelten.
      * Gibt false zurück, wenn der Account nicht mehr existiert oder das Passwort
      * seit dem Login geändert wurde (meldet andere Sitzungen ab).
@@ -60,20 +60,40 @@ class Session
         }
 
         $_SESSION["teamID"] = $user->teamId;
+        $_SESSION["needsName"] = $user->name === null;
         self::$refreshed = true;
         return true;
     }
 
-    public static function requireLogin(): void
+    /**
+     * Accounts ohne Namen (gelöscht oder vor dessen Einführung angelegt) werden zu
+     * /name umgeleitet, bis sie ihn angeben; nur diese Route setzt $allowMissingName.
+     */
+    public static function requireLogin(bool $allowMissingName = false): void
     {
         if (!self::isLoggedIn()) {
             header("Location: /login");
             exit("Nicht eingeloggt.");
         }
+
+        if (!$allowMissingName && self::needsName()) {
+            header("Location: /name");
+            exit;
+        }
+    }
+
+    public static function needsName(): bool
+    {
+        return $_SESSION["needsName"] ?? false;
+    }
+
+    public static function setNameProvided(): void
+    {
+        $_SESSION["needsName"] = false;
     }
 
     /** $passHash: aktueller Passwort-Hash aus der Datenbank (für refresh()). */
-    public static function login(int $userId, ?int $teamId, string $passHash): void
+    public static function login(int $userId, ?string $name, ?int $teamId, string $passHash): void
     {
         self::start();
         if (!headers_sent()) {
@@ -82,6 +102,7 @@ class Session
         $_SESSION["loggedin"] = true;
         $_SESSION["id"] = $userId;
         $_SESSION["teamID"] = $teamId;
+        $_SESSION["needsName"] = $name === null;
         $_SESSION["pass"] = self::passFingerprint($passHash);
         $_SESSION["last_activity"] = time();
         self::$refreshed = true;
@@ -115,7 +136,7 @@ class Session
         return $_SESSION["id"] ?? null;
     }
 
-    /** Pseudonym der angemeldeten Person (es gibt keine Klarnamen). */
+    /** Pseudonym der angemeldeten Person (der Klarname wird nie angezeigt). */
     public static function getDisplayName(): ?string
     {
         $userId = self::getUserId();

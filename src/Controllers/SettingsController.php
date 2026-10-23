@@ -66,6 +66,27 @@ class SettingsController
         $this->render($user, 'password', $error, $success);
     }
 
+    /** Klarname (nur für Auswertung und Ehrung, wird nirgends angezeigt). */
+    public function updateName(): void
+    {
+        Session::requireLogin();
+
+        $userId = Session::getUserId();
+        $name = trim(Request::post('name'));
+
+        $user = $this->userRepository->findById($userId);
+        $error = User::validateName($name);
+        $success = null;
+
+        if ($error === null) {
+            $this->userRepository->updateName($userId, $name);
+            $user->name = $name;
+            $success = 'Name erfolgreich geändert.';
+        }
+
+        $this->render($user, 'name', $error, $success);
+    }
+
     public function updateEmail(): void
     {
         Session::requireLogin();
@@ -128,12 +149,13 @@ class SettingsController
         return null;
     }
 
-    /** $section ('email' | 'password') bestimmt, wo die Meldung erscheint. */
+    /** $section ('name' | 'email' | 'password') bestimmt, wo die Meldung erscheint. */
     private function render(User $user, ?string $section = null, ?string $error = null, ?string $success = null): void
     {
         View::render('pages/settings', [
             'email' => $user->email,
             'name' => $user->getDisplayName(),
+            'realName' => $user->name ?? '',
             'section' => $section,
             'error' => $error,
             'success' => $success,

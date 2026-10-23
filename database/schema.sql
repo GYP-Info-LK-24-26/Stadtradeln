@@ -18,8 +18,11 @@ CREATE TABLE teams (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Users table
+-- name: Vor- und Nachname für Auswertung und Ehrung, wird nirgends angezeigt.
+-- NULL bei Accounts, deren Name gelöscht wurde (müssen ihn beim Login neu angeben)
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NULL,
     email VARCHAR(255) NOT NULL,
     passHash VARCHAR(255) NOT NULL,
     teamID INT NULL,
@@ -61,6 +64,7 @@ CREATE TABLE password_resets (
 -- (token = SHA-256-Hash des Tokens aus dem Bestätigungslink)
 CREATE TABLE pending_registrations (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NULL,
     email VARCHAR(255) NOT NULL,
     passHash VARCHAR(255) NOT NULL,
     token CHAR(64) NOT NULL,

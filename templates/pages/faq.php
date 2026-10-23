@@ -71,7 +71,7 @@ require __DIR__ . '/../layout/header.php';
                 <?= \App\Core\Icon::svg('chevron-down', 'icon setting-chevron') ?>
             </summary>
             <div class="setting-body">
-                <p>Öffne über dein Pseudonym oben rechts die Einstellungen. Dort kannst du deine E-Mail-Adresse und dein Passwort verwalten.</p>
+                <p>Öffne über dein Pseudonym oben rechts die Einstellungen. Dort kannst du deinen Namen, deine E-Mail-Adresse und dein Passwort verwalten.</p>
             </div>
         </details>
         <details class="setting">
@@ -80,7 +80,7 @@ require __DIR__ . '/../layout/header.php';
                 <?= \App\Core\Icon::svg('chevron-down', 'icon setting-chevron') ?>
             </summary>
             <div class="setting-body">
-                <p>Damit niemand in der Rangliste oder im Team erkennbar ist, speichern wir keine Namen. Jede Person bekommt bei der Registrierung automatisch den Namen eines bayerischen Bergs als Pseudonym. Es lässt sich nicht ändern.</p>
+                <p>Damit niemand in der Rangliste oder im Team erkennbar ist, wird dein Name nirgends angezeigt – wir brauchen ihn nur für die Auswertung und Ehrung. Stattdessen bekommt jede Person bei der Registrierung automatisch den Namen eines bayerischen Bergs als Pseudonym. Es lässt sich nicht ändern.</p>
             </div>
         </details>
         <details class="setting">

@@ -1029,6 +1029,31 @@ svg {
     font-size: 0.85rem;
 }
 
+.field-hint {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+/* Checkbox mit Beschriftung (z. B. Einwilligung) */
+.checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.checkbox input {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin: 2px 0 0;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
 .input {
     width: 100%;
     min-height: 46px;

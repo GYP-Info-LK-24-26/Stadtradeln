@@ -6,6 +6,7 @@ use App\Core\EmailBlacklist;
 use App\Core\Request;
 use App\Core\Session;
 use App\Core\View;
+use App\Models\User;
 use App\Repository\UserRepository;
 use App\Repository\PasswordResetRepository;
 use App\Repository\PendingRegistrationRepository;
@@ -101,9 +102,9 @@ class AuthController
                 $this->rateLimitRepository->record(RateLimitRepository::emailKey($email), 'login_failed');
                 $error = 'E-Mail oder Passwort ist falsch';
             } else {
-                Session::login($user->id, $user->teamId, $user->password);
+                Session::login($user->id, $user->name, $user->teamId, $user->password);
                 $this->userRepository->updateLastLogin($user->id);
-                header("Location: /dashboard");
+                header('Location: ' . ($user->name === null ? '/name' : '/dashboard'));
                 exit;
             }
         }
@@ -125,6 +126,7 @@ class AuthController
     {
         // Passwörter bewusst nicht trimmen: Login vergleicht sie ebenfalls ungetrimmt
         $data = [
+            'name' => trim(Request::post('name')),
             'email' => trim(Request::post('email')),
             'password' => Request::post('password'),
             'confirm_password' => Request::post('confirm_password'),
@@ -143,7 +145,9 @@ class AuthController
 
         $this->rateLimitRepository->record($clientIp, 'register');
 
-        if (empty($data['email'])) {
+        if (($nameError = User::validateName($data['name'])) !== null) {
+            $error = $nameError;
+        } elseif (empty($data['email'])) {
             $error = 'Du musst eine E-Mail eingeben';
         } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $error = 'Bitte gib eine gültige E-Mail-Adresse ein';
@@ -171,7 +175,7 @@ class AuthController
                 $token = PendingRegistrationRepository::generateToken();
                 $expiresAt = new \DateTime('+' . self::VERIFY_EXPIRY_HOURS . ' hours');
                 $this->pendingRegistrationRepository->create(
-                    $data['email'],
+                    $data['name'], $data['email'],
                     password_hash($data['password'], PASSWORD_DEFAULT),
                     $token, $expiresAt
                 );
@@ -236,7 +240,8 @@ class AuthController
         }
 
         try {
-            $userId = $this->userRepository->create($pending['email'], $pending['passHash']);
+            // name ist NULL bei Registrierungen von vor der Einführung: dann fragt /name danach
+            $userId = $this->userRepository->create($pending['name'], $pending['email'], $pending['passHash']);
         } catch (\mysqli_sql_exception $e) {
             // Gleichzeitige zweite Anfrage (z. B. Doppelklick) scheitert am UNIQUE-Key der E-Mail
             $this->renderInvalidVerification($alreadyRegistered);
@@ -245,8 +250,48 @@ class AuthController
 
         $this->pendingRegistrationRepository->deleteByEmail($pending['email']);
 
-        Session::login($userId, null, $pending['passHash']);
+        Session::login($userId, $pending['name'], null, $pending['passHash']);
         $this->userRepository->updateLastLogin($userId);
+        header('Location: ' . ($pending['name'] === null ? '/name' : '/dashboard'));
+        exit;
+    }
+
+    /** Namensabfrage für Accounts ohne Namen (siehe Session::requireLogin()). */
+    public function showName(): void
+    {
+        Session::requireLogin(true);
+
+        if (!Session::needsName()) {
+            header("Location: /dashboard");
+            exit;
+        }
+
+        View::render('pages/name', ['error' => '']);
+    }
+
+    public function saveName(): void
+    {
+        Session::requireLogin(true);
+
+        if (!Session::needsName()) {
+            header("Location: /dashboard");
+            exit;
+        }
+
+        $name = trim(Request::post('name'));
+        $error = User::validateName($name);
+
+        if ($error === null && Request::post('privacy') !== '1') {
+            $error = 'Bitte bestätige, dass du die Datenschutzhinweise gelesen hast und einwilligst.';
+        }
+
+        if ($error !== null) {
+            View::render('pages/name', ['error' => $error, 'name' => $name]);
+            return;
+        }
+
+        $this->userRepository->updateName(Session::getUserId(), $name);
+        Session::setNameProvided();
         header("Location: /dashboard");
         exit;
     }
@@ -370,6 +415,10 @@ class AuthController
         );
     }
 
+    /**
+     * Ohne den eingegebenen Namen: Die Adresse ist hier noch unbestätigt, sonst ließe sich
+     * über das Formular beliebiger Text an fremde Postfächer schicken.
+     */
     private function sendVerificationEmail(string $email, string $token): bool
     {
         return $this->sendLinkMail(
@@ -380,20 +429,24 @@ class AuthController
             'Account aktivieren',
             self::APP_URL . '/verify-email?token=' . $token,
             'Der Link ist ' . self::VERIFY_EXPIRY_HOURS . ' Stunden gültig. '
-                . 'Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren – dann wird kein Account angelegt.'
+                . 'Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren – dann wird kein Account angelegt.',
+            'Mit der Aktivierung willigst du ein, dass wir deine Angaben (Name, E-Mail-Adresse und eingetragene Kilometer) '
+                . 'wie in unseren Datenschutzhinweisen beschrieben verarbeiten: ' . self::APP_URL . '/datenschutz'
         );
     }
 
     /**
      * E-Mail mit einem Link als Button. Verschickt Text- und HTML-Fassung
      * (multipart/alternative): In der HTML-Fassung ist der Link in jedem Mailprogramm
-     * klickbar, die Textfassung bleibt für Programme ohne HTML.
+     * klickbar, die Textfassung bleibt für Programme ohne HTML. $footnote (optional)
+     * erscheint als eigener, klein gesetzter Absatz unter dem Gruß.
      */
     private function sendLinkMail(
         string $email, string $subject, string $greeting, string $intro,
-        string $buttonLabel, string $url, string $note
+        string $buttonLabel, string $url, string $note, string $footnote = ''
     ): bool {
-        $text = "{$greeting}\n\n{$intro}\n{$url}\n\n{$note}\n\nViele Grüße\nDein GYP-Radeln-Team";
+        $text = "{$greeting}\n\n{$intro}\n{$url}\n\n{$note}\n\nViele Grüße\nDein GYP-Radeln-Team"
+            . ($footnote !== '' ? "\n\n{$footnote}" : '');
 
         $e = fn(string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
         // Mailprogramme ignorieren <style>-Blöcke oft, daher Inline-Styles und Tabellenlayout
@@ -411,6 +464,7 @@ class AuthController
             . '<a href="' . $e($url) . '" style="color:#237049;word-break:break-all;">' . $e($url) . '</a></p>'
             . '<p style="margin:0 0 16px;">' . $e($note) . '</p>'
             . '<p style="margin:0;">Viele Grüße<br>Dein GYP-Radeln-Team</p>'
+            . ($footnote !== '' ? '<p style="margin:24px 0 0;font-size:13px;color:#5B6B62;">' . $e($footnote) . '</p>' : '')
             . '</td></tr></table></td></tr></table></body></html>';
 
         // Base64: keine Probleme mit Umlauten und Zeilenlängen (der Link ist über 100 Zeichen lang)

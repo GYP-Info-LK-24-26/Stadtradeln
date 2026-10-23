@@ -47,6 +47,8 @@ $router
     ->post('/register', [AuthController::class, 'register'])
     ->get('/verify-email', [AuthController::class, 'showVerifyEmail'])
     ->post('/verify-email', [AuthController::class, 'verifyEmail'])
+    ->get('/name', [AuthController::class, 'showName'])
+    ->post('/name', [AuthController::class, 'saveName'])
     ->post('/logout', [AuthController::class, 'logout'])
     ->get('/forgot-password', [AuthController::class, 'showForgotPassword'])
     ->post('/forgot-password', [AuthController::class, 'forgotPassword'])
@@ -78,6 +80,7 @@ $router
 
     ->get('/settings', [SettingsController::class, 'index'])
     ->post('/settings', [SettingsController::class, 'updatePassword'])
+    ->post('/settings/name', [SettingsController::class, 'updateName'])
     ->post('/settings/email', [SettingsController::class, 'updateEmail']);
 
 $router->resolve();

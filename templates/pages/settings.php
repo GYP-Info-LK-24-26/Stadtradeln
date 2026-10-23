@@ -8,6 +8,8 @@ $scripts = ['zxcvbn.js', 'password-strength.js'];
 
 // Rückmeldungen dem Bereich zuordnen, den der Controller angibt ($section)
 $section = $section ?? null;
+$nameSuccess = $section === 'name' && $success;
+$nameError = $section === 'name' && $error;
 $emailSuccess = $section === 'email' && $success;
 $emailError = $section === 'email' && $error;
 $passwordSuccess = $section === 'password' && $success;
@@ -35,6 +37,41 @@ require __DIR__ . '/../layout/header.php';
         </section>
 
         <section class="reveal" style="--i: 2">
+            <div class="section-title mt-0"><h2>Persönliche Daten</h2></div>
+            <div class="card card-flush">
+                <details class="setting" <?= $nameSuccess || $nameError ? 'open' : '' ?>>
+                    <summary>
+                        <span class="setting-icon"><?= Icon::svg('user') ?></span>
+                        <span class="setting-info">
+                            <span class="setting-label">Vor- und Nachname</span>
+                            <span class="setting-value"><?= htmlspecialchars($realName) ?></span>
+                        </span>
+                        <?= Icon::svg('chevron-down', 'icon setting-chevron') ?>
+                    </summary>
+                    <div class="setting-body">
+                        <form method="post" action="/settings/name" class="form">
+                            <?= Csrf::field() ?>
+                            <?php if ($nameSuccess): ?>
+                                <div class="alert alert-success" role="status"><?= Icon::svg('check-circle') ?><span><?= htmlspecialchars($success) ?></span></div>
+                            <?php elseif ($nameError): ?>
+                                <div class="alert alert-error" role="alert"><?= Icon::svg('alert') ?><span><?= htmlspecialchars($error) ?></span></div>
+                            <?php endif; ?>
+                            <div class="field">
+                                <label class="field-label" for="name">Vor- und Nachname</label>
+                                <input class="input" type="text" id="name" name="name" value="<?= htmlspecialchars($realName) ?>"
+                                       autocomplete="name" maxlength="<?= \App\Models\User::NAME_MAX_LENGTH ?>" required>
+                                <p class="field-hint">Nur für die Auswertung und Ehrung. Angezeigt wird überall dein Pseudonym.</p>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Name speichern</button>
+                            </div>
+                        </form>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="reveal" style="--i: 3">
             <div class="section-title mt-0"><h2>Zugangsdaten</h2></div>
             <div class="card card-flush">
                 <details class="setting" <?= $emailSuccess || $emailError ? 'open' : '' ?>>
@@ -120,7 +157,7 @@ require __DIR__ . '/../layout/header.php';
             </div>
         </section>
 
-        <section class="reveal" style="--i: 3">
+        <section class="reveal" style="--i: 4">
             <div class="section-title mt-0"><h2>Sitzung</h2></div>
             <form method="post" action="/logout" class="card card-row">
                 <?= Csrf::field() ?>

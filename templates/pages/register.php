@@ -25,6 +25,18 @@ require __DIR__ . '/../layout/header.php';
             <?php endif; ?>
 
             <div class="field">
+                <label class="field-label" for="name">Vor- und Nachname</label>
+                <div class="input-wrap">
+                    <?= Icon::svg('user') ?>
+                    <input class="input" type="text" id="name" name="name"
+                           value="<?= htmlspecialchars($data['name'] ?? '') ?>"
+                           autocomplete="name" placeholder="Max Mustermann"
+                           maxlength="<?= \App\Models\User::NAME_MAX_LENGTH ?>" required>
+                </div>
+                <p class="field-hint">Nur für die Auswertung und Ehrung. In der Rangliste erscheinst du unter einem Pseudonym.</p>
+            </div>
+
+            <div class="field">
                 <label class="field-label" for="email">E-Mail</label>
                 <div class="input-wrap">
                     <?= Icon::svg('mail') ?>
@@ -67,5 +79,5 @@ require __DIR__ . '/../layout/header.php';
     </div>
 </div>
 <?php
-$inlineScript = "initPasswordStrength('password', ['email']);";
+$inlineScript = "initPasswordStrength('password', ['name', 'email']);";
 require __DIR__ . '/../layout/footer.php';

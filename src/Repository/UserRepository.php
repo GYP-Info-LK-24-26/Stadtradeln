@@ -14,7 +14,7 @@ class UserRepository
     public function findByEmail(string $email): ?User
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT id, teamID, passHash FROM users WHERE email = ?");
+        $stmt = $conn->prepare("SELECT id, teamID, name, passHash FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $stmt->store_result();
@@ -23,11 +23,12 @@ class UserRepository
             return null;
         }
 
-        $stmt->bind_result($id, $teamId, $passHash);
+        $stmt->bind_result($id, $teamId, $name, $passHash);
         $stmt->fetch();
 
         return User::fromArray([
             'id' => $id,
+            'name' => $name,
             'teamID' => $teamId,
             'email' => $email,
             'passHash' => $passHash,
@@ -46,11 +47,11 @@ class UserRepository
     }
 
     /** $passHash: bereits gehashtes Passwort (password_hash()), z. B. aus pending_registrations */
-    public function create(string $email, string $passHash): int
+    public function create(?string $name, string $email, string $passHash): int
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("INSERT INTO users (passHash, email) VALUES (?, ?)");
-        $stmt->bind_param("ss", $passHash, $email);
+        $stmt = $conn->prepare("INSERT INTO users (passHash, name, email) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $passHash, $name, $email);
 
         if (!$stmt->execute()) {
             throw new \RuntimeException("Benutzer konnte nicht erstellt werden");
@@ -97,7 +98,7 @@ class UserRepository
     public function findById(int $id): ?User
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT id, teamID, email, passHash FROM users WHERE id = ?");
+        $stmt = $conn->prepare("SELECT id, teamID, name, email, passHash FROM users WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $stmt->store_result();
@@ -106,11 +107,12 @@ class UserRepository
             return null;
         }
 
-        $stmt->bind_result($id, $teamId, $email, $passHash);
+        $stmt->bind_result($id, $teamId, $name, $email, $passHash);
         $stmt->fetch();
 
         return User::fromArray([
             'id' => $id,
+            'name' => $name,
             'teamID' => $teamId,
             'email' => $email,
             'passHash' => $passHash,
@@ -122,6 +124,15 @@ class UserRepository
         $conn = Database::getConnection();
         $stmt = $conn->prepare("UPDATE users SET passHash = ? WHERE id = ?");
         $stmt->bind_param("si", $hashedPassword, $userId);
+
+        return $stmt->execute();
+    }
+
+    public function updateName(int $userId, string $name): bool
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE users SET name = ? WHERE id = ?");
+        $stmt->bind_param("si", $name, $userId);
 
         return $stmt->execute();
     }
