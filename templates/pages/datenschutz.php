@@ -102,6 +102,34 @@ require __DIR__ . '/../layout/header.php';
 
         <h3>Auswertung des Nutzungsverhaltens (Webtracking-Systeme; Reichweitenmessung)</h3>
         <p>Programme zur Auswertung des Nutzerverhaltens werden von uns nicht eingesetzt.</p>
+
+        <h2>C) Informationen zur weiteren Verarbeitung personenbezogener Daten</h2>
+
+        <h3>Teilnahme am Projekt „Gymnasium radeln“</h3>
+        <p>Im Rahmen des Projekts „Gymnasium radeln“, das vom Arbeitskreis Nachhaltigkeit unserer Schule durchgeführt wird, möchten wir unsere Schülerinnen und Schüler für die Themen Nachhaltigkeit, Klimaschutz und umweltfreundliche Mobilität sensibilisieren und zur Nutzung des Fahrrads motivieren.</p>
+        <p>Die Schülerinnen und Schüler können sich hierfür freiwillig auf der Projektwebsite registrieren und die von ihnen mit dem Fahrrad zurückgelegten Kilometer eintragen.</p>
+
+        <h4>1. Zweck der Datenverarbeitung</h4>
+        <p>Die Verarbeitung der personenbezogenen Daten erfolgt ausschließlich zur Durchführung und Auswertung des Projekts. Insbesondere sollen die insgesamt geradelten Kilometer erfasst und die erfolgreichsten Schülerinnen und Schüler sowie Klassen ermittelt und im Anschluss an die Aktion geehrt werden.</p>
+
+        <h4>2. Art der verarbeiteten Daten</h4>
+        <p>Im Rahmen der Teilnahme werden folgende personenbezogene Daten erhoben und verarbeitet:</p>
+        <ul>
+            <li>Vor- und Nachname der Schülerin bzw. des Schülers</li>
+            <li>Klassenzugehörigkeit</li>
+            <li>Eingetragene Fahrradkilometer</li>
+        </ul>
+        <p>Die Kilometerangaben werden dem jeweiligen Teilnehmerprofil zugeordnet.</p>
+
+        <h4>3. Veröffentlichung der Ergebnisse</h4>
+        <p>Auf der Projektwebsite werden öffentliche Ranglisten geführt, die einen Überblick über die erzielten Ergebnisse ermöglichen.</p>
+        <p>In der Rangliste der einzelnen Schülerinnen und Schüler werden die Namen ausschließlich in anonymisierter Form dargestellt. Eine unmittelbare Zuordnung der Ergebnisse zu einzelnen Personen soll dadurch vermieden werden.</p>
+        <p>Daneben wird eine öffentliche Klassenrangliste veröffentlicht, in der die insgesamt geradelten Kilometer der jeweiligen Klassen dargestellt werden. Die Namen einzelner Schülerinnen und Schüler werden hierbei nicht veröffentlicht.</p>
+
+        <h4>4. Rechtsgrundlage und Freiwilligkeit</h4>
+        <p>Die Verarbeitung der personenbezogenen Daten erfolgt auf Grundlage einer freiwillig erteilten Einwilligung gemäß Art. 6 Abs. 1 Buchst. a DSGVO.</p>
+        <p>Die Teilnahme am Projekt ist freiwillig. Aus einer Nichtteilnahme entstehen den Schülerinnen und Schülern keine Nachteile.</p>
+        <p>Ohne die Angabe von Name und Klasse ist eine Teilnahme an der personenbezogenen Auswertung und Ehrung nicht möglich.</p>
     </div>
 </div>
 <?php require __DIR__ . '/../layout/footer.php'; ?>
