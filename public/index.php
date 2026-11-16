@@ -14,6 +14,7 @@ spl_autoload_register(function ($class) {
     }
 });
 
+use App\Core\Event;
 use App\Core\Router;
 use App\Core\Session;
 use App\Core\View;
@@ -28,6 +29,21 @@ if ($maintenanceMode === true) {
     http_response_code(503);
     header('Retry-After: 3600');
     require __DIR__ . '/../templates/pages/maintenance.php';
+    exit;
+}
+
+// Aktion beendet: alle Funktionen abgeschaltet. Es bleiben nur die Abschlussseite
+// und die rechtlich nötigen Seiten; alles andere (auch POSTs) führt zur Startseite.
+if (Event::isClosed()) {
+    $closedPages = ['/' => 'pages/closed', '/impressum' => 'pages/impressum', '/datenschutz' => 'pages/datenschutz'];
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+    $path = $path === '/' ? $path : rtrim($path, '/');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($closedPages[$path])) {
+        View::render($closedPages[$path]);
+    } else {
+        header('Location: /', true, 303);
+    }
     exit;
 }
 

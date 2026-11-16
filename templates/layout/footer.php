@@ -19,7 +19,9 @@ use App\Core\View;
             <span>GYP-Radeln · Gymnasium Penzberg</span>
             <span>Mit jedem Kilometer für eine grünere Zukunft.</span>
             <nav class="site-footer-links" aria-label="Weitere Informationen">
-                <a href="/faq">FAQ</a>
+                <?php if (!$isClosed): ?>
+                    <a href="/faq">FAQ</a>
+                <?php endif; ?>
                 <a href="/impressum">Impressum</a>
                 <a href="/datenschutz">Datenschutz</a>
             </nav>

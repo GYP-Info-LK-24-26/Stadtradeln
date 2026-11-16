@@ -7,11 +7,16 @@
  *   $layout – 'app' (Standard), 'auth' (zentrierte Karte) oder 'landing'
  */
 
+use App\Core\Event;
 use App\Core\Session;
 use App\Core\View;
 
-Session::start();
-$isLoggedIn = Session::isLoggedIn();
+// Aktion beendet: keine Sitzung (kein Cookie) und kein Datenbankzugriff mehr
+$isClosed = Event::isClosed();
+if (!$isClosed) {
+    Session::start();
+}
+$isLoggedIn = !$isClosed && Session::isLoggedIn();
 $layout = $layout ?? 'app';
 $bodyClasses = 'layout-' . $layout . ($isLoggedIn ? ' has-tabbar' : '');
 ?>

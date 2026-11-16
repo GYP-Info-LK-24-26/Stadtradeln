@@ -34,6 +34,17 @@ class Event
         return new \DateTimeImmutable('today') > self::end();
     }
 
+    /**
+     * Ob die Aktion abgeschlossen und die Website stillgelegt ist
+     * (Schalter in config/closed.php). Dann gibt es weder Sitzungen noch
+     * Datenbankzugriffe, nur noch Abschlussseite, Impressum und Datenschutz.
+     */
+    public static function isClosed(): bool
+    {
+        static $closed = null;
+        return $closed ??= (require __DIR__ . '/../../config/closed.php') === true;
+    }
+
     /** Zeitraum als Text, z. B. "10.10. – 31.10.2026". */
     public static function label(): string
     {

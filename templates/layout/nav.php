@@ -20,7 +20,7 @@ $navItems = $isLoggedIn
     ]
     : [];
 
-$userName = Session::getDisplayName() ?? 'Profil';
+$userName = ($isLoggedIn ? Session::getDisplayName() : null) ?? 'Profil';
 ?>
 <header class="topbar">
     <div class="topbar-inner container">
@@ -71,7 +71,7 @@ $userName = Session::getDisplayName() ?? 'Profil';
                         </form>
                     </div>
                 </div>
-            <?php else: ?>
+            <?php elseif (!$isClosed): ?>
                 <a href="/login" class="btn btn-ghost btn-sm<?= $isActive('/login') ? ' is-active' : '' ?>">Anmelden</a>
                 <a href="/register" class="btn btn-primary btn-sm">Registrieren</a>
             <?php endif; ?>
